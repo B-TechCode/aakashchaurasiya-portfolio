@@ -66,7 +66,7 @@ The production-ready files will be in the `dist/` folder.
 
 ---
 
-## ✏️ How to Edit Your Content
+## How to Edit Your Content
 
 ### 👤 Personal Info
 All your personal information is in the section files inside `src/sections/`.
@@ -81,15 +81,15 @@ All your personal information is in the section files inside `src/sections/`.
 | Resume timeline | `src/sections/Resume.jsx` — edit the `TIMELINE` array |
 | Email / Social links | `src/sections/Contact.jsx` — edit `CONTACT_INFO` |
 
-### 📄 Adding Your Real Resume
+### Adding Your Real Resume
 1. Export your resume as a PDF
 2. Rename it to `resume.pdf`
 3. Place it in the `public/` folder (replacing the placeholder)
 
-### 🔗 Updating GitHub/LinkedIn Links
+###  Updating GitHub/LinkedIn Links
 Search for `aakashchaurasiya` in the codebase and replace with your real username.
 
-### 🎨 Changing Colors
+### Changing Colors
 Open `tailwind.config.js` and edit the `accent` colors:
 ```js
 accent: {
@@ -99,7 +99,7 @@ accent: {
 }
 ```
 
-### 📬 Connecting the Contact Form
+### Connecting the Contact Form
 The form currently simulates a submission. To make it work:
 
 **Option 1 — Formspree (easiest, free):**
@@ -114,14 +114,14 @@ The form currently simulates a submission. To make it work:
 
 ---
 
-## 🚀 How to Deploy
+##  How to Deploy
 
 ### Deploy on Vercel (Recommended — Free)
 1. Push your code to GitHub
 2. Go to [vercel.com](https://vercel.com) → "Add New Project"
 3. Import your GitHub repository
 4. Leave all settings default — Vercel auto-detects Vite
-5. Click **Deploy** 🎉
+5. Click **Deploy** 
 
 Your site will be live at `https://your-project.vercel.app`
 
@@ -131,13 +131,13 @@ Your site will be live at `https://your-project.vercel.app`
 1. Run `npm run build` locally
 2. Go to [netlify.com](https://netlify.com) → "Add new site" → "Deploy manually"
 3. Drag and drop the `dist/` folder
-4. Done! ✅
+4. Done!
 
 Or connect via GitHub for automatic deploys on every push.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Technology | Purpose |
 |---|---|
@@ -149,27 +149,27 @@ Or connect via GitHub for automatic deploys on every push.
 
 ---
 
-## 📦 Key Features
+## Key Features
 
-- ✅ Fully responsive (mobile, tablet, desktop)
-- ✅ Dark theme with premium green accent
-- ✅ Smooth scroll animations (Framer Motion)
-- ✅ Typewriter text effect in hero
-- ✅ Skill progress bars with animation
-- ✅ Project cards with hover effects
-- ✅ Contact form with validation
-- ✅ Mobile hamburger menu
-- ✅ Scroll-to-top button
-- ✅ Active nav link tracking
-- ✅ Custom scrollbar
-- ✅ SEO meta tags
+-  Fully responsive (mobile, tablet, desktop)
+-  Dark theme with premium green accent
+-  Smooth scroll animations (Framer Motion)
+-  Typewriter text effect in hero
+-  Skill progress bars with animation
+-  Project cards with hover effects
+-  Contact form with validation
+-  Mobile hamburger menu
+-  Scroll-to-top button
+-  Active nav link tracking
+-  Custom scrollbar
+-  SEO meta tags
 
 ---
 
-## 📝 License
+## License
 
 This portfolio is personal — feel free to use it as a reference, but please don't copy it wholesale without customizing for yourself.
 
 ---
 
-*Built with ❤️ by Aakash Prasad Chaurasiya*
+*Built with by Aakash Prasad Chaurasiya*
