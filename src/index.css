@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base Reset & Scrollbar ─────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #22c55e;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4ade80;
+}
+
+/* ─── Utility Classes ─────────────────────────────────────── */
+@layer components {
+
+  /* Section wrapper */
+  .section-container {
+    @apply max-w-6xl mx-auto px-6 lg:px-12;
+  }
+
+  /* Section label (e.g., "01. About") */
+  .section-label {
+    @apply font-mono text-accent text-sm tracking-widest uppercase mb-3;
+  }
+
+  /* Section heading */
+  .section-heading {
+    @apply font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-accent text-navy-900 font-display font-semibold
+           rounded-lg hover:bg-accent-light transition-all duration-300 hover:shadow-[0_0_24px_rgba(34,197,94,0.4)]
+           active:scale-95;
+  }
+
+  /* Ghost / outline button */
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-6 py-3 border border-accent/40 text-accent font-display font-semibold
+           rounded-lg hover:border-accent hover:bg-accent/10 transition-all duration-300 active:scale-95;
+  }
+
+  /* Glass card */
+  .glass-card {
+    @apply bg-navy-800/60 backdrop-blur-sm border border-white/5 rounded-2xl
+           hover:border-accent/30 transition-all duration-300;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-accent via-accent-light to-emerald-300 bg-clip-text text-transparent;
+  }
+
+  /* Nav link */
+  .nav-link {
+    @apply font-mono text-sm text-slate-400 hover:text-accent transition-colors duration-200 relative
+           after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-0 after:h-px
+           after:bg-accent after:transition-all after:duration-300 hover:after:w-full;
+  }
+}
+
+/* ─── Background Grid Pattern ─────────────────────────────── */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ─── Noise Texture Overlay ───────────────────────────────── */
+.noise-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ─── Glow Effects ────────────────────────────────────────── */
+.glow-accent {
+  text-shadow: 0 0 30px rgba(34,197,94,0.5);
+}
+
+.glow-box {
+  box-shadow: 0 0 40px rgba(34,197,94,0.15);
+}
+
+/* ─── Skill Progress Bar ──────────────────────────────────── */
+.skill-bar-fill {
+  position: relative;
+  overflow: hidden;
+}
+.skill-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 2s infinite;
+}
+@keyframes shimmer {
+  to { left: 100%; }
+}
+
+/* ─── Typewriter cursor ───────────────────────────────────── */
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: #22c55e;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ─── Animated border gradient ───────────────────────────── */
+.border-glow {
+  position: relative;
+}
+.border-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(34,197,94,0.4), transparent, rgba(34,197,94,0.2));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.border-glow:hover::before {
+  opacity: 1;
+}
+
+/* ─── Section fade-in (CSS fallback for non-JS) ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
