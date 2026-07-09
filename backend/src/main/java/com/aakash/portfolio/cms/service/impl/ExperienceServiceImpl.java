@@ -71,12 +71,16 @@ public class ExperienceServiceImpl implements ExperienceService {
         return toResponse(experience);
     }
 
-    @Override
-    public List<ExperienceResponse> getAllExperiences() {
-        return experienceRepository.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
+ 
+@Override
+public List<ExperienceResponse> getAllExperiences() {
+    return experienceRepository
+            .findAllByOrderByDisplayOrderAscStartDateDesc()
+            .stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+}
+
 
     private ExperienceResponse toResponse(Experience experience) {
         return ExperienceResponse.builder()

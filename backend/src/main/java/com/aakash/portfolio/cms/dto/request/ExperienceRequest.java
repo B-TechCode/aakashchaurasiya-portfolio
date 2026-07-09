@@ -18,14 +18,14 @@ import java.time.LocalDate;
 public class ExperienceRequest {
 
     @NotBlank(message = "Title is required")
-    @Size(max = 160, message = "Title must not exceed 160 characters")
+    @Size(max = 160)
     private String title;
 
     @NotBlank(message = "Organization is required")
-    @Size(max = 160, message = "Organization must not exceed 160 characters")
+    @Size(max = 160)
     private String organization;
 
-    @Size(max = 120, message = "Location must not exceed 120 characters")
+    @Size(max = 120)
     private String location;
 
     private LocalDate startDate;
