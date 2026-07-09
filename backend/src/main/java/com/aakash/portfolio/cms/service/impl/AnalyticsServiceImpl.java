@@ -1,20 +1,23 @@
 package com.aakash.portfolio.cms.service.impl;
 
-import com.aakash.portfolio.cms.dto.response.AnalyticsSummaryResponse;
+import com.aakash.portfolio.cms.dto.request.AnalyticsRequest;
+import com.aakash.portfolio.cms.dto.response.AnalyticsCountResponse;
+import com.aakash.portfolio.cms.dto.response.AnalyticsResponse;
 import com.aakash.portfolio.cms.entity.AnalyticsEvent;
 import com.aakash.portfolio.cms.entity.AnalyticsEventType;
+import com.aakash.portfolio.cms.exception.ResourceNotFoundException;
 import com.aakash.portfolio.cms.repository.AnalyticsEventRepository;
 import com.aakash.portfolio.cms.service.AnalyticsService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Comparator;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,25 +28,104 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final AnalyticsEventRepository analyticsEventRepository;
 
     @Override
-    public AnalyticsSummaryResponse getSummary(LocalDate startDate, LocalDate endDate) {
-        LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = endDate.atTime(LocalTime.MAX);
+    @Transactional
+    public AnalyticsResponse recordEvent(
+            AnalyticsEventType eventType,
+            AnalyticsRequest request,
+            HttpServletRequest httpRequest
+    ) {
 
-        List<AnalyticsEvent> events = analyticsEventRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, end);
-
-        long totalEvents = events.size();
-        long resumeDownloads = events.stream().filter(e -> e.getEventType() == AnalyticsEventType.RESUME_DOWNLOAD).count();
-        long projectClicks = events.stream().filter(e -> e.getEventType() == AnalyticsEventType.PROJECT_CLICK).count();
-        long githubClicks = events.stream().filter(e -> e.getEventType() == AnalyticsEventType.GITHUB_CLICK).count();
-        long linkedInClicks = events.stream().filter(e -> e.getEventType() == AnalyticsEventType.LINKEDIN_CLICK).count();
-        long contactFormSubmissions = events.stream().filter(e -> e.getEventType() == AnalyticsEventType.CONTACT_FORM_SUBMISSION).count();
-
-        return AnalyticsSummaryResponse.builder()
-                .resumeDownloads(resumeDownloads)
-                .projectClicks(projectClicks)
-                .githubClicks(githubClicks)
-                .linkedInClicks(linkedInClicks)
-                .contactFormSubmissions(contactFormSubmissions)
+        AnalyticsEvent event = AnalyticsEvent.builder()
+                .eventType(eventType)
+                .entityType(request.getEntityType())
+                .entityId(request.getEntityId())
+                .ipHash(hashIp(httpRequest.getRemoteAddr()))
+                .userAgent(httpRequest.getHeader("User-Agent"))
                 .build();
+
+        event = analyticsEventRepository.save(event);
+
+        return toResponse(event);
+    }
+
+    @Override
+    public List<AnalyticsResponse> getAllEvents() {
+
+        return analyticsEventRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AnalyticsResponse> getEventsByType(AnalyticsEventType eventType) {
+
+        return analyticsEventRepository.findByEventTypeOrderByCreatedAtDesc(eventType)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public AnalyticsCountResponse getCounts() {
+
+        return AnalyticsCountResponse.builder()
+                .resumeDownloads(
+                        analyticsEventRepository.countByEventType(
+                                AnalyticsEventType.RESUME_DOWNLOAD))
+                .projectClicks(
+                        analyticsEventRepository.countByEventType(
+                                AnalyticsEventType.PROJECT_CLICK))
+                .githubClicks(
+                        analyticsEventRepository.countByEventType(
+                                AnalyticsEventType.GITHUB_CLICK))
+                .linkedinClicks(
+                        analyticsEventRepository.countByEventType(
+                                AnalyticsEventType.LINKEDIN_CLICK))
+                .contactFormSubmissions(
+                        analyticsEventRepository.countByEventType(
+                                AnalyticsEventType.CONTACT_FORM_SUBMISSION))
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void deleteEvent(Long id) {
+
+        if (!analyticsEventRepository.existsById(id)) {
+            throw new ResourceNotFoundException(
+                    "Analytics event not found with id: " + id);
+        }
+
+        analyticsEventRepository.deleteById(id);
+    }
+
+    private AnalyticsResponse toResponse(AnalyticsEvent event) {
+
+        return AnalyticsResponse.builder()
+                .id(event.getId())
+                .eventType(event.getEventType())
+                .entityType(event.getEntityType())
+                .entityId(event.getEntityId())
+                .ipHash(event.getIpHash())
+                .userAgent(event.getUserAgent())
+                .createdAt(event.getCreatedAt())
+                .build();
+    }
+
+    private String hashIp(String ip) {
+
+        try {
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            byte[] hash = digest.digest(ip.getBytes(StandardCharsets.UTF_8));
+
+            return HexFormat.of().formatHex(hash);
+
+        } catch (NoSuchAlgorithmException e) {
+
+            return null;
+        }
     }
 }

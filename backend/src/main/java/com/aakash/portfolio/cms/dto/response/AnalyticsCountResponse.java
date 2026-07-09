@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AnalyticsSummaryResponse {
+public class AnalyticsCountResponse {
 
     private long resumeDownloads;
 
@@ -19,7 +19,9 @@ public class AnalyticsSummaryResponse {
 
     private long githubClicks;
 
-    private long linkedInClicks;
+    private long linkedinClicks;
 
     private long contactFormSubmissions;
+
+    private long totalEvents;
 }

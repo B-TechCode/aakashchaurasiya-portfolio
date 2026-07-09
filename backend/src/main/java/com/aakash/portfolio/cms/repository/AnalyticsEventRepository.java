@@ -5,15 +5,14 @@ import com.aakash.portfolio.cms.entity.AnalyticsEventType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface AnalyticsEventRepository extends JpaRepository<AnalyticsEvent, Long> {
 
-    List<AnalyticsEvent> findByEventTypeOrderByCreatedAtDesc(AnalyticsEventType eventType);
+    List<AnalyticsEvent> findAllByOrderByCreatedAtDesc();
 
-    List<AnalyticsEvent> findByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime start, LocalDateTime end);
+    List<AnalyticsEvent> findByEventTypeOrderByCreatedAtDesc(AnalyticsEventType eventType);
 
     long countByEventType(AnalyticsEventType eventType);
 }
