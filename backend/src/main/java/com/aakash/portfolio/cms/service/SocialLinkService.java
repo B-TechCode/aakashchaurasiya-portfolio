@@ -11,7 +11,9 @@ public interface SocialLinkService {
 
     SocialLinkResponse updateSocialLink(Long id, SocialLinkRequest request);
 
-    void deleteSocialLink(Long id);
+   void deleteSocialLink(Long id);
 
-    List<SocialLinkResponse> getAllSocialLinks();
+SocialLinkResponse getSocialLinkById(Long id);
+
+List<SocialLinkResponse> getAllSocialLinks();
 }

@@ -13,4 +13,6 @@ public interface SocialLinkRepository extends JpaRepository<SocialLink, Long> {
     List<SocialLink> findByProfileOrderByDisplayOrderAsc(Profile profile);
 
     List<SocialLink> findByProfileIdOrderByDisplayOrderAsc(Long profileId);
+
+    boolean existsByProfileIdAndPlatformIgnoreCase(Long profileId, String platform);
 }

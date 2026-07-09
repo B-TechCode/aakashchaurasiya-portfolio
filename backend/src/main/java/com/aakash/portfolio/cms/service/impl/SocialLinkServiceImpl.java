@@ -5,6 +5,8 @@ import com.aakash.portfolio.cms.dto.response.SocialLinkResponse;
 import com.aakash.portfolio.cms.entity.SocialLink;
 import com.aakash.portfolio.cms.exception.ResourceNotFoundException;
 import com.aakash.portfolio.cms.repository.SocialLinkRepository;
+import com.aakash.portfolio.cms.entity.Profile;
+import com.aakash.portfolio.cms.repository.ProfileRepository;
 import com.aakash.portfolio.cms.service.SocialLinkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,15 +21,23 @@ import java.util.stream.Collectors;
 public class SocialLinkServiceImpl implements SocialLinkService {
 
     private final SocialLinkRepository socialLinkRepository;
+    private final ProfileRepository profileRepository;
+
 
     @Override
     @Transactional
     public SocialLinkResponse createSocialLink(SocialLinkRequest request) {
-        SocialLink socialLink = SocialLink.builder()
-                .platform(request.getPlatform())
-                .url(request.getUrl())
-                .displayOrder(request.getDisplayOrder())
-                .build();
+        Profile profile = profileRepository.findAll()
+        .stream()
+        .findFirst()
+        .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+SocialLink socialLink = SocialLink.builder()
+        .platform(request.getPlatform())
+        .url(request.getUrl())
+        .displayOrder(request.getDisplayOrder())
+        .profile(profile)
+        .build();
 
         return toResponse(socialLinkRepository.save(socialLink));
     }
@@ -53,6 +63,23 @@ public class SocialLinkServiceImpl implements SocialLinkService {
         }
         socialLinkRepository.deleteById(id);
     }
+
+
+
+    @Override
+public SocialLinkResponse getSocialLinkById(Long id) {
+
+    SocialLink socialLink = socialLinkRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Social link not found with id: " + id));
+
+    return toResponse(socialLink);
+}
+
+
+
+
+
 
     @Override
     public List<SocialLinkResponse> getAllSocialLinks() {

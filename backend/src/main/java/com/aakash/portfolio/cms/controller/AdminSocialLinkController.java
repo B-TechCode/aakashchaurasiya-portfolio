@@ -26,6 +26,25 @@ public class AdminSocialLinkController {
 
     private final SocialLinkService socialLinkService;
 
+
+
+
+
+
+    @GetMapping("/{id}")
+public ResponseEntity<ApiResponse> getSocialLinkById(@PathVariable Long id) {
+
+    SocialLinkResponse link = socialLinkService.getSocialLinkById(id);
+
+    return ResponseEntity.ok(
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Social link fetched successfully")
+                    .data(link)
+                    .build()
+    );
+}
+
     @GetMapping
     public ResponseEntity<ApiResponse> getAllSocialLinks() {
         List<SocialLinkResponse> links = socialLinkService.getAllSocialLinks();
