@@ -17,15 +17,18 @@ public class SeoSettingRequest {
     @Size(max = 160, message = "Site title must not exceed 160 characters")
     private String siteTitle;
 
+    @Size(max = 5000, message = "Meta description is too long")
     private String metaDescription;
 
+    @Size(max = 5000, message = "Keywords are too long")
     private String keywords;
 
-    @Size(max = 160, message = "Open Graph title must not exceed 160 characters")
+    @Size(max = 160, message = "OG title must not exceed 160 characters")
     private String ogTitle;
 
+    @Size(max = 5000, message = "OG description is too long")
     private String ogDescription;
 
-    @Size(max = 500, message = "Open Graph image URL must not exceed 500 characters")
+    @Size(max = 500, message = "OG image URL must not exceed 500 characters")
     private String ogImageUrl;
 }
