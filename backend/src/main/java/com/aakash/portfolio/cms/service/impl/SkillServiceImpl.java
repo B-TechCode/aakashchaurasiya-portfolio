@@ -3,7 +3,6 @@ package com.aakash.portfolio.cms.service.impl;
 import com.aakash.portfolio.cms.dto.request.SkillRequest;
 import com.aakash.portfolio.cms.dto.response.SkillResponse;
 import com.aakash.portfolio.cms.entity.Skill;
-import com.aakash.portfolio.cms.exception.DuplicateResourceException;
 import com.aakash.portfolio.cms.exception.ResourceNotFoundException;
 import com.aakash.portfolio.cms.repository.SkillRepository;
 import com.aakash.portfolio.cms.service.SkillService;
@@ -24,9 +23,6 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional
     public SkillResponse createSkill(SkillRequest request) {
-        if (skillRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException("Skill with name '" + request.getName() + "' already exists");
-        }
 
         Skill skill = Skill.builder()
                 .name(request.getName())
@@ -43,12 +39,10 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional
     public SkillResponse updateSkill(Long id, SkillRequest request) {
-        Skill skill = skillRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Skill not found with id: " + id));
 
-        if (!skill.getName().equalsIgnoreCase(request.getName()) && skillRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException("Skill with name '" + request.getName() + "' already exists");
-        }
+        Skill skill = skillRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Skill not found with id: " + id));
 
         skill.setName(request.getName());
         skill.setCategory(request.getCategory());
@@ -63,34 +57,45 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional
     public void deleteSkill(Long id) {
+
         if (!skillRepository.existsById(id)) {
             throw new ResourceNotFoundException("Skill not found with id: " + id);
         }
+
         skillRepository.deleteById(id);
     }
 
     @Override
     public SkillResponse getSkillById(Long id) {
+
         Skill skill = skillRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Skill not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Skill not found with id: " + id));
+
         return toResponse(skill);
     }
 
     @Override
     public List<SkillResponse> getAllSkills() {
-        return skillRepository.findAll().stream()
+
+        return skillRepository.findAll()
+                .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
+
 
     @Override
-    public List<SkillResponse> getPublishedSkills() {
-        return skillRepository.findByPublishedTrueOrderByDisplayOrderAsc().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
+public List<SkillResponse> getPublishedSkills() {
 
+    return skillRepository.findByPublishedTrueOrderByDisplayOrderAsc()
+            .stream()
+            .map(this::toResponse)
+            .toList();
+}
     private SkillResponse toResponse(Skill skill) {
+
         return SkillResponse.builder()
                 .id(skill.getId())
                 .name(skill.getName())
