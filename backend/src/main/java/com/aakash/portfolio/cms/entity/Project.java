@@ -74,16 +74,22 @@ public class Project {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectImage> projectImages = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "project_skill",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
-    private Set<Skill> skills = new HashSet<>();
+
+@Builder.Default
+@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+private List<ProjectImage> projectImages = new ArrayList<>();
+
+   @Builder.Default
+@ManyToMany
+@JoinTable(
+        name = "project_skill",
+        joinColumns = @JoinColumn(name = "project_id"),
+        inverseJoinColumns = @JoinColumn(name = "skill_id")
+)
+private Set<Skill> skills = new HashSet<>();
+
+
 
     @PrePersist
     void prePersist() {

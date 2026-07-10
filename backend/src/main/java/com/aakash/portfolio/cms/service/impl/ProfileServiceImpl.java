@@ -1,21 +1,23 @@
     package com.aakash.portfolio.cms.service.impl;
 
-    import com.aakash.portfolio.cms.dto.request.ProfileRequest;
-    import com.aakash.portfolio.cms.dto.response.ProfileResponse;
-    import com.aakash.portfolio.cms.entity.Profile;
-    import com.aakash.portfolio.cms.exception.ResourceNotFoundException;
-    import com.aakash.portfolio.cms.repository.ProfileRepository;
-    import com.aakash.portfolio.cms.service.ProfileService;
-    import lombok.RequiredArgsConstructor;
-    import org.springframework.stereotype.Service;
-    import org.springframework.transaction.annotation.Transactional;
-
-    import java.util.Optional;
-
+import com.aakash.portfolio.cms.dto.request.ProfileRequest;
+import com.aakash.portfolio.cms.dto.response.ProfileResponse;
+import com.aakash.portfolio.cms.entity.Profile;
+import com.aakash.portfolio.cms.exception.ResourceNotFoundException;
+import com.aakash.portfolio.cms.repository.ProfileRepository;
+import com.aakash.portfolio.cms.repository.ProjectImageRepository;
+import com.aakash.portfolio.cms.repository.ProjectRepository;
+import com.aakash.portfolio.cms.repository.SkillRepository;
+import com.aakash.portfolio.cms.service.ProfileService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 import com.aakash.portfolio.cms.cloudinary.CloudinaryService;
 import com.aakash.portfolio.cms.cloudinary.CloudinaryUploadResult;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.aakash.portfolio.cms.entity.ProjectImage;
+import com.aakash.portfolio.cms.dto.response.ProjectImageResponse;
 
 
     @Service
@@ -23,8 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
     @Transactional(readOnly = true)
     public class ProfileServiceImpl implements ProfileService {
 
-        private final ProfileRepository profileRepository;
-        private final CloudinaryService cloudinaryService;
+private final ProjectRepository projectRepository;
+private final ProjectImageRepository projectImageRepository;
+private final SkillRepository skillRepository;
 
         @Override
         public ProfileResponse getProfile() {

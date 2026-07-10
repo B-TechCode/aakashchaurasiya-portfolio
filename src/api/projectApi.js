@@ -4,7 +4,7 @@ import axiosInstance from "./axios";
 // Project CRUD
 // ===============================
 
-export const getProjects = () => {
+export const getAllProjects = () => {
   return axiosInstance.get("/admin/projects");
 };
 
