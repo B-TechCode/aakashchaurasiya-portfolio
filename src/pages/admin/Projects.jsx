@@ -17,6 +17,7 @@ export default function Projects() {
   const [projects, setProjects] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -88,32 +89,26 @@ setProjects(response.data.data);
   };
 
   const handleSubmit = async (project) => {
+  try {
+    setSaving(true);
 
-    try {
-
-      if (editingProject) {
-
-        await updateProject(editingProject.id, project);
-
-      } else {
-
-        await createProject(project);
-
-      }
-
-      setShowModal(false);
-
-      loadProjects();
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert("Failed to save project.");
-
+    if (editingProject) {
+      await updateProject(editingProject.id, project);
+    } else {
+      await createProject(project);
     }
 
-  };
+    await loadProjects();
+    setShowModal(false);
+    setEditingProject(null);
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to save project.");
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
 
@@ -163,11 +158,13 @@ setProjects(response.data.data);
 
       {showModal && (
 
-        <ProjectFormModal
-          project={editingProject}
-          onClose={() => setShowModal(false)}
-          onSubmit={handleSubmit}
-        />
+       <ProjectFormModal
+  open={showModal}
+  initialData={editingProject}
+  loading={saving}
+  onClose={() => setShowModal(false)}
+  onSubmit={handleSubmit}
+/>
 
       )}
 
