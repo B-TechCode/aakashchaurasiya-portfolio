@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,4 +42,6 @@ public class ProjectResponse {
     private LocalDateTime updatedAt;
 
     private Set<Long> skillIds;
+
+    private List<ProjectImageResponse> images;
 }

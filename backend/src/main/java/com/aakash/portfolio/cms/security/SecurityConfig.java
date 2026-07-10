@@ -25,23 +25,27 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+  @Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-             .authorizeHttpRequests(auth -> auth
+    http
+            .cors(cors -> {})
+            .csrf(AbstractHttpConfigurer::disable)
 
-        .anyRequest().permitAll()
-)
+            .authorizeHttpRequests(auth -> auth
 
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-                 System.out.println(">>> SecurityConfig loaded <<<");
-        return http.build();
-    }
+                    .anyRequest().permitAll()
+            )
+
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+    System.out.println(">>> SecurityConfig loaded <<<");
+
+    return http.build();
+}
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

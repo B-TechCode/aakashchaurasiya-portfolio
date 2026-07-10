@@ -55,4 +55,5 @@ public class AdminProjectController {
         projectService.deleteProject(id);
         return ResponseEntity.ok(ApiResponse.builder().success(true).message("Project deleted successfully").build());
     }
+
 }
