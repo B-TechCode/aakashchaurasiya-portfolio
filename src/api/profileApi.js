@@ -1,21 +1,31 @@
 import axiosInstance from "./axios";
 
-export const getProfile = async () => {
-  const response = await axiosInstance.get("/admin/profile");
-  return response.data;
+// ==============================
+// GET PROFILE
+// ==============================
+
+export const getProfile = () => {
+  return axiosInstance.get("/admin/profile");
 };
 
-export const updateProfile = async (profile) => {
-  const response = await axiosInstance.put("/admin/profile", profile);
-  return response.data;
+// ==============================
+// UPDATE PROFILE
+// ==============================
+
+export const updateProfile = (data) => {
+  return axiosInstance.put("/admin/profile", data);
 };
 
-export const uploadProfileImage = async (file) => {
+// ==============================
+// UPLOAD PROFILE IMAGE
+// ==============================
+
+export const uploadProfileImage = (image) => {
   const formData = new FormData();
 
-  formData.append("image", file);
+  formData.append("image", image);
 
-  const response = await axiosInstance.post(
+  return axiosInstance.post(
     "/admin/profile/upload-image",
     formData,
     {
@@ -24,6 +34,4 @@ export const uploadProfileImage = async (file) => {
       },
     }
   );
-
-  return response.data;
 };

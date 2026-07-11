@@ -38,7 +38,7 @@
 
                     const response = await getProfile();
 
-                    setProfile(response.data);
+                   setProfile(response.data.data);
 
                     } catch (error) {
 
@@ -92,7 +92,7 @@
 
         const response = await uploadProfileImage(file);
 
-        setProfile(response.data);
+        setProfile(response.data.data);
 
         alert("Profile image uploaded successfully.");
 
