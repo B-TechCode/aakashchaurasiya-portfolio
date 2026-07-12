@@ -67,12 +67,15 @@ public class CertificateServiceImpl implements CertificateService {
         return toResponse(certificate);
     }
 
-    @Override
-    public List<CertificateResponse> getAllCertificates() {
-        return certificateRepository.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
+ @Override
+public List<CertificateResponse> getAllCertificates() {
+
+    return certificateRepository
+            .findAllByOrderByDisplayOrderAscIssuedDateDesc()
+            .stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+}
 
     private CertificateResponse toResponse(Certificate certificate) {
         return CertificateResponse.builder()
