@@ -235,12 +235,24 @@ public ProjectImageResponse uploadProjectImage(
 }
 
     @Override
-    @Transactional
-    public void deleteProjectImage(Long imageId) {
+@Transactional
+public void deleteProjectImage(Long imageId) {
 
-        throw new UnsupportedOperationException("Project image delete will be implemented next");
+    ProjectImage image = projectImageRepository.findById(imageId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Project image not found with id : " + imageId));
+
+    if (image.getPublicId() != null && !image.getPublicId().isBlank()) {
+
+        cloudinaryService.deleteResource(
+                image.getPublicId(),
+                "image"
+        );
     }
 
+    projectImageRepository.delete(image);
+}
     @Override
     @Transactional
     public ProjectImageResponse setPrimaryImage(Long imageId) {
