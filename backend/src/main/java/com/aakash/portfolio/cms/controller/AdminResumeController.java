@@ -57,6 +57,40 @@ public class AdminResumeController {
         );
     }
 
+
+
+
+
+
+
+    @GetMapping("/latest")
+public ResponseEntity<ApiResponse> getLatestResume() {
+
+    ResumeResponse response =
+            resumeService.getLatestResume();
+
+    return ResponseEntity.ok(
+
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Latest resume fetched successfully")
+                    .data(response)
+                    .build()
+
+    );
+}
+
+
+
+
+
+
+
+
+
+
+
+
     // ==========================
     // DELETE RESUME
     // ==========================
