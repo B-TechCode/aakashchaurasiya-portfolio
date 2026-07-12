@@ -67,26 +67,41 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public AnalyticsCountResponse getCounts() {
+public AnalyticsCountResponse getCounts() {
 
-        return AnalyticsCountResponse.builder()
-                .resumeDownloads(
-                        analyticsEventRepository.countByEventType(
-                                AnalyticsEventType.RESUME_DOWNLOAD))
-                .projectClicks(
-                        analyticsEventRepository.countByEventType(
-                                AnalyticsEventType.PROJECT_CLICK))
-                .githubClicks(
-                        analyticsEventRepository.countByEventType(
-                                AnalyticsEventType.GITHUB_CLICK))
-                .linkedinClicks(
-                        analyticsEventRepository.countByEventType(
-                                AnalyticsEventType.LINKEDIN_CLICK))
-                .contactFormSubmissions(
-                        analyticsEventRepository.countByEventType(
-                                AnalyticsEventType.CONTACT_FORM_SUBMISSION))
-                .build();
-    }
+    return AnalyticsCountResponse.builder()
+            .resumeDownloads(
+                    analyticsEventRepository.countByEventType(
+                            AnalyticsEventType.RESUME_DOWNLOAD))
+
+            .projectClicks(
+                    analyticsEventRepository.countByEventType(
+                            AnalyticsEventType.PROJECT_CLICK))
+
+            .githubClicks(
+                    analyticsEventRepository.countByEventType(
+                            AnalyticsEventType.GITHUB_CLICK))
+
+            .linkedinClicks(
+                    analyticsEventRepository.countByEventType(
+                            AnalyticsEventType.LINKEDIN_CLICK))
+
+            .contactFormSubmissions(
+                    analyticsEventRepository.countByEventType(
+                            AnalyticsEventType.CONTACT_FORM_SUBMISSION))
+
+            .portfolioVisits(
+                    analyticsEventRepository.countByEventType(
+                            AnalyticsEventType.PORTFOLIO_VISIT))
+
+            .totalEvents(
+                    analyticsEventRepository.count())
+
+            .build();
+}
+
+
+
 
     @Override
     @Transactional

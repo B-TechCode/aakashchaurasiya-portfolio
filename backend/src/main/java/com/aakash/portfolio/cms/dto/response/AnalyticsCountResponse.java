@@ -23,5 +23,7 @@ public class AnalyticsCountResponse {
 
     private long contactFormSubmissions;
 
+    private long portfolioVisits;
+
     private long totalEvents;
 }
