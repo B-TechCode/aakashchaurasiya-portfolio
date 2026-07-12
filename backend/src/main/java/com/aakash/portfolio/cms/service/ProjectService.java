@@ -1,7 +1,11 @@
+
+
 package com.aakash.portfolio.cms.service;
 
 import com.aakash.portfolio.cms.dto.request.ProjectRequest;
+import com.aakash.portfolio.cms.dto.response.ProjectImageResponse;
 import com.aakash.portfolio.cms.dto.response.ProjectResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,4 +26,19 @@ public interface ProjectService {
     List<ProjectResponse> getPublishedProjects();
 
     List<ProjectResponse> getFeaturedProjects();
+
+    // ==========================
+    // Project Image Management
+    // ==========================
+
+    ProjectImageResponse uploadProjectImage(
+            Long projectId,
+            MultipartFile image,
+            String caption,
+            boolean primary
+    );
+
+    void deleteProjectImage(Long imageId);
+
+    ProjectImageResponse setPrimaryImage(Long imageId);
 }
