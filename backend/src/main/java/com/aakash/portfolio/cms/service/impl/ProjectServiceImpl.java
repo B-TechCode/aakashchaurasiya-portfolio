@@ -188,17 +188,51 @@ private final CloudinaryService cloudinaryService;
         }
 
 
-        @Override
-    @Transactional
-    public ProjectImageResponse uploadProjectImage(
-            Long projectId,
-            MultipartFile image,
-            String caption,
-            boolean primary
-    ) {
+       @Override
+@Transactional
+public ProjectImageResponse uploadProjectImage(
+        Long projectId,
+        MultipartFile image,
+        String caption,
+        boolean primary
+) {
 
-        throw new UnsupportedOperationException("Project image upload will be implemented next");
+    Project project = projectRepository.findById(projectId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Project not found with id : " + projectId));
+
+    if (primary) {
+
+        projectImageRepository
+                .findByProjectIdAndPrimaryTrue(projectId)
+                .ifPresent(existing -> {
+
+                    existing.setPrimary(false);
+                    projectImageRepository.save(existing);
+
+                });
     }
+
+    CloudinaryUploadResult uploadResult =
+            cloudinaryService.uploadImage(
+                    image,
+                    "portfolio/projects",
+                    null
+            );
+
+    ProjectImage projectImage = ProjectImage.builder()
+            .project(project)
+            .imageUrl(uploadResult.secureUrl())
+            .publicId(uploadResult.publicId())
+            .caption(caption)
+            .primary(primary)
+            .build();
+
+    projectImageRepository.save(projectImage);
+
+    return toProjectImageResponse(projectImage);
+}
 
     @Override
     @Transactional
