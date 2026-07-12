@@ -23,10 +23,9 @@ public class SeoSettingServiceImpl implements SeoSettingService {
     @Override
     public SeoSettingResponse getSeoSettings() {
 
-        Profile profile = profileRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+Profile profile = profileRepository.findById(1L)
+        .orElseThrow(() ->
+                new ResourceNotFoundException("Profile not found"));
 
         SeoSetting seoSetting = seoSettingRepository.findByProfile(profile)
                 .orElseThrow(() -> new ResourceNotFoundException("SEO settings not found"));
@@ -38,10 +37,9 @@ public class SeoSettingServiceImpl implements SeoSettingService {
     @Transactional
     public SeoSettingResponse updateSeoSettings(SeoSettingRequest request) {
 
-        Profile profile = profileRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+      Profile profile = profileRepository.findById(1L)
+        .orElseThrow(() ->
+                new ResourceNotFoundException("Profile not found"));
 
         SeoSetting seoSetting = seoSettingRepository.findByProfile(profile)
                 .orElseGet(() -> SeoSetting.builder()
