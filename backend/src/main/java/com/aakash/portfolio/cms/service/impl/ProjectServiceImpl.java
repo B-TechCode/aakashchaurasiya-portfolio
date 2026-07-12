@@ -250,15 +250,34 @@ public void deleteProjectImage(Long imageId) {
                 "image"
         );
     }
+  
+   
+}  
+   
+   @Override
+@Transactional
+public ProjectImageResponse setPrimaryImage(Long imageId) {
 
-    projectImageRepository.delete(image);
-}
-    @Override
-    @Transactional
-    public ProjectImageResponse setPrimaryImage(Long imageId) {
+    ProjectImage image = projectImageRepository.findById(imageId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Project image not found with id : " + imageId));
 
-        throw new UnsupportedOperationException("Set primary image will be implemented next");
-    }
+    projectImageRepository
+            .findByProjectIdAndPrimaryTrue(image.getProject().getId())
+            .ifPresent(existing -> {
+
+                existing.setPrimary(false);
+                projectImageRepository.save(existing);
+
+            });
+
+    image.setPrimary(true);
+
+    projectImageRepository.save(image);
+
+    return toProjectImageResponse(image);
+  }
 
 
 
