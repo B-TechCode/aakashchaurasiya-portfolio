@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
+    
+    
     Optional<Project> findBySlug(String slug);
 
     List<Project> findByPublishedTrueOrderByDisplayOrderAsc();
@@ -19,4 +21,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByPublishedTrueOrderByCreatedAtDesc();
 
     boolean existsBySlug(String slug);
+    long count();
 }

@@ -1,5 +1,6 @@
 package com.aakash.portfolio.cms.security;
 
+import com.aakash.portfolio.cms.ratelimit.RateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,28 +25,66 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final RateLimitFilter rateLimitFilter;
 
-  @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    http
-            .cors(cors -> {})
-            .csrf(AbstractHttpConfigurer::disable)
+        http
+                .cors(cors -> {})
+                .csrf(AbstractHttpConfigurer::disable)
 
-            .authorizeHttpRequests(auth -> auth
+                // ================= Security Headers =================
+                .headers(headers -> headers
 
-                    .anyRequest().permitAll()
-            )
+                        .frameOptions(frame -> frame.sameOrigin())
 
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .contentTypeOptions(content -> {})
 
-    System.out.println(">>> SecurityConfig loaded <<<");
+                        .xssProtection(xss -> {})
 
-    return http.build();
-}
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000)
+                        )
+                )
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(authenticationEntryPoint))
+
+                .authorizeHttpRequests(auth -> auth
+
+                        // Public APIs
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/public/**",
+                                "/api/analytics/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // Admin APIs
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+
+                        // Everything else
+                        .anyRequest()
+                        .authenticated()
+                )
+
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        System.out.println(">>> SecurityConfig loaded <<<");
+
+        return http.build();
+    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

@@ -22,11 +22,13 @@ export const AuthProvider = ({ children }) => {
     setAuthenticated(true);
   };
 
-  const logout = () => {
+ const logout = () => {
     removeToken();
     setToken(null);
     setAuthenticated(false);
-  };
+
+    window.location.href = "/admin/login";
+};
 
   return (
     <AuthContext.Provider

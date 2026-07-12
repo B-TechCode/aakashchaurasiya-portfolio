@@ -12,4 +12,6 @@ public interface ExperienceRepository extends JpaRepository<Experience, Long> {
     List<Experience> findAllByOrderByDisplayOrderAscStartDateDesc();
 
     List<Experience> findByCurrentlyWorkingTrueOrderByDisplayOrderAsc();
+
+    long count();
 }

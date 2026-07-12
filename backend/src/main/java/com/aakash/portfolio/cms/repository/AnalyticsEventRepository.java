@@ -1,3 +1,5 @@
+
+
 package com.aakash.portfolio.cms.repository;
 
 import com.aakash.portfolio.cms.entity.AnalyticsEvent;
@@ -10,9 +12,12 @@ import java.util.List;
 @Repository
 public interface AnalyticsEventRepository extends JpaRepository<AnalyticsEvent, Long> {
 
+    long countByEventType(AnalyticsEventType eventType);
+
     List<AnalyticsEvent> findAllByOrderByCreatedAtDesc();
 
-    List<AnalyticsEvent> findByEventTypeOrderByCreatedAtDesc(AnalyticsEventType eventType);
+    List<AnalyticsEvent> findByEventTypeOrderByCreatedAtDesc(
+            AnalyticsEventType eventType
+    );
 
-    long countByEventType(AnalyticsEventType eventType);
 }

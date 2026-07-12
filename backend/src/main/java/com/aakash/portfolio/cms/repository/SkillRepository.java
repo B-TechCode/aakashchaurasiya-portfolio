@@ -17,4 +17,5 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     List<Skill> findByCategoryAndPublishedTrueOrderByDisplayOrderAsc(String category);
 
     boolean existsByName(String name);
+    long count();
 }

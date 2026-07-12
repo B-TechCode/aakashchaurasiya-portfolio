@@ -15,4 +15,10 @@ public interface ContactMessageRepository extends JpaRepository<ContactMessage, 
     List<ContactMessage> findAllByOrderByCreatedAtDesc();
 
     long countByStatus(ContactMessageStatus status);
+
+    long count();
+
+    long countByReadFalse();
+
+
 }
