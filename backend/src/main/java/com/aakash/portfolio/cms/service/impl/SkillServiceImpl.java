@@ -1,3 +1,6 @@
+
+
+
 package com.aakash.portfolio.cms.service.impl;
 
 import com.aakash.portfolio.cms.dto.request.SkillRequest;
@@ -11,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,11 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional
     public SkillResponse createSkill(SkillRequest request) {
+
+        if (skillRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException(
+                    "Skill already exists: " + request.getName());
+        }
 
         Skill skill = Skill.builder()
                 .name(request.getName())
@@ -43,6 +50,13 @@ public class SkillServiceImpl implements SkillService {
         Skill skill = skillRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Skill not found with id: " + id));
+
+        if (!skill.getName().equalsIgnoreCase(request.getName())
+                && skillRepository.existsByName(request.getName())) {
+
+            throw new IllegalArgumentException(
+                    "Skill already exists: " + request.getName());
+        }
 
         skill.setName(request.getName());
         skill.setCategory(request.getCategory());
@@ -80,20 +94,26 @@ public class SkillServiceImpl implements SkillService {
 
         return skillRepository.findAll()
                 .stream()
+                .sorted((a, b) -> {
+
+                    Integer x = a.getDisplayOrder() == null ? 999 : a.getDisplayOrder();
+                    Integer y = b.getDisplayOrder() == null ? 999 : b.getDisplayOrder();
+
+                    return x.compareTo(y);
+                })
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-
-
     @Override
-public List<SkillResponse> getPublishedSkills() {
+    public List<SkillResponse> getPublishedSkills() {
 
-    return skillRepository.findByPublishedTrueOrderByDisplayOrderAsc()
-            .stream()
-            .map(this::toResponse)
-            .toList();
-}
+        return skillRepository.findByPublishedTrueOrderByDisplayOrderAsc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private SkillResponse toResponse(Skill skill) {
 
         return SkillResponse.builder()
