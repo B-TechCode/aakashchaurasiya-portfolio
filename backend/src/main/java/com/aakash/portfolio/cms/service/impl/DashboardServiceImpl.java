@@ -38,7 +38,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .certificates(certificateRepository.count())
                 .resumes(resumeRepository.count())
                 .messages(contactMessageRepository.count())
-                .unreadMessages(contactMessageRepository.countByReadFalse())
+                .unreadMessages(contactMessageRepository.countByReadAtIsNull())
                 .resumeDownloads(
                         analyticsEventRepository.countByEventType(
                                 AnalyticsEventType.RESUME_DOWNLOAD

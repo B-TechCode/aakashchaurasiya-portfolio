@@ -1,5 +1,10 @@
 package com.aakash.portfolio.cms.controller;
 
+
+import com.aakash.portfolio.cms.dto.response.ProjectImageResponse;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import com.aakash.portfolio.cms.dto.request.ProjectRequest;
 import com.aakash.portfolio.cms.dto.response.ApiResponse;
 import com.aakash.portfolio.cms.dto.response.ProjectResponse;
@@ -55,5 +60,84 @@ public class AdminProjectController {
         projectService.deleteProject(id);
         return ResponseEntity.ok(ApiResponse.builder().success(true).message("Project deleted successfully").build());
     }
+
+
+    @PostMapping(
+        value = "/{projectId}/images",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+)
+public ResponseEntity<ApiResponse> uploadProjectImage(
+
+        @PathVariable Long projectId,
+
+        @RequestPart("image") MultipartFile image,
+
+        @RequestPart(value = "caption", required = false) String caption,
+
+        @RequestPart(value = "primary", required = false) Boolean primary
+
+) {
+
+    boolean isPrimary = primary != null && primary;
+
+    ProjectImageResponse response =
+            projectService.uploadProjectImage(
+                    projectId,
+                    image,
+                    caption,
+                    primary
+            );
+
+    return ResponseEntity.ok(
+
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Project image uploaded successfully")
+                    .data(response)
+                    .build()
+
+    );
+}
+
+
+
+
+@DeleteMapping("/images/{imageId}")
+public ResponseEntity<ApiResponse> deleteProjectImage(
+        @PathVariable Long imageId
+) {
+
+    projectService.deleteProjectImage(imageId);
+
+    return ResponseEntity.ok(
+
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Project image deleted successfully")
+                    .build()
+
+    );
+}
+
+
+
+@PutMapping("/images/{imageId}/primary")
+public ResponseEntity<ApiResponse> setPrimaryImage(
+        @PathVariable Long imageId
+) {
+
+    ProjectImageResponse response =
+            projectService.setPrimaryImage(imageId);
+
+    return ResponseEntity.ok(
+
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Primary image updated successfully")
+                    .data(response)
+                    .build()
+
+    );
+}
 
 }

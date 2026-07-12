@@ -18,7 +18,6 @@ public interface ContactMessageRepository extends JpaRepository<ContactMessage, 
 
     long count();
 
-    long countByReadFalse();
-
+    long countByReadAtIsNull();
 
 }
