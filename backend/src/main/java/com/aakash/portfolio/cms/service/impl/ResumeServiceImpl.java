@@ -79,13 +79,40 @@ public class ResumeServiceImpl implements ResumeService {
         return toResponse(resume);
     }
 
+
+
+
     @Override
-    public List<ResumeResponse> getAllResumes() {
-        return resumeRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
+public String getLatestResumeDownloadUrl() {
+
+    Profile profile = profileRepository.findById(1L)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Profile not found"));
+
+    Resume resume = resumeRepository
+            .findTopByProfileOrderByVersionDesc(profile)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Resume not found"));
+
+    return resume.getFileUrl();
+}
+
+
+
+    @Override
+public List<ResumeResponse> getAllResumes() {
+
+    Profile profile = profileRepository.findById(1L)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Profile not found"));
+
+    return resumeRepository
+            .findByProfileOrderByUploadedAtDesc(profile)
+            .stream()
+            .map(this::toResponse)
+            .toList();
+}
+  
 
     @Override
     @Transactional

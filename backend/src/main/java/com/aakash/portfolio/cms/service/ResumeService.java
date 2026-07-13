@@ -10,6 +10,7 @@ public interface ResumeService {
     ResumeResponse uploadResume(MultipartFile file);
 
     ResumeResponse getLatestResume();
+    String getLatestResumeDownloadUrl();
 
     List<ResumeResponse> getAllResumes();
 
