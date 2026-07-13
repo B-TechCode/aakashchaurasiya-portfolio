@@ -8,8 +8,14 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Configuration
 public class CloudinaryConfig {
+
+       private static final Logger log =
+            LoggerFactory.getLogger(CloudinaryConfig.class);
 
     @Bean
     public Cloudinary cloudinary(
@@ -18,11 +24,7 @@ public class CloudinaryConfig {
             @Value("${cloudinary.api-secret}") String apiSecret
     ) {
 
-        System.out.println("==================================");
-        System.out.println("Cloud Name = " + cloudName);
-        System.out.println("API Key = " + apiKey);
-        System.out.println("Secret Empty = " + apiSecret.isBlank());
-        System.out.println("==================================");
+
 
         Map<String, String> config = ObjectUtils.asMap(
                 "cloud_name", cloudName,

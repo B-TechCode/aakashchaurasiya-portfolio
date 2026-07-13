@@ -8,10 +8,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
+
+     private static final Logger log =
+            LoggerFactory.getLogger(DataInitializer.class);
 
     private final AdminUserRepository adminUserRepository;
     private final ProfileRepository profileRepository;
@@ -44,11 +49,11 @@ public class DataInitializer implements CommandLineRunner {
 
             profileRepository.save(profile);
 
-            System.out.println("====================================");
-            System.out.println("DEFAULT ADMIN CREATED");
-            System.out.println("Username : admin");
-            System.out.println("Password : admin123");
-            System.out.println("====================================");
+          log.info("====================================");
+log.info("DEFAULT ADMIN CREATED");
+log.info("Username: admin");
+log.info("Password: admin123");
+log.info("====================================");
         }
     }
 }

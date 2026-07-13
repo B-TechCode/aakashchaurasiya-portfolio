@@ -10,13 +10,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
+    private static final Logger log =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
      public GlobalExceptionHandler() {
-        System.out.println("========== GlobalExceptionHandler Loaded ==========");
-    }
+    log.info("GlobalExceptionHandler loaded.");
+}
 
     // ==========================================
     // Resource Not Found (404)
@@ -26,10 +32,10 @@ public ResponseEntity<ApiResponse> handleResourceNotFoundException(
         ResourceNotFoundException ex
 ) {
 
-    System.out.println("################################################");
-    System.out.println("######## ResourceNotFoundException HANDLER ######");
-    System.out.println(ex.getMessage());
-    System.out.println("################################################");
+   log.warn("################################################");
+log.warn("ResourceNotFoundException handled.");
+log.warn("Message: {}", ex.getMessage());
+log.warn("################################################");;
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(
@@ -144,7 +150,7 @@ public ResponseEntity<ApiResponse> handleResourceNotFoundException(
             Exception ex
     ) {
 
-        ex.printStackTrace();
+        log.error("Unhandled exception occurred.", ex);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(
