@@ -62,44 +62,6 @@ public class AdminProjectController {
     }
 
 
-    @PostMapping(
-        value = "/{projectId}/images",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-)
-public ResponseEntity<ApiResponse> uploadProjectImage(
-
-        @PathVariable Long projectId,
-
-        @RequestPart("image") MultipartFile image,
-
-        @RequestPart(value = "caption", required = false) String caption,
-
-        @RequestPart(value = "primary", required = false) Boolean primary
-
-) {
-
-    boolean isPrimary = primary != null && primary;
-
-    ProjectImageResponse response =
-            projectService.uploadProjectImage(
-                    projectId,
-                    image,
-                    caption,
-                    primary
-            );
-
-    return ResponseEntity.ok(
-
-            ApiResponse.builder()
-                    .success(true)
-                    .message("Project image uploaded successfully")
-                    .data(response)
-                    .build()
-
-    );
-}
-
-
 
 
 @DeleteMapping("/images/{imageId}")
