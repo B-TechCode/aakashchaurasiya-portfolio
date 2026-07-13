@@ -1,3 +1,4 @@
+
 package com.aakash.portfolio.cms.service.impl;
 
 import com.aakash.portfolio.cms.dto.request.ContactRequest;
@@ -7,6 +8,7 @@ import com.aakash.portfolio.cms.entity.ContactMessageStatus;
 import com.aakash.portfolio.cms.exception.ResourceNotFoundException;
 import com.aakash.portfolio.cms.repository.ContactMessageRepository;
 import com.aakash.portfolio.cms.service.ContactMessageService;
+import com.aakash.portfolio.cms.service.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class ContactMessageServiceImpl implements ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -34,6 +37,14 @@ public class ContactMessageServiceImpl implements ContactMessageService {
                 .build();
 
         contactMessage = contactMessageRepository.save(contactMessage);
+
+        // Send email notification after saving the message
+        emailService.sendContactNotification(
+                contactMessage.getName(),
+                contactMessage.getEmail(),
+                "New Portfolio Contact",
+                contactMessage.getMessage()
+        );
 
         return toResponse(contactMessage);
     }
@@ -102,3 +113,4 @@ public class ContactMessageServiceImpl implements ContactMessageService {
                 .build();
     }
 }
+
