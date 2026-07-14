@@ -1,5 +1,30 @@
 import api from "./axios";
 
+/*
+|--------------------------------------------------------------------------
+| Public Analytics APIs
+|--------------------------------------------------------------------------
+*/
+
+export const recordAnalyticsEvent = async (
+  eventType,
+  entityType = null,
+  entityId = null
+) => {
+  const response = await api.post(`/public/analytics/${eventType}`, {
+    entityType,
+    entityId,
+  });
+
+  return response.data;
+};
+
+/*
+|--------------------------------------------------------------------------
+| Admin Analytics APIs
+|--------------------------------------------------------------------------
+*/
+
 export const getAnalyticsCounts = async () => {
   const response = await api.get("/admin/analytics/counts");
   return response.data;

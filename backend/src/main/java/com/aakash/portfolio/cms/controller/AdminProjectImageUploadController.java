@@ -1,6 +1,7 @@
 package com.aakash.portfolio.cms.controller;
 
 import com.aakash.portfolio.cms.dto.request.ProjectImageUploadMultipartRequest;
+import com.aakash.portfolio.cms.dto.request.ProjectImageUploadRequest;
 import com.aakash.portfolio.cms.dto.response.ApiResponse;
 import com.aakash.portfolio.cms.dto.response.ProjectImageResponse;
 import com.aakash.portfolio.cms.service.CloudinaryAssetService;
@@ -15,33 +16,40 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 @RequestMapping("/api/admin/projects")
 @RequiredArgsConstructor
 public class AdminProjectImageUploadController {
 
     private final CloudinaryAssetService cloudinaryAssetService;
+    private final ObjectMapper objectMapper;
 
-   @PostMapping(
+      @PostMapping(
         value = "/{projectId}/images",
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE
 )
 public ResponseEntity<ApiResponse> uploadProjectImage(
         @PathVariable Long projectId,
         @RequestPart("image") MultipartFile file,
-        @Valid @RequestPart("meta") ProjectImageUploadMultipartRequest meta
-) {
+        @RequestPart("meta") String meta
+) throws Exception {
+
+    ProjectImageUploadMultipartRequest request =
+            objectMapper.readValue(
+                    meta,
+                    ProjectImageUploadMultipartRequest.class
+            );
 
     ProjectImageResponse response =
             cloudinaryAssetService.uploadProjectImage(
                     projectId,
                     file,
-                    new com.aakash.portfolio.cms.dto.request.ProjectImageUploadRequest(
-                            meta.folder(),
-                            meta.publicId(),
-                            meta.caption(),
-                            meta.primary()
+                    new ProjectImageUploadRequest(
+                            request.folder(),
+                            request.publicId(),
+                            request.caption(),
+                            request.primary()
                     )
             );
 

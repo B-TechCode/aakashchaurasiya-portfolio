@@ -1,10 +1,17 @@
+
 package com.aakash.portfolio.cms.entity;
 
 public enum AnalyticsEventType {
-    RESUME_DOWNLOAD,
-    PROJECT_CLICK,
+
+    PORTFOLIO_VISIT,
+
+    PROJECT_VIEW,
+    PROJECT_GITHUB_CLICK,
+    PROJECT_LIVE_CLICK,
+
     GITHUB_CLICK,
     LINKEDIN_CLICK,
-    CONTACT_FORM_SUBMISSION,
-    PORTFOLIO_VISIT
+    RESUME_DOWNLOAD,
+
+    CONTACT_FORM_SUBMISSION
 }

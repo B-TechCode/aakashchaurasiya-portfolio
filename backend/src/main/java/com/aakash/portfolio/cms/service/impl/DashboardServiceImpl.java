@@ -56,7 +56,7 @@ public class DashboardServiceImpl implements DashboardService {
                 )
                 .projectClicks(
                         analyticsEventRepository.countByEventType(
-                                AnalyticsEventType.PROJECT_CLICK
+                               AnalyticsEventType.PROJECT_VIEW
                         )
                 )
                 .build();

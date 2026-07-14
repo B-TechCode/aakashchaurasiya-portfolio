@@ -76,7 +76,7 @@ public AnalyticsCountResponse getCounts() {
 
             .projectClicks(
                     analyticsEventRepository.countByEventType(
-                            AnalyticsEventType.PROJECT_CLICK))
+                            AnalyticsEventType.PROJECT_VIEW))
 
             .githubClicks(
                     analyticsEventRepository.countByEventType(

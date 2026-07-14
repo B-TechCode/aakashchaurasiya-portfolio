@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/analytics")
+@RequestMapping("/api/public/analytics")
 @RequiredArgsConstructor
 public class PublicAnalyticsController {
 

@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-
+import { useEffect } from "react";
+import { recordAnalytics } from "./services/analyticsService";
 // ====================
 // Admin Pages
 // ====================
@@ -40,6 +41,17 @@ import Contact from "./sections/Contact";
 // Portfolio Homepage
 // ====================
 function Portfolio() {
+
+  useEffect(() => {
+
+    recordAnalytics(
+      "PORTFOLIO_VISIT",
+      "portfolio",
+      1
+    );
+
+  }, []);
+
   return (
     <div className="noise-overlay min-h-screen bg-navy-900 text-slate-300">
       <Navbar />
