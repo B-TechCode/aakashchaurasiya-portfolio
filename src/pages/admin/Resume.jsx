@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import toast from "react-hot-toast";
 import AdminLayout from "../../layouts/AdminLayout";
 
 import ResumeTable from "../../components/admin/resume/ResumeTable";
@@ -52,18 +52,21 @@ export default function Resume() {
     try {
 
       setUploading(true);
-
       await uploadResume(file);
 
-      await loadResumes();
+toast.success("Resume uploaded successfully.");
 
-      setShowUploadModal(false);
+await loadResumes();
+
+setShowUploadModal(false);
+
+
 
     } catch (error) {
 
       console.error(error);
 
-      alert("Failed to upload resume.");
+     toast.error("Failed to upload resume.");
 
     } finally {
 
@@ -79,15 +82,17 @@ export default function Resume() {
 
     try {
 
-      await deleteResume(id);
+     await deleteResume(id);
 
-      loadResumes();
+toast.success("Resume deleted successfully.");
+
+loadResumes();
 
     } catch (error) {
 
       console.error(error);
 
-      alert("Failed to delete resume.");
+      toast.error("Failed to delete resume.");
 
     }
 

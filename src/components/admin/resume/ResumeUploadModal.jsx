@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ResumeUploadModal({
   open,
@@ -16,11 +17,13 @@ export default function ResumeUploadModal({
     e.preventDefault();
 
     if (!file) {
-      alert("Please choose a PDF.");
+      toast.error("Please choose a PDF file.");
       return;
     }
 
     onUpload(file);
+
+    setFile(null);
   };
 
   return (
@@ -36,7 +39,10 @@ export default function ResumeUploadModal({
           </h2>
 
           <button
-            onClick={onClose}
+            onClick={() => {
+              setFile(null);
+              onClose();
+            }}
             className="text-slate-400 hover:text-white text-2xl"
           >
             ✕
@@ -68,7 +74,10 @@ export default function ResumeUploadModal({
 
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                setFile(null);
+                onClose();
+              }}
               className="px-6 py-3 rounded-lg bg-slate-700 text-white"
             >
               Cancel
