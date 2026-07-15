@@ -35,3 +35,12 @@ export const uploadProfileImage = (image) => {
     }
   );
 };
+
+
+// ==============================
+// PUBLIC PROFILE
+// ==============================
+
+export const getPublicProfile = () => {
+  return axiosInstance.get("/public/profile");
+};

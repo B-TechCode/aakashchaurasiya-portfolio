@@ -50,3 +50,12 @@ export const uploadProjectImage = (projectId, image, meta) => {
     }
   );
 };
+
+
+// ===============================
+// Public Projects
+// ===============================
+
+export const getPublicProjects = () => {
+  return axiosInstance.get("/public/projects");
+};

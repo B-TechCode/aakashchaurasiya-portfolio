@@ -80,43 +80,40 @@
 
 // sections/Projects.jsx
 
-import SectionWrapper from '../components/SectionWrapper'
-import ProjectCard from '../components/ProjectCard'
-import { FiArrowRight } from 'react-icons/fi'
+import { useEffect, useState } from "react";
+import SectionWrapper from "../components/SectionWrapper";
+import ProjectCard from "../components/ProjectCard";
+import { FiArrowRight } from "react-icons/fi";
+import { fetchPublicProjects } from "../services/projectService";
 
-const PROJECTS = [
-  {
-    id: 1,
-    title: 'Chat App',
-    description: `A real-time chat application that enables instant messaging with user authentication and seamless synchronization across devices. Built using WebSockets/Socket.IO for fast and efficient real-time communication.`,
-    tech: ['React', 'Node.js', 'Express', 'Socket.IO', 'MongoDB'],
-    github: 'https://github.com/B-TechCode',
-  },
-  {
-    id: 2,
-    title: 'Quiz Web App',
-    description:
-      'An interactive, timed quiz platform where users can test their knowledge across multiple categories. Features include score tracking, progress indicators, instant feedback, and a leaderboard system — all built with vanilla JS and a clean UI.',
-    tech: ['JavaScript', 'HTML5', 'CSS3', 'LocalStorage API'],
-    github: 'https://github.com/B-TechCode',
-  },
-  {
-    id: 3,
-    title: 'AI Resume Builder',
-    description: `An AI-driven web application that helps users create professional and ATS-friendly resumes. It provides intelligent suggestions, modern templates, and a smooth user-friendly interface to build resumes efficiently.`,
-    tech: ['React', 'Vite', 'Tailwind CSS', 'OpenAI API'],
-    github: 'https://github.com/B-TechCode',
-  },
-  {
-    id: 4,
-    title: 'Developer Portfolio',
-    description: `The very website you're looking at — designed and built from scratch to showcase my skills, projects, and personality. Features smooth Framer Motion animations, a custom typewriter effect, responsive layout, and a contact form.`,
-    tech: ['React', 'Vite', 'Tailwind CSS', 'Framer Motion'],
-    github: 'https://github.com/B-TechCode',
-  },
-];
+
 
 export default function Projects() {
+
+  const [projects, setProjects] = useState([]);
+
+useEffect(() => {
+
+  loadProjects();
+
+}, []);
+
+const loadProjects = async () => {
+
+  try {
+
+    const data = await fetchPublicProjects();
+
+    setProjects(data);
+
+  } catch (error) {
+
+    console.error("Failed to load projects", error);
+
+  }
+
+};
+
   return (
     <SectionWrapper id="projects">
       <div className="section-container">
@@ -128,8 +125,8 @@ export default function Projects() {
 
         {/* Projects Grid */}
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {PROJECTS.map((project, i) => (
-            <ProjectCard key={project.title} project={project} index={i} />
+      {projects.map((project, i) => (
+            <ProjectCard key={project.id} project={project} index={i} />
           ))}
         </div>
 
@@ -150,22 +147,3 @@ export default function Projects() {
     </SectionWrapper>
   )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

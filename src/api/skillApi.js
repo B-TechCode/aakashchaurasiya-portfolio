@@ -23,3 +23,12 @@ export const updateSkill = (id, data) => {
 export const deleteSkill = (id) => {
   return axiosInstance.delete(`/admin/skills/${id}`);
 };
+
+
+// ===============================
+// Public Skills
+// ===============================
+
+export const getPublicSkills = () => {
+  return axiosInstance.get("/public/skills");
+};
