@@ -23,3 +23,12 @@ export const updateExperience = (id, data) => {
 export const deleteExperience = (id) => {
   return axiosInstance.delete(`/admin/experience/${id}`);
 };
+
+
+// ==========================
+// Public Experience
+// ==========================
+
+export const getPublicExperiences = () => {
+  return axiosInstance.get("/public/experience");
+};
