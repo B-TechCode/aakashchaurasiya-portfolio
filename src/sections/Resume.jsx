@@ -4,13 +4,17 @@ import SectionWrapper from "../components/SectionWrapper";
 import { FiDownload, FiCalendar, FiMapPin } from "react-icons/fi";
 import { recordAnalytics } from "../services/analyticsService";
 import { fetchPublicExperiences } from "../services/experienceService";
+import { fetchLatestResume } from "../services/resumeService";
+
 
 export default function Resume() {
   const [experiences, setExperiences] = useState([]);
+  const [resume, setResume] = useState(null);
 
-  useEffect(() => {
-    loadExperiences();
-  }, []);
+ useEffect(() => {
+  loadExperiences();
+  loadResume();
+}, []);
 
   const loadExperiences = async () => {
     try {
@@ -21,13 +25,25 @@ export default function Resume() {
     }
   };
 
-  const handleResumeDownload = () => {
-    recordAnalytics(
-      "RESUME_DOWNLOAD",
-      "resume",
-      1
-    );
-  };
+
+  const loadResume = async () => {
+  try {
+    const data = await fetchLatestResume();
+    setResume(data);
+  } catch (error) {
+    console.error("Failed to load resume", error);
+  }
+};
+
+ const handleResumeDownload = () => {
+  if (!resume) return;
+
+  recordAnalytics(
+    "RESUME_DOWNLOAD",
+    resume.fileUrl,
+    1
+  );
+};
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -56,12 +72,15 @@ export default function Resume() {
 
         <div className="flex justify-center mb-14">
           <motion.a
-            href="/resume.pdf"
-            download
-            onClick={handleResumeDownload}
+                href={resume?.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              onClick={handleResumeDownload}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="btn-primary text-base px-8 py-4 animate-pulse-glow"
+            className={`btn-primary text-base px-8 py-4 animate-pulse-glow ${
+              !resume ? "pointer-events-none opacity-50" : ""
+               }`}
           >
             <FiDownload size={18} />
             Download Full Resume (PDF)
