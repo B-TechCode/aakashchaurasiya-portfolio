@@ -11,3 +11,10 @@ export const markMessageAsRead = (id) =>
 
 export const deleteMessage = (id) =>
   axios.delete(`/admin/contact/${id}`);
+
+// ===============================
+// Public Contact API
+// ===============================
+
+export const sendContactMessage = (data) =>
+  axios.post("/public/contact", data);

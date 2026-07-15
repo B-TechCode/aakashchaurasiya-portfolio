@@ -4,6 +4,7 @@
 import { motion } from 'framer-motion'
 import SectionWrapper from '../components/SectionWrapper'
 import { FiDownload, FiCalendar, FiMapPin } from 'react-icons/fi'
+import { recordAnalytics } from "../services/analyticsService";
 
 const TIMELINE = [
   {
@@ -45,6 +46,15 @@ const TIMELINE = [
 ]
 
 export default function Resume() {
+  const handleResumeDownload = () => {
+
+  recordAnalytics(
+    "RESUME_DOWNLOAD",
+    "resume",
+    1
+  );
+
+};
   return (
     <SectionWrapper id="resume">
       <div className="section-container">
@@ -62,8 +72,9 @@ export default function Resume() {
         {/* Download CTA */}
         <div className="flex justify-center mb-14">
           <motion.a
-            href="/resume.pdf"
+           href="/resume.pdf"  
             download
+            onClick={handleResumeDownload}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             className="btn-primary text-base px-8 py-4 animate-pulse-glow"

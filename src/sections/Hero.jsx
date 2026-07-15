@@ -83,7 +83,7 @@ export default function Hero() {
                 <FiArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </a>
               <a
-                href="/resume.pdf"
+               href="/resume.pdf"
                 download
                 className="btn-ghost group"
               >
