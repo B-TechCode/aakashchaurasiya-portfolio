@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { recordAnalytics } from "./services/analyticsService";
+import Certificates from "./sections/Certificates";
 // ====================
 // Admin Pages
 // ====================
@@ -63,6 +64,7 @@ function Portfolio() {
         <Projects />
         <Services />
         <Resume />
+        <Certificates />
         <Contact />
       </main>
 

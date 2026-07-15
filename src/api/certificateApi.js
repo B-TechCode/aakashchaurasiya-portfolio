@@ -23,3 +23,13 @@ export const updateCertificate = (id, data) => {
 export const deleteCertificate = (id) => {
   return axiosInstance.delete(`/admin/certificates/${id}`);
 };
+
+
+
+// ==========================
+// Public Certificates
+// ==========================
+
+export const getPublicCertificates = () => {
+  return axiosInstance.get("/public/certificates");
+};

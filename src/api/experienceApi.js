@@ -32,3 +32,12 @@ export const deleteExperience = (id) => {
 export const getPublicExperiences = () => {
   return axiosInstance.get("/public/experience");
 };
+
+
+// ==========================
+// Public Certificates
+// ==========================
+
+export const getPublicCertificates = () => {
+  return axiosInstance.get("/public/certificates");
+};
