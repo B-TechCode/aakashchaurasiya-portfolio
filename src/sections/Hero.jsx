@@ -2,6 +2,9 @@
 // Full-screen hero with typewriter, animated intro, and CTA buttons
 
 import { motion } from 'framer-motion'
+
+import { useEffect, useState } from "react";
+import { fetchPublicProfile } from "../services/profileService";
 import { FiDownload, FiArrowRight, FiGithub, FiLinkedin } from 'react-icons/fi'
 import { useTypewriter } from '../hooks/useTypewriter'
 
@@ -16,6 +19,21 @@ const itemVariants = {
 }
 
 export default function Hero() {
+
+  const [profile, setProfile] = useState(null);
+
+useEffect(() => {
+  loadProfile();
+}, []);
+
+const loadProfile = async () => {
+  try {
+    const data = await fetchPublicProfile();
+    setProfile(data);
+  } catch (error) {
+    console.error("Failed to load profile", error);
+  }
+};
   // Words to cycle in the typewriter
   const dynamicText = useTypewriter(
     ['Full Stack Developer', 'Java Enthusiast', 'React Developer', 'Problem Solver'],
@@ -32,7 +50,9 @@ export default function Hero() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="section-container relative z-10 pt-24 pb-16">
-        <div className="max-w-4xl">
+      <div className="grid lg:grid-cols-2 gap-16 items-center">
+      
+      
 
           <motion.div
             variants={containerVariants}
@@ -54,10 +74,10 @@ export default function Hero() {
                 Hi, I'm
               </span>
               <span className="block text-white text-4xl md:text-6xl lg:text-3xl leading-tight">
-                Aakash Prasad
+               {profile?.fullName?.split(" ")[0]} {profile?.fullName?.split(" ")[1]}
               </span>
               <span className="block gradient-text glow-accent text-4xl md:text-6xl lg:text-4xl leading-tight">
-                Chaurasiya
+                {profile?.fullName?.split(" ").slice(2).join(" ")}
               </span>
             </motion.h1>
 
@@ -70,11 +90,12 @@ export default function Hero() {
             </motion.div>
 
             {/* Tagline */}
-            <motion.p variants={itemVariants} className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
-              I build <span className="text-accent font-medium">scalable and modern web applications</span> using
-              Java and React. 3rd Year B.Tech CSE student passionate about clean code,
-              great UX, and continuous learning.
-            </motion.p>
+            <motion.p
+                 variants={itemVariants}
+                  className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl"
+                >
+                {profile?.aboutMe}
+                </motion.p>
 
             {/* CTA Buttons */}
             <motion.div variants={itemVariants} className="flex flex-wrap gap-4 pt-2">
@@ -113,6 +134,43 @@ export default function Hero() {
               </a>
             </motion.div>
           </motion.div>
+
+
+          {/* ================= Profile Image ================= */}
+
+<motion.div
+  initial={{ opacity: 0, x: 80 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.8 }}
+  className="hidden lg:flex justify-end"
+>
+
+  <div className="relative translate-x-20">
+
+    {/* Glow */}
+
+    <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-3xl scale-110"></div>
+
+    {/* Image */}
+
+    <img
+      src={profile?.profileImageUrl}
+      alt={profile?.fullName}
+      className="
+        relative
+        w-96
+        h-96
+        rounded-full
+        object-cover
+        border-4
+        border-emerald-500/30
+        shadow-[0_0_60px_rgba(34,197,94,0.35)]
+      "
+    />
+
+  </div>
+
+</motion.div>
         </div>
 
         {/* Stats row */}

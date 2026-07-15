@@ -1,8 +1,11 @@
-        import { useEffect, useState, useRef } from "react";
-                import AdminLayout from "../../layouts/AdminLayout";
-                import { FiCamera } from "react-icons/fi";
+ 
+ 
+import toast from "react-hot-toast";
+import { useEffect, useState, useRef } from "react";
+import AdminLayout from "../../layouts/AdminLayout";
+import { FiCamera } from "react-icons/fi";
 
-            import {
+import {
     getProfile,
     updateProfile,
     uploadProfileImage,
@@ -60,15 +63,15 @@
 
                 setSaving(true);
 
-                await updateProfile(profile);
+                await updateProfile(form);
 
-                alert("Profile updated successfully.");
+                toast.success("Profile updated successfully.");
 
             } catch (error) {
 
                 console.error(error);
 
-                alert("Failed to update profile.");
+               toast.error("Failed to update profile.");
 
             } finally {
 
@@ -94,13 +97,13 @@
 
         setProfile(response.data.data);
 
-        alert("Profile image uploaded successfully.");
+        toast.success("Profile image updated.");
 
     } catch (error) {
 
         console.error(error);
 
-        alert("Image upload failed.");
+       alert("Image Upload failed.");
 
     } finally {
 
