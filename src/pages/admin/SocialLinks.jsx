@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import AdminLayout from "../../layouts/AdminLayout";
 
@@ -59,6 +60,33 @@ export default function SocialLinks() {
 
   const handleSubmit = async () => {
 
+    if (!form.platform.trim()) {
+
+    return toast.error(
+        "Platform is required."
+    );
+
+}
+
+if (!form.url.trim()) {
+
+    return toast.error(
+        "URL is required."
+    );
+
+}
+
+if (
+    !form.url.startsWith("http://") &&
+    !form.url.startsWith("https://")
+) {
+
+    return toast.error(
+        "URL must start with http:// or https://"
+    );
+
+}
+
     try {
 
       setSaving(true);
@@ -77,11 +105,21 @@ export default function SocialLinks() {
 
       loadLinks();
 
+
+      toast.success(
+    editingId
+        ? "Social link updated successfully."
+        : "Social link created successfully."
+);
+
     } catch (error) {
 
       console.error(error);
 
-      alert("Operation failed.");
+      toast.error(
+    error.response?.data?.message ||
+    "Operation failed."
+);
 
     } finally {
 
@@ -109,13 +147,20 @@ export default function SocialLinks() {
 
     try {
 
-      await deleteSocialLink(id);
+     await loadLinks();
 
-      loadLinks();
+toast.success(
+    "Social link deleted successfully."
+);
 
     } catch (error) {
 
-      console.error(error);
+     console.error(error);
+
+toast.error(
+    error.response?.data?.message ||
+    "Failed to delete social link."
+);
 
     }
 
