@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const initialState = {
   title: "",
@@ -39,19 +40,77 @@ export default function ProjectFormModal({
     }
   }, [initialData]);
 
-  const handleChange = (e) => {
+const handleChange = (e) => {
+
     const { name, value, type, checked } = e.target;
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+    if (name === "title") {
 
-  const handleSubmit = (e) => {
+        setForm((prev) => ({
+            ...prev,
+            title: value,
+            slug: value
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, "-")
+                .replace(/[^\w-]/g, ""),
+        }));
+
+        return;
+
+    }
+
+    setForm((prev) => ({
+        ...prev,
+        [name]:
+            type === "checkbox"
+                ? checked
+                : value,
+    }));
+
+};
+
+ const handleSubmit = (e) => {
+
     e.preventDefault();
+
+    if (!form.title.trim()) {
+        return toast.error("Project title is required.");
+    }
+
+    if (!form.slug.trim()) {
+        return toast.error("Project slug is required.");
+    }
+
+    if (!form.summary.trim()) {
+        return toast.error("Project summary is required.");
+    }
+
+    if (!form.description.trim()) {
+        return toast.error("Project description is required.");
+    }
+
+    if (
+        form.githubUrl &&
+        !form.githubUrl.startsWith("https://")
+    ) {
+        return toast.error(
+            "GitHub URL must start with https://"
+        );
+    }
+
+    if (
+        form.liveUrl &&
+        !form.liveUrl.startsWith("https://")
+    ) {
+        return toast.error(
+            "Live URL must start with https://"
+        );
+    }
+
     onSubmit(form);
-  };
+
+};
 
   if (!open) return null;
 
@@ -101,10 +160,12 @@ export default function ProjectFormModal({
 
             <input
               name="slug"
+              readOnly
               value={form.slug}
               onChange={handleChange}
               required
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
+             
+              className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 text-slate-300 cursor-not-allowed"
             />
 
           </div>
@@ -232,8 +293,8 @@ export default function ProjectFormModal({
             </button>
 
             <button
+            type="submit"
               disabled={loading}
-              type="submit"
               className="px-8 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
             >
               {loading ? "Saving..." : "Save Project"}

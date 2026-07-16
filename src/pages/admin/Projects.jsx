@@ -1,4 +1,5 @@
     import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
     import AdminLayout from "../../layouts/AdminLayout";
 
@@ -41,10 +42,6 @@
         try {
 
         const response = await getAllProjects();
-
-    console.log("FULL RESPONSE:", response);
-    console.log("RESPONSE.DATA:", response.data);
-
     setProjects(response.data.data);
 
         } catch (error) {
@@ -81,15 +78,20 @@
 
         try {
 
-          await deleteProject(id);
+         await deleteProject(id);
 
-          loadProjects();
+await loadProjects();
+
+toast.success("Project deleted successfully.");
 
         } catch (error) {
 
           console.error(error);
 
-          alert("Failed to delete project.");
+        toast.error(
+    error.response?.data?.message ||
+    "Failed to delete project."
+);
 
         }
 
@@ -109,23 +111,30 @@
 
       setUploadingImage(true);
 
-      await uploadProjectImage(
-        selectedProject.id,
-        image,
-        meta
-      );
+     await uploadProjectImage(
+    selectedProject.id,
+    image,
+    meta
+);
 
-      await loadProjects();
+await loadProjects();
 
-      setShowImageModal(false);
+toast.success(
+    "Project image uploaded successfully."
+);
 
-      setSelectedProject(null);
+setShowImageModal(false);
+
+setSelectedProject(null);
 
     } catch (error) {
 
       console.error(error);
 
-      alert("Image upload failed.");
+     toast.error(
+    error.response?.data?.message ||
+    "Image upload failed."
+);
 
     } finally {
 
@@ -135,27 +144,47 @@
 
   };
 
-
-
-
-
       const handleSubmit = async (project) => {
+
+        if (!project.title.trim()) {
+    return toast.error("Project title is required.");
+}
+
+if (!project.slug.trim()) {
+    return toast.error("Project slug is required.");
+}
+
+if (!project.summary.trim()) {
+    return toast.error("Project summary is required.");
+}
       try {
         setSaving(true);
 
-        if (editingProject) {
+        if (editingProject) { 
           await updateProject(editingProject.id, project);
         } else {
           await createProject(project);
         }
 
         await loadProjects();
+
+        toast.success(
+    editingProject
+        ? "Project updated successfully."
+        : "Project created successfully."
+);
+
         setShowModal(false);
         setEditingProject(null);
 
       } catch (error) {
         console.error(error);
-        alert("Failed to save project.");
+
+       toast.error(
+    error.response?.data?.message ||
+    "Failed to save project."
+);
+
       } finally {
         setSaving(false);
       }
@@ -191,20 +220,20 @@
           {loading ? (
 
             <div className="text-white text-xl">
-              Loading...
+
+             Loading projects...
+
             </div>
 
           ) : (
 
-            <ProjectTable
-              projects={projects}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onUploadImage={handleUploadImageClick}
-
-
-              
-            />
+          <ProjectTable
+    projects={projects}
+    loading={loading}
+    onEdit={handleEdit}
+    onDelete={handleDelete}
+    onUploadImage={handleUploadImageClick}
+/>
 
           )}
 
@@ -213,7 +242,16 @@
       open={showModal}
       initialData={editingProject}
       loading={saving}
-      onClose={() => setShowModal(false)}
+
+     onClose={() => {
+
+    setShowModal(false);
+
+    setEditingProject(null);
+
+}}
+
+
       onSubmit={handleSubmit}
     />
   )}

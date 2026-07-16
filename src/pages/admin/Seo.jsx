@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import AdminLayout from "../../layouts/AdminLayout";
-
+import SeoForm from "../../components/admin/seo/SeoForm";
 import {
   getSeoSettings,
   updateSeoSettings,
@@ -9,14 +10,7 @@ import {
 
 export default function Seo() {
 
-  const [seo, setSeo] = useState({
-    siteTitle: "",
-    metaDescription: "",
-    keywords: "",
-    ogTitle: "",
-    ogDescription: "",
-    ogImageUrl: "",
-  });
+  const [seo, setSeo] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -45,29 +39,48 @@ export default function Seo() {
 
   };
 
-  const handleSave = async () => {
+ const handleSave = async (form) => {
 
-    try {
+  if (!form.siteTitle.trim()) {
+    return toast.error("Site title is required.");
+  }
 
-      setSaving(true);
+  if (!form.metaDescription.trim()) {
+    return toast.error("Meta description is required.");
+  }
 
-      await updateSeoSettings(seo);
+  if (!form.keywords.trim()) {
+    return toast.error("Keywords are required.");
+  }
 
-      alert("SEO settings updated successfully.");
+  try {
 
-    } catch (error) {
+    setSaving(true);
 
-      console.error(error);
+    await updateSeoSettings(form);
 
-      alert("Failed to update SEO settings.");
+    setSeo(form);
 
-    } finally {
+    toast.success(
+      "SEO settings updated successfully."
+    );
 
-      setSaving(false);
+  } catch (error) {
 
-    }
+    console.error(error);
 
-  };
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to update SEO settings."
+    );
+
+  } finally {
+
+    setSaving(false);
+
+  }
+
+};
 
   if (loading) {
 
@@ -89,160 +102,29 @@ export default function Seo() {
 
     <AdminLayout>
 
-      <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto">
 
         <div className="mb-8">
 
-          <h1 className="text-4xl font-bold text-white">
-            SEO Settings
-          </h1>
+            <h1 className="text-4xl font-bold text-white">
+                SEO Settings
+            </h1>
 
-          <p className="text-slate-400 mt-2">
-            Configure search engine and social sharing information.
-          </p>
-
-        </div>
-
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-10">
-
-          <div className="space-y-6">
-
-            <div>
-
-              <label className="text-slate-300 block mb-2">
-                Site Title
-              </label>
-
-              <input
-                value={seo.siteTitle || ""}
-                onChange={(e)=>
-                  setSeo({
-                    ...seo,
-                    siteTitle:e.target.value
-                  })
-                }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
-
-            <div>
-
-              <label className="text-slate-300 block mb-2">
-                Meta Description
-              </label>
-
-              <textarea
-                rows="4"
-                value={seo.metaDescription || ""}
-                onChange={(e)=>
-                  setSeo({
-                    ...seo,
-                    metaDescription:e.target.value
-                  })
-                }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
-
-            <div>
-
-              <label className="text-slate-300 block mb-2">
-                Keywords
-              </label>
-
-              <textarea
-                rows="3"
-                value={seo.keywords || ""}
-                onChange={(e)=>
-                  setSeo({
-                    ...seo,
-                    keywords:e.target.value
-                  })
-                }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
-
-            <div>
-
-              <label className="text-slate-300 block mb-2">
-                OG Title
-              </label>
-
-              <input
-                value={seo.ogTitle || ""}
-                onChange={(e)=>
-                  setSeo({
-                    ...seo,
-                    ogTitle:e.target.value
-                  })
-                }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
-
-            <div>
-
-              <label className="text-slate-300 block mb-2">
-                OG Description
-              </label>
-
-              <textarea
-                rows="4"
-                value={seo.ogDescription || ""}
-                onChange={(e)=>
-                  setSeo({
-                    ...seo,
-                    ogDescription:e.target.value
-                  })
-                }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
-
-            <div>
-
-              <label className="text-slate-300 block mb-2">
-                OG Image URL
-              </label>
-
-              <input
-                value={seo.ogImageUrl || ""}
-                onChange={(e)=>
-                  setSeo({
-                    ...seo,
-                    ogImageUrl:e.target.value
-                  })
-                }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
-
-          </div>
-
-          <div className="flex justify-end mt-8">
-
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 px-8 py-3 rounded-lg text-white font-semibold"
-            >
-              {saving ? "Saving..." : "Save SEO Settings"}
-            </button>
-
-          </div>
+            <p className="text-slate-400 mt-2">
+                Configure search engine and social sharing information.
+            </p>
 
         </div>
 
-      </div>
+        <SeoForm
+            initialData={seo}
+            loading={saving}
+            onSubmit={handleSave}
+        />
 
-    </AdminLayout>
+    </div>
+
+</AdminLayout>
 
   );
 

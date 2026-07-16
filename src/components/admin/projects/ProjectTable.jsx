@@ -2,10 +2,35 @@ import { FaEdit, FaTrash, FaImage } from "react-icons/fa";
 
 export default function ProjectTable({
   projects,
+  loading,
   onEdit,
   onDelete,
   onUploadImage,
-}) {
+})
+{
+
+
+
+  if (loading) {
+
+  return (
+
+    <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center">
+
+      <h2 className="text-2xl font-semibold text-white">
+        Loading Projects...
+      </h2>
+
+      <p className="text-slate-400 mt-3">
+        Please wait...
+      </p>
+
+    </div>
+
+  );
+
+}
+
 
  if (!projects || projects.length === 0) {
 
@@ -81,13 +106,13 @@ export default function ProjectTable({
                 {project.featured ? (
 
                   <span className="bg-cyan-600 text-white px-3 py-1 rounded-full text-xs">
-                    Yes
+                     Featured
                   </span>
 
                 ) : (
 
                   <span className="bg-slate-700 text-slate-300 px-3 py-1 rounded-full text-xs">
-                    No
+                    Regular
                   </span>
 
                 )}
@@ -105,7 +130,7 @@ export default function ProjectTable({
                 ) : (
 
                   <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs">
-                    Draft
+                    Unpublished
                   </span>
 
                 )}
@@ -124,7 +149,7 @@ export default function ProjectTable({
                         key={img.id}
                         src={img.imageUrl}
                         alt=""
-                        className="w-12 h-12 rounded object-cover border border-slate-600"
+                       className="w-14 h-14 rounded-lg object-cover border border-slate-600 shadow-md hover:scale-110 transition"
                       />
 
                     ))
@@ -147,21 +172,21 @@ export default function ProjectTable({
 
                   <button
                     onClick={() => onUploadImage(project)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg"
+                   className="bg-blue-600 hover:bg-blue-700 transition text-white p-2 rounded-lg"
                   >
                     <FaImage />
                   </button>
 
                   <button
                     onClick={() => onEdit(project)}
-                    className="bg-cyan-600 hover:bg-cyan-700 text-white p-2 rounded-lg"
+                    className="bg-cyan-600 hover:bg-cyan-700 transition text-white p-2 rounded-lg"
                   >
                     <FaEdit />
                   </button>
 
                   <button
                     onClick={() => onDelete(project.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
+                   className="bg-red-600 hover:bg-red-700 transition text-white p-2 rounded-lg"
                   >
                     <FaTrash />
                   </button>
