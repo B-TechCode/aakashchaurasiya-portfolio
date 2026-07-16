@@ -3,6 +3,9 @@ import toast from "react-hot-toast";
 
 import AdminLayout from "../../layouts/AdminLayout";
 
+import SocialLinkTable from "../../components/admin/sociallinks/SocialLinkTable";
+import SocialLinkFormModal from "../../components/admin/sociallinks/SocialLinkFormModal";
+
 import {
   getAllSocialLinks,
   createSocialLink,
@@ -18,13 +21,9 @@ export default function SocialLinks() {
 
   const [saving, setSaving] = useState(false);
 
-  const [editingId, setEditingId] = useState(null);
+ const [showModal, setShowModal] = useState(false);
 
-  const [form, setForm] = useState({
-    platform: "",
-    url: "",
-    displayOrder: 0,
-  });
+const [editingLink, setEditingLink] = useState(null);
 
   useEffect(() => {
     loadLinks();
@@ -48,98 +47,83 @@ export default function SocialLinks() {
     }
   };
 
-  const resetForm = () => {
-    setForm({
-      platform: "",
-      url: "",
-      displayOrder: 0,
-    });
+  const handleCreate = () => {
+  setEditingLink(null);
+  setShowModal(true);
+};
 
-    setEditingId(null);
-  };
+const handleEdit = (link) => {
+  setEditingLink(link);
+  setShowModal(true);
+};
 
-  const handleSubmit = async () => {
+  
 
-    if (!form.platform.trim()) {
+const handleSubmit = async (form) => {
 
-    return toast.error(
-        "Platform is required."
-    );
+  if (!form.platform.trim()) {
+    return toast.error("Platform is required.");
+  }
 
-}
+  if (!form.url.trim()) {
+    return toast.error("URL is required.");
+  }
 
-if (!form.url.trim()) {
-
-    return toast.error(
-        "URL is required."
-    );
-
-}
-
-if (
+  if (
     !form.url.startsWith("http://") &&
     !form.url.startsWith("https://")
-) {
-
+  ) {
     return toast.error(
-        "URL must start with http:// or https://"
+      "URL must start with http:// or https://"
     );
+  }
 
-}
+  try {
 
-    try {
+    setSaving(true);
 
-      setSaving(true);
+    if (editingLink) {
 
-      if (editingId) {
+      await updateSocialLink(
+        editingLink.id,
+        form
+      );
 
-        await updateSocialLink(editingId, form);
+    } else {
 
-      } else {
-
-        await createSocialLink(form);
-
-      }
-
-      resetForm();
-
-      loadLinks();
-
-
-      toast.success(
-    editingId
-        ? "Social link updated successfully."
-        : "Social link created successfully."
-);
-
-    } catch (error) {
-
-      console.error(error);
-
-      toast.error(
-    error.response?.data?.message ||
-    "Operation failed."
-);
-
-    } finally {
-
-      setSaving(false);
+      await createSocialLink(form);
 
     }
 
-  };
+    await loadLinks();
 
-  const handleEdit = (link) => {
+    toast.success(
+      editingLink
+        ? "Social link updated successfully."
+        : "Social link created successfully."
+    );
 
-    setEditingId(link.id);
+    setShowModal(false);
+    setEditingLink(null);
 
-    setForm({
-      platform: link.platform,
-      url: link.url,
-      displayOrder: link.displayOrder,
-    });
+  } catch (error) {
 
-  };
+    console.error(error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Operation failed."
+    );
+
+  } finally {
+
+    setSaving(false);
+
+  }
+
+};
+
+ 
 
   const handleDelete = async (id) => {
 
@@ -147,10 +131,12 @@ if (
 
     try {
 
-     await loadLinks();
+  await deleteSocialLink(id);
+
+await loadLinks();
 
 toast.success(
-    "Social link deleted successfully."
+  "Social link deleted successfully."
 );
 
     } catch (error) {
@@ -170,179 +156,51 @@ toast.error(
 
     <AdminLayout>
 
-      <div className="max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
 
-        <h1 className="text-4xl font-bold text-white mb-8">
-          Social Links
-        </h1>
+  <div>
 
-        {/* Form */}
+    <h1 className="text-4xl font-bold text-white">
+      Social Links
+    </h1>
 
-        <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+    <p className="text-slate-400 mt-2">
+      Manage your social media links.
+    </p>
 
-          <div className="grid md:grid-cols-3 gap-5">
+  </div>
 
-            <input
-              placeholder="Platform"
-              value={form.platform}
-              onChange={(e)=>
-                setForm({...form,platform:e.target.value})
-              }
-              className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-            />
+  <button
+    onClick={handleCreate}
+    className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-semibold"
+  >
+    + Add Social Link
+  </button>
 
-            <input
-              placeholder="URL"
-              value={form.url}
-              onChange={(e)=>
-                setForm({...form,url:e.target.value})
-              }
-              className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-            />
+</div>
 
-            <input
-              type="number"
-              placeholder="Display Order"
-              value={form.displayOrder}
-              onChange={(e)=>
-                setForm({...form,displayOrder:e.target.value})
-              }
-              className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
-            />
+<SocialLinkTable
+  links={links}
+  loading={loading}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
+/>
 
-          </div>
-
-          <div className="flex gap-3 mt-6">
-
-            <button
-              disabled={saving}
-              onClick={handleSubmit}
-              className="bg-cyan-500 hover:bg-cyan-600 px-8 py-3 rounded-lg text-white font-semibold"
-            >
-              {editingId ? "Update" : "Create"}
-            </button>
-
-            {editingId && (
-
-              <button
-                onClick={resetForm}
-                className="bg-slate-700 px-8 py-3 rounded-lg text-white"
-              >
-                Cancel
-              </button>
-
-            )}
-
-          </div>
-
-        </div>
-
-        {/* Table */}
-
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 mt-10 overflow-hidden">
-
-          {loading ? (
-
-            <div className="p-8 text-white">
-              Loading...
-            </div>
-
-          ) : (
-
-            <table className="w-full">
-
-              <thead className="bg-slate-900">
-
-                <tr>
-
-                  <th className="p-4 text-left text-slate-300">
-                    Platform
-                  </th>
-
-                  <th className="p-4 text-left text-slate-300">
-                    URL
-                  </th>
-
-                  <th className="p-4 text-left text-slate-300">
-                    Order
-                  </th>
-
-                  <th className="p-4 text-center text-slate-300">
-                    Actions
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {links.map((link)=>(
-
-                  <tr
-                    key={link.id}
-                    className="border-t border-slate-700"
-                  >
-
-                    <td className="p-4 text-white">
-                      {link.platform}
-                    </td>
-
-                    <td className="p-4">
-
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-cyan-400"
-                      >
-                        {link.url}
-                      </a>
-
-                    </td>
-
-                    <td className="p-4 text-white">
-                      {link.displayOrder}
-                    </td>
-
-                    <td className="p-4">
-
-                      <div className="flex justify-center gap-3">
-
-                        <button
-                          onClick={()=>handleEdit(link)}
-                          className="bg-cyan-600 px-4 py-2 rounded text-white"
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          onClick={()=>handleDelete(link.id)}
-                          className="bg-red-600 px-4 py-2 rounded text-white"
-                        >
-                          Delete
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-          )}
-
-        </div>
-
-      </div>
+<SocialLinkFormModal
+  open={showModal}
+  initialData={editingLink}
+  loading={saving}
+  onClose={() => {
+    setShowModal(false);
+    setEditingLink(null);
+  }}
+  onSubmit={handleSubmit}
+/>
 
     </AdminLayout>
 
   );
 
+
 }
+
