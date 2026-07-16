@@ -185,7 +185,7 @@ export default function ProjectTable({
                   </button>
 
                   <button
-                    onClick={() => onDelete(project.id)}
+                  onClick={() => onDelete(project)}
                    className="bg-red-600 hover:bg-red-700 transition text-white p-2 rounded-lg"
                   >
                     <FaTrash />

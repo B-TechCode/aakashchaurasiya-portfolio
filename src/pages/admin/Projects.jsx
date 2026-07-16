@@ -1,11 +1,10 @@
-    import { useEffect, useState } from "react";
+ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
-    import AdminLayout from "../../layouts/AdminLayout";
-
-    import ProjectTable from "../../components/admin/projects/ProjectTable";
-  import ProjectFormModal from "../../components/admin/projects/ProjectFormModal";
-  import ImageUploadModal from "../../components/admin/projects/ImageUploadModal";
+ import AdminLayout from "../../layouts/AdminLayout";
+ import ProjectTable from "../../components/admin/projects/ProjectTable";
+ import ProjectFormModal from "../../components/admin/projects/ProjectFormModal";
+ import ImageUploadModal from "../../components/admin/projects/ImageUploadModal";
+import DeleteProjectModal from "../../components/admin/projects/DeleteProjectModal";
 
   import {
     getAllProjects,
@@ -15,21 +14,18 @@ import toast from "react-hot-toast";
     uploadProjectImage,
   } from "../../api/projectApi";
 
-    export default function Projects() {
-
-      const [projects, setProjects] = useState([]);
-
-      const [loading, setLoading] = useState(true);
-      const [saving, setSaving] = useState(false);
-
-      const [showModal, setShowModal] = useState(false);
-
-      const [showImageModal, setShowImageModal] = useState(false);
-
-  const [selectedProject, setSelectedProject] = useState(null);
-
-  const [uploadingImage, setUploadingImage] = useState(false);
-      const [editingProject, setEditingProject] = useState(null);
+export default function Projects() {
+ const [projects, setProjects] = useState([]);
+const [loading, setLoading] = useState(true);
+const [saving, setSaving] = useState(false);
+const [showModal, setShowModal] = useState(false);
+const [showImageModal, setShowImageModal] = useState(false);
+const [selectedProject, setSelectedProject] = useState(null);
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [deletingProject, setDeletingProject] = useState(null);
+const [deleting, setDeleting] = useState(false);
+const [uploadingImage, setUploadingImage] = useState(false);
+const [editingProject, setEditingProject] = useState(null);
 
       useEffect(() => {
 
@@ -41,7 +37,7 @@ import toast from "react-hot-toast";
 
         try {
 
-        const response = await getAllProjects();
+    const response = await getAllProjects();
     setProjects(response.data.data);
 
         } catch (error) {
@@ -72,32 +68,50 @@ import toast from "react-hot-toast";
 
       };
 
-      const handleDelete = async (id) => {
+const handleDeleteClick = (project) => {
 
-        if (!window.confirm("Delete this project?")) return;
+  setDeletingProject(project);
 
-        try {
+  setShowDeleteModal(true);
 
-         await deleteProject(id);
+};
 
-await loadProjects();
+const handleDelete = async () => {
 
-toast.success("Project deleted successfully.");
+  if (!deletingProject) return;
 
-        } catch (error) {
+  try {
 
-          console.error(error);
+    setDeleting(true);
 
-        toast.error(
-    error.response?.data?.message ||
-    "Failed to delete project."
-);
+    await deleteProject(deletingProject.id);
 
-        }
+    await loadProjects();
 
-      };
+    toast.success("Project deleted successfully.");
 
-      const handleUploadImageClick = (project) => {
+    setShowDeleteModal(false);
+
+    setDeletingProject(null);
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to delete project."
+    );
+
+  } finally {
+
+    setDeleting(false);
+
+  }
+
+};
+
+ const handleUploadImageClick = (project) => {
 
     setSelectedProject(project);
 
@@ -231,7 +245,7 @@ if (!project.summary.trim()) {
     projects={projects}
     loading={loading}
     onEdit={handleEdit}
-    onDelete={handleDelete}
+  onDelete={handleDeleteClick}
     onUploadImage={handleUploadImageClick}
 />
 
@@ -266,6 +280,17 @@ if (!project.summary.trim()) {
     }}
     onUpload={handleImageUpload}
   />
+
+  <DeleteProjectModal
+  open={showDeleteModal}
+  loading={deleting}
+  projectTitle={deletingProject?.title}
+  onClose={() => {
+    setShowDeleteModal(false);
+    setDeletingProject(null);
+  }}
+  onConfirm={handleDelete}
+/>
 
   </AdminLayout>
 
