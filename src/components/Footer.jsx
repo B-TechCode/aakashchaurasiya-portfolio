@@ -1,16 +1,36 @@
-// components/Footer.jsx
-// Clean minimal footer with social links and copyright
+import { useEffect, useState } from "react";
 
-import { FiGithub, FiLinkedin, FiMail, FiArrowUp } from 'react-icons/fi'
+import {
+  FiGithub,
+  FiLinkedin,
+  FiMail,
+  FiGlobe,
+  FiArrowUp,
+} from "react-icons/fi";
 
-const SOCIALS = [
-  { icon: FiGithub,   href: 'https://github.com/B-TechCode', label: 'GitHub'   },
-  { icon: FiLinkedin, href: 'https://linkedin.com/in/aakashprasadchaurasiya', label: 'LinkedIn' },
-  { icon: FiMail,     href: 'mailto:aakashchaurasiya630@gmail.com',     label: 'Email'    },
-]
+import { fetchSocialLinks } from "../services/socialLinkService";
 
 export default function Footer() {
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  const [socialLinks, setSocialLinks] = useState([]);
+
+  useEffect(() => {
+    loadSocialLinks();
+  }, []);
+
+  const loadSocialLinks = async () => {
+    try {
+      const data = await fetchSocialLinks();
+      setSocialLinks(data);
+    } catch (error) {
+      console.error("Failed to load social links", error);
+    }
+  };
+
+  const scrollTop = () =>
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
 
   return (
     <footer className="border-t border-white/5 bg-navy-950/80">
@@ -18,30 +38,67 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
 
           {/* Brand */}
+
           <div className="flex items-center gap-2">
-            <span className="w-6 h-6 bg-accent rounded flex items-center justify-center font-display font-bold text-navy-900 text-xs">A</span>
-            <span className="font-display text-white text-sm">Aakash<span className="text-accent">.</span></span>
+            <span className="w-6 h-6 bg-accent rounded flex items-center justify-center font-display font-bold text-navy-900 text-xs">
+              A
+            </span>
+
+            <span className="font-display text-white text-sm">
+              Aakash
+              <span className="text-accent">.</span>
+            </span>
           </div>
 
           {/* Copyright */}
+
           <p className="font-mono text-xs text-slate-500">
-            © {new Date().getFullYear()} Aakash Prasad Chaurasiya. Built with React + Tailwind.
+            © {new Date().getFullYear()} Aakash Prasad Chaurasiya. Built with
+            React + Tailwind.
           </p>
 
-          {/* Socials + Back to top */}
+          {/* Social Links + Back to Top */}
+
           <div className="flex items-center gap-4">
-            {SOCIALS.map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="text-slate-400 hover:text-accent transition-colors duration-200"
-              >
-                <Icon size={18} />
-              </a>
-            ))}
+
+            {socialLinks.map((item) => {
+
+              let Icon = FiGlobe;
+
+              switch (item.platform) {
+
+                case "GitHub":
+                  Icon = FiGithub;
+                  break;
+
+                case "LinkedIn":
+                  Icon = FiLinkedin;
+                  break;
+
+                case "Email":
+                  Icon = FiMail;
+                  break;
+
+                default:
+                  Icon = FiGlobe;
+
+              }
+
+              return (
+                <a
+                  key={item.id}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={item.platform}
+                  className="text-slate-400 hover:text-accent transition-colors duration-200"
+                >
+                  <Icon size={18} />
+                </a>
+              );
+
+            })}
+
             <button
               onClick={scrollTop}
               aria-label="Back to top"
@@ -49,9 +106,11 @@ export default function Footer() {
             >
               <FiArrowUp size={14} />
             </button>
+
           </div>
+
         </div>
       </div>
     </footer>
-  )
+  );
 }

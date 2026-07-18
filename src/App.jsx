@@ -1,10 +1,25 @@
 import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+
 import { recordAnalytics } from "./services/analyticsService";
+
+import Seo from "./components/Seo";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+
+import Hero from "./sections/Hero";
+import About from "./sections/About";
+import Skills from "./sections/Skills";
+import Projects from "./sections/Projects";
+import Services from "./sections/Services";
+import Resume from "./sections/Resume";
 import Certificates from "./sections/Certificates";
+import Contact from "./sections/Contact";
+
 // ====================
 // Admin Pages
 // ====================
+
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import Profile from "./pages/admin/Profile";
@@ -21,68 +36,61 @@ import AnalyticsAdmin from "./pages/admin/Analytics";
 // ====================
 // Route Protection
 // ====================
+
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 
 // ====================
-// Portfolio Components
-// ====================
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-
-import Hero from "./sections/Hero";
-import About from "./sections/About";
-import Skills from "./sections/Skills";
-import Projects from "./sections/Projects";
-import Services from "./sections/Services";
-import Resume from "./sections/Resume";
-import Contact from "./sections/Contact";
-
-// ====================
 // Portfolio Homepage
 // ====================
+
 function Portfolio() {
-
   useEffect(() => {
-
     recordAnalytics(
       "PORTFOLIO_VISIT",
       "portfolio",
       1
     );
-
   }, []);
 
   return (
-    <div className="noise-overlay min-h-screen bg-navy-900 text-slate-300">
-      <Navbar />
+    <>
+      <Seo />
 
-      <main>
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Services />
-        <Resume />
-        <Certificates />
-        <Contact />
-      </main>
+      <div className="noise-overlay min-h-screen bg-navy-900 text-slate-300">
+        <Navbar />
 
-      <Footer />
-    </div>
+        <main>
+          <Hero />
+          <About />
+          <Skills />
+          <Projects />
+          <Services />
+          <Resume />
+          <Certificates />
+          <Contact />
+        </main>
+
+        <Footer />
+      </div>
+    </>
   );
 }
 
 // ====================
 // App Routes
 // ====================
+
 export default function App() {
   return (
     <Routes>
 
       {/* ================= Public Portfolio ================= */}
 
-      <Route path="/" element={<Portfolio />} />
+      <Route
+        path="/"
+        element={<Portfolio />}
+      />
 
       {/* ================= Admin Login ================= */}
 
