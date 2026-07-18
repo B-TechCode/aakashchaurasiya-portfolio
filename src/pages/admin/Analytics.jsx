@@ -29,36 +29,35 @@ export default function Analytics() {
 
   }, [page]);
 
-  const loadAnalytics = async () => {
+ const loadAnalytics = async () => {
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
+  try {
 
-      const countsResponse = await getAnalyticsCounts();
+    const countsResponse = await getAnalyticsCounts();
 
-      const eventsResponse =
-        await getAllAnalyticsEvents(page, size);
+    const eventsResponse = await getAllAnalyticsEvents(page, size);
 
-      setCounts(countsResponse.data);
+    setCounts(countsResponse.data.data);
 
-      setEvents(eventsResponse.data.content);
+    setEvents(eventsResponse.data.data.content);
 
-      setTotalPages(eventsResponse.data.totalPages);
+    setTotalPages(eventsResponse.data.data.totalPages);
 
-    } catch (error) {
+  } catch (error) {
 
-      console.error(error);
+    console.error(error);
 
-      toast.error("Failed to load analytics.");
+    toast.error("Failed to load analytics.");
 
-    } finally {
+  } finally {
 
-      setLoading(false);
+    setLoading(false);
 
-    }
+  }
 
-  };
+};
 
   const handleDelete = async (id) => {
 
