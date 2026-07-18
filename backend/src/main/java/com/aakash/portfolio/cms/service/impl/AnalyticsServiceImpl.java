@@ -13,6 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -48,14 +54,28 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return toResponse(event);
     }
 
-    @Override
-    public List<AnalyticsResponse> getAllEvents() {
+@Override
+public Page<AnalyticsResponse> getAllEvents(int page, int size) {
 
-        return analyticsEventRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<AnalyticsEvent> analyticsPage =
+            analyticsEventRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+    return new PageImpl<>(
+
+            analyticsPage.getContent()
+                    .stream()
+                    .map(this::toResponse)
+                    .toList(),
+
+            pageable,
+
+            analyticsPage.getTotalElements()
+
+    );
+
+}
 
     @Override
     public List<AnalyticsResponse> getEventsByType(AnalyticsEventType eventType) {
