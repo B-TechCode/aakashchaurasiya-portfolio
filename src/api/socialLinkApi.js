@@ -39,3 +39,13 @@ export const updateSocialLink = (id, data) => {
 export const deleteSocialLink = (id) => {
   return axiosInstance.delete(`/admin/social-links/${id}`);
 };
+
+
+
+// ==============================
+// PUBLIC SOCIAL LINKS
+// ==============================
+
+export const getPublicSocialLinks = () => {
+  return axiosInstance.get("/public/social-links");
+};
