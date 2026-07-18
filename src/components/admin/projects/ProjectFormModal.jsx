@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+import { fetchPublicSkills } from "../../../services/skillService";
+
 const initialState = {
   title: "",
   slug: "",
@@ -11,6 +13,7 @@ const initialState = {
   displayOrder: 0,
   featured: false,
   published: true,
+  skillIds: [],
 };
 
 export default function ProjectFormModal({
@@ -22,7 +25,11 @@ export default function ProjectFormModal({
 }) {
   const [form, setForm] = useState(initialState);
 
+  const [skills, setSkills] = useState([]);
+
   useEffect(() => {
+    loadSkills();
+
     if (initialData) {
       setForm({
         title: initialData.title || "",
@@ -34,83 +41,97 @@ export default function ProjectFormModal({
         displayOrder: initialData.displayOrder || 0,
         featured: initialData.featured || false,
         published: initialData.published ?? true,
+        skillIds:
+          initialData.skills?.map((skill) => skill.id) || [],
       });
     } else {
       setForm(initialState);
     }
   }, [initialData]);
 
-const handleChange = (e) => {
+  const loadSkills = async () => {
+    try {
+      const data = await fetchPublicSkills();
+      setSkills(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name === "title") {
+      setForm((prev) => ({
+        ...prev,
+        title: value,
+        slug: value
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/[^\w-]/g, ""),
+      }));
 
-        setForm((prev) => ({
-            ...prev,
-            title: value,
-            slug: value
-                .toLowerCase()
-                .trim()
-                .replace(/\s+/g, "-")
-                .replace(/[^\w-]/g, ""),
-        }));
-
-        return;
-
+      return;
     }
 
     setForm((prev) => ({
-        ...prev,
-        [name]:
-            type === "checkbox"
-                ? checked
-                : value,
+      ...prev,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : value,
     }));
+  };
 
-};
+  const handleSkillToggle = (skillId) => {
+    setForm((prev) => ({
+      ...prev,
+      skillIds: prev.skillIds.includes(skillId)
+        ? prev.skillIds.filter((id) => id !== skillId)
+        : [...prev.skillIds, skillId],
+    }));
+  };
 
- const handleSubmit = (e) => {
-
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!form.title.trim()) {
-        return toast.error("Project title is required.");
+      return toast.error("Project title is required.");
     }
 
     if (!form.slug.trim()) {
-        return toast.error("Project slug is required.");
+      return toast.error("Project slug is required.");
     }
 
     if (!form.summary.trim()) {
-        return toast.error("Project summary is required.");
+      return toast.error("Project summary is required.");
     }
 
     if (!form.description.trim()) {
-        return toast.error("Project description is required.");
+      return toast.error("Project description is required.");
     }
 
     if (
-        form.githubUrl &&
-        !form.githubUrl.startsWith("https://")
+      form.githubUrl &&
+      !form.githubUrl.startsWith("https://")
     ) {
-        return toast.error(
-            "GitHub URL must start with https://"
-        );
+      return toast.error(
+        "GitHub URL must start with https://"
+      );
     }
 
     if (
-        form.liveUrl &&
-        !form.liveUrl.startsWith("https://")
+      form.liveUrl &&
+      !form.liveUrl.startsWith("https://")
     ) {
-        return toast.error(
-            "Live URL must start with https://"
-        );
+      return toast.error(
+        "Live URL must start with https://"
+      );
     }
 
     onSubmit(form);
-
-};
+  };
 
   if (!open) return null;
 
@@ -134,7 +155,10 @@ const handleChange = (e) => {
 
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
 
           <div>
 
@@ -162,9 +186,6 @@ const handleChange = (e) => {
               name="slug"
               readOnly
               value={form.slug}
-              onChange={handleChange}
-              required
-             
               className="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 text-slate-300 cursor-not-allowed"
             />
 
@@ -202,7 +223,7 @@ const handleChange = (e) => {
 
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-2 gap-6">
 
             <div>
 
@@ -214,7 +235,8 @@ const handleChange = (e) => {
                 name="githubUrl"
                 value={form.githubUrl}
                 onChange={handleChange}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
+                placeholder="https://github.com/..."
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder:text-slate-500"
               />
 
             </div>
@@ -229,7 +251,8 @@ const handleChange = (e) => {
                 name="liveUrl"
                 value={form.liveUrl}
                 onChange={handleChange}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
+                placeholder="https://example.com"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder:text-slate-500"
               />
 
             </div>
@@ -252,6 +275,69 @@ const handleChange = (e) => {
 
           </div>
 
+          {/* ================= Skills ================= */}
+
+          <div>
+
+            <label className="text-slate-300 block mb-3 font-semibold">
+              Project Skills
+            </label>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+
+              {skills.length === 0 ? (
+
+                <p className="text-slate-500 text-sm">
+                  No skills available.
+                </p>
+
+              ) : (
+
+                skills.map((skill) => (
+
+                  <label
+                    key={skill.id}
+                    className="
+                      flex
+                      items-center
+                      gap-3
+                      bg-slate-800
+                      border
+                      border-slate-700
+                      rounded-lg
+                      px-4
+                      py-3
+                      cursor-pointer
+                      hover:border-cyan-500
+                      transition
+                    "
+                  >
+
+                    <input
+                      type="checkbox"
+                      checked={form.skillIds.includes(skill.id)}
+                      onChange={() =>
+                        handleSkillToggle(skill.id)
+                      }
+                      className="accent-cyan-500"
+                    />
+
+                    <span className="text-white text-sm">
+                      {skill.name}
+                    </span>
+
+                  </label>
+
+                ))
+
+              )}
+
+            </div>
+
+          </div>
+
+                    {/* ================= Status ================= */}
+
           <div className="flex gap-10">
 
             <label className="flex items-center gap-3 text-white">
@@ -261,6 +347,7 @@ const handleChange = (e) => {
                 name="featured"
                 checked={form.featured}
                 onChange={handleChange}
+                className="accent-cyan-500"
               />
 
               Featured
@@ -274,6 +361,7 @@ const handleChange = (e) => {
                 name="published"
                 checked={form.published}
                 onChange={handleChange}
+                className="accent-cyan-500"
               />
 
               Published
@@ -282,22 +370,31 @@ const handleChange = (e) => {
 
           </div>
 
+          {/* ================= Buttons ================= */}
+
           <div className="flex justify-end gap-4 pt-6">
 
             <button
               type="button"
-              onClick={onClose}
-              className="px-6 py-3 rounded-lg bg-slate-700 text-white"
+              onClick={() => {
+                setForm(initialState);
+                onClose();
+              }}
+              className="px-6 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition"
             >
               Cancel
             </button>
 
             <button
-            type="submit"
+              type="submit"
               disabled={loading}
-              className="px-8 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
+              className="px-8 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 text-white font-semibold transition"
             >
-              {loading ? "Saving..." : "Save Project"}
+              {loading
+                ? "Saving..."
+                : initialData
+                ? "Update Project"
+                : "Create Project"}
             </button>
 
           </div>

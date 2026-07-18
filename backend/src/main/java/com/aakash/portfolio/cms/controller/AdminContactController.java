@@ -6,7 +6,7 @@ import com.aakash.portfolio.cms.service.ContactMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 @RestController
@@ -16,20 +16,29 @@ public class AdminContactController {
 
     private final ContactMessageService contactMessageService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse> getAllMessages() {
+   @GetMapping
+public ResponseEntity<ApiResponse> getAllMessages(
 
-        List<ContactResponse> messages =
-                contactMessageService.getAllMessages();
+        @RequestParam(defaultValue = "0") int page,
 
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .success(true)
-                        .message("Messages fetched successfully")
-                        .data(messages)
-                        .build()
-        );
-    }
+        @RequestParam(defaultValue = "10") int size
+
+) {
+
+    Page<ContactResponse> messages =
+            contactMessageService.getAllMessages(page, size);
+
+    return ResponseEntity.ok(
+
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Messages fetched successfully")
+                    .data(messages)
+                    .build()
+
+    );
+
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getMessageById(

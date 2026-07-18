@@ -1,5 +1,6 @@
 
 package com.aakash.portfolio.cms.service.impl;
+import com.aakash.portfolio.cms.dto.response.SkillResponse;
 
 import com.aakash.portfolio.cms.cloudinary.CloudinaryService;
 import com.aakash.portfolio.cms.cloudinary.CloudinaryUploadResult;
@@ -83,8 +84,19 @@ private final CloudinaryService cloudinaryService;
                     project.setDisplayOrder(request.getDisplayOrder());
 
                     if (request.getSkillIds() != null) {
-                        Set<Skill> skills = new HashSet<>(skillRepository.findAllById(request.getSkillIds()));
-                        project.setSkills(skills);
+                      Set<Skill> skills =
+        new HashSet<>(skillRepository.findAllById(request.getSkillIds()));
+
+System.out.println("========== SKILLS ==========");
+System.out.println(request.getSkillIds());
+System.out.println(skills.size());
+
+for (Skill s : skills) {
+    System.out.println(s.getId() + " -> " + s.getName());
+}
+System.out.println("============================");
+
+project.setSkills(skills);
                     }
 
                     return toResponse(projectRepository.save(project));
@@ -158,14 +170,43 @@ private final CloudinaryService cloudinaryService;
 
 
 
-                    .skillIds(
-                project.getSkills() == null
-                        ? Set.of()
-                        : project.getSkills()
-                                .stream()
-                                .map(Skill::getId)
-                                .collect(Collectors.toSet())
-        )
+           .skills(
+
+    project.getSkills() == null
+
+            ? List.of()
+
+            : project.getSkills()
+
+                    .stream()
+
+                    .map(skill -> SkillResponse.builder()
+
+                            .id(skill.getId())
+
+                            .name(skill.getName())
+
+                            .category(skill.getCategory())
+
+                            .proficiency(skill.getProficiency())
+
+                            .iconName(skill.getIconName())
+
+                            .displayOrder(skill.getDisplayOrder())
+
+                            .published(skill.isPublished())
+
+                            .createdAt(skill.getCreatedAt())
+
+                            .updatedAt(skill.getUpdatedAt())
+
+                            .build()
+
+                    )
+
+                    .toList()
+
+)
 
 
                         .images(images)

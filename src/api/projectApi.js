@@ -59,3 +59,21 @@ export const uploadProjectImage = (projectId, image, meta) => {
 export const getPublicProjects = () => {
   return axiosInstance.get("/public/projects");
 };
+
+
+
+// ===============================
+// Project Image Management
+// ===============================
+
+export const deleteProjectImage = (imageId) => {
+  return axiosInstance.delete(
+    `/admin/projects/images/${imageId}`
+  );
+};
+
+export const setPrimaryProjectImage = (imageId) => {
+  return axiosInstance.put(
+    `/admin/projects/images/${imageId}/primary`
+  );
+};

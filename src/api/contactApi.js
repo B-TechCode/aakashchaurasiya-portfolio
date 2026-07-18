@@ -1,7 +1,21 @@
 import axios from "./axios";
 
-export const getAllMessages = () =>
-  axios.get("/admin/contact");
+export const getAllMessages = (
+
+  page = 0,
+
+  size = 10
+
+) => {
+
+  return axiosInstance.get(
+
+    `/admin/contact?page=${page}&size=${size}`
+
+  );
+
+};
+
 
 export const getMessageById = (id) =>
   axios.get(`/admin/contact/${id}`);

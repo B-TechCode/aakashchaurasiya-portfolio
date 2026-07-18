@@ -2,11 +2,12 @@ import { FaEdit, FaTrash, FaImage } from "react-icons/fa";
 
 export default function ProjectTable({
   projects,
-  loading,
   onEdit,
   onDelete,
   onUploadImage,
+  onManageImages,
 })
+
 {
 
 
@@ -139,33 +140,14 @@ export default function ProjectTable({
 
               <td className="px-6 py-5">
 
-                <div className="flex gap-2 flex-wrap">
+  <button
+    onClick={() => onManageImages(project)}
+    className="text-cyan-400 hover:text-cyan-300 underline"
+  >
+    Manage Images ({project.images?.length || 0})
+  </button>
 
-                  {project.images?.length ? (
-
-                    project.images.map((img) => (
-
-                      <img
-                        key={img.id}
-                        src={img.imageUrl}
-                        alt=""
-                       className="w-14 h-14 rounded-lg object-cover border border-slate-600 shadow-md hover:scale-110 transition"
-                      />
-
-                    ))
-
-                  ) : (
-
-                    <span className="text-slate-500 text-sm">
-                      No Images
-                    </span>
-
-                  )}
-
-                </div>
-
-              </td>
-
+</td>
               <td className="px-6 py-5">
 
                 <div className="flex justify-center gap-3">

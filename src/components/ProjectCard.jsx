@@ -4,84 +4,117 @@ import { recordAnalytics } from "../services/analyticsService";
 
 export default function ProjectCard({ project, index }) {
 
-  const {
-    id,
-    title,
-    description,
-    githubUrl,
-    liveUrl,
-    images = [],
-    skillIds = [],
-  } = project;
+const {
+  id,
+  title,
+  summary,
+  description,
+  githubUrl,
+  liveUrl,
+  images = [],
+  skills = [],
+} = project;
 
   const handleGithubClick = () => {
-    recordAnalytics(
-      "PROJECT_GITHUB_CLICK",
-      "project",
-      id
-    );
+
+    if (githubUrl) {
+
+      recordAnalytics(
+        "PROJECT_GITHUB_CLICK",
+        githubUrl,
+        id
+      );
+
+    }
+
   };
 
   const handleLiveDemoClick = () => {
-    recordAnalytics(
-      "PROJECT_LIVE_CLICK",
-      "project",
-      id
-    );
+
+    if (liveUrl) {
+
+      recordAnalytics(
+        "PROJECT_LIVE_CLICK",
+        liveUrl,
+        id
+      );
+
+    }
+
   };
 
   return (
+
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay: index * 0.12 }}
+      transition={{
+        duration: 0.5,
+        delay: index * 0.1,
+      }}
       whileHover={{ y: -6 }}
-      className="glass-card border-glow p-4 md:p-5 flex flex-col gap-3 group relative overflow-hidden"
+      className="glass-card border-glow p-5 flex flex-col gap-4 group relative overflow-hidden"
     >
 
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+      {/* Background Glow */}
 
-      {/* Project Image */}
-      {images.length > 0 && (
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
+
+      {/* Image */}
+
+      <div className="overflow-hidden rounded-xl">
+
         <img
-          src={images[0].imageUrl}
+          src={
+            images.length
+              ? images[0].imageUrl
+              : "https://placehold.co/600x350/0f172a/94a3b8?text=Project"
+          }
           alt={title}
-          className="w-full h-44 object-cover rounded-xl"
+          className="w-full h-44 object-cover group-hover:scale-105 transition duration-500"
         />
-      )}
+
+      </div>
 
       {/* Header */}
-      <div className="flex items-start justify-between">
 
-        <h3 className="font-display font-bold text-lg text-white group-hover:text-accent transition-colors duration-300">
+      <div className="flex justify-between items-start gap-4">
+
+        <h3 className="font-display font-bold text-lg text-white group-hover:text-accent transition-colors">
+
           {title}
+
         </h3>
 
         <div className="flex gap-2">
 
           {githubUrl && (
+
             <a
               href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleGithubClick}
-              className="text-slate-400 hover:text-accent"
+              className="text-slate-400 hover:text-accent transition-colors"
             >
               <FiGithub size={18} />
             </a>
+
           )}
 
           {liveUrl && (
+
             <a
               href={liveUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleLiveDemoClick}
-              className="text-slate-400 hover:text-accent"
+              className="text-slate-400 hover:text-accent transition-colors"
             >
               <FiExternalLink size={18} />
             </a>
+
           )}
 
         </div>
@@ -90,30 +123,44 @@ export default function ProjectCard({ project, index }) {
 
       {/* Description */}
 
-      <p className="text-slate-400 text-xs leading-relaxed line-clamp-4">
-        {description}
+      <p className="text-slate-400 text-sm leading-relaxed line-clamp-4">
+
+        {summary || description}
+
       </p>
 
       {/* Skills */}
 
-      <div className="flex flex-wrap gap-1 mt-auto">
+    {/* Skills */}
 
-        {skillIds.map((skillId) => (
+<div className="flex flex-wrap gap-2 mt-auto">
 
-          <span
-            key={skillId}
-            className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/20"
-          >
-            Skill #{skillId}
-          </span>
+  {skills.length > 0 ? (
 
-        ))}
+    skills.map((skill) => (
 
-      </div>
+      <span
+        key={skill.id}
+        className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/20"
+      >
+        {skill.name}
+      </span>
 
-      {/* Buttons */}
+    ))
 
-      <div className="flex gap-2 pt-1">
+  ) : (
+
+    <span className="text-xs text-slate-500">
+      No skills assigned
+    </span>
+
+  )}
+
+</div>
+
+      {/* Footer Buttons */}
+
+      <div className="flex gap-3 pt-2">
 
         {githubUrl && (
 
@@ -122,10 +169,15 @@ export default function ProjectCard({ project, index }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleGithubClick}
-            className="btn-ghost text-[10px] py-1.5 px-3 flex-1 justify-center"
+            className="btn-ghost flex-1 justify-center text-xs"
           >
-            <FiGithub size={12} />
-            <span className="ml-1">GitHub</span>
+
+            <FiGithub size={14} />
+
+            <span className="ml-2">
+              GitHub
+            </span>
+
           </a>
 
         )}
@@ -137,10 +189,15 @@ export default function ProjectCard({ project, index }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleLiveDemoClick}
-            className="btn-primary text-[10px] py-1.5 px-3 flex-1 justify-center"
+            className="btn-primary flex-1 justify-center text-xs"
           >
-            <FiExternalLink size={12} />
-            <span className="ml-1">Live Demo</span>
+
+            <FiExternalLink size={14} />
+
+            <span className="ml-2">
+              Live Demo
+            </span>
+
           </a>
 
         )}
@@ -148,5 +205,7 @@ export default function ProjectCard({ project, index }) {
       </div>
 
     </motion.div>
+
   );
+
 }

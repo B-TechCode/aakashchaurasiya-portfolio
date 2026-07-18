@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
+
+import toast from "react-hot-toast";
 import {
   getAnalyticsCounts,
   getAllAnalyticsEvents,
@@ -20,8 +22,9 @@ export default function Analytics() {
       const countsResponse = await getAnalyticsCounts();
       const eventsResponse = await getAllAnalyticsEvents();
 
-      setCounts(countsResponse.data);
-      setEvents(eventsResponse.data);
+      setCounts(countsResponse.data.data);
+
+      setEvents(eventsResponse.data.data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -34,10 +37,11 @@ export default function Analytics() {
 
     try {
       await deleteAnalyticsEvent(id);
+      toast.success("Analytics event deleted.");
       loadAnalytics();
     } catch (error) {
       console.error(error);
-      alert("Failed to delete analytics event.");
+      toast.error("Failed to delete analytics event.");
     }
   };
 

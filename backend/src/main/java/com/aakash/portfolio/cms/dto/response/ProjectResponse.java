@@ -41,7 +41,7 @@ public class ProjectResponse {
 
     private LocalDateTime updatedAt;
 
-    private Set<Long> skillIds;
+    private List<SkillResponse> skills;
 
     private List<ProjectImageResponse> images;
 }

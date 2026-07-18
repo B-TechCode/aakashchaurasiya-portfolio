@@ -12,7 +12,10 @@ import com.aakash.portfolio.cms.service.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,14 +52,26 @@ public class ContactMessageServiceImpl implements ContactMessageService {
         return toResponse(contactMessage);
     }
 
-    @Override
-    public List<ContactResponse> getAllMessages() {
+  @Override
+public Page<ContactResponse> getAllMessages(int page, int size) {
 
-        return contactMessageRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<ContactMessage> contactPage =
+            contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+    return new PageImpl<>(
+
+            contactPage.getContent()
+                    .stream()
+                    .map(this::toResponse)
+                    .toList(),
+
+            pageable,
+
+            contactPage.getTotalElements()
+    );
+}
 
     @Override
     public ContactResponse getMessageById(Long id) {

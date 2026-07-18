@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import toast from "react-hot-toast";
 import AdminLayout from "../../layouts/AdminLayout";
 
 import {
@@ -11,26 +11,35 @@ import {
 export default function Contacts() {
 
   const [messages, setMessages] = useState([]);
-
   const [loading, setLoading] = useState(true);
+
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
 
     loadMessages();
 
-  }, []);
+  }, [page]);
 
   const loadMessages = async () => {
 
+    setLoading(true);
+
     try {
 
-      const response = await getAllMessages();
+      const response = await getAllMessages(page, size);
 
-      setMessages(response.data.data);
+      setMessages(response.data.data.content);
+
+      setTotalPages(response.data.data.totalPages);
 
     } catch (error) {
 
       console.error(error);
+
+      toast.error("Failed to load messages.");
 
     } finally {
 
@@ -46,13 +55,15 @@ export default function Contacts() {
 
       await markMessageAsRead(id);
 
-      loadMessages();
+      await loadMessages();
+
+      toast.success("Message marked as read.");
 
     } catch (error) {
 
       console.error(error);
 
-      alert("Failed to mark message as read.");
+      toast.error("Failed to mark message as read.");
 
     }
 
@@ -66,13 +77,15 @@ export default function Contacts() {
 
       await deleteMessage(id);
 
-      loadMessages();
+      await loadMessages();
+
+      toast.success("Message deleted successfully.");
 
     } catch (error) {
 
       console.error(error);
 
-      alert("Failed to delete message.");
+      toast.error("Failed to delete message.");
 
     }
 
@@ -188,9 +201,7 @@ export default function Contacts() {
 
                     <td className="text-slate-400">
 
-                      {new Date(
-                        message.createdAt
-                      ).toLocaleString()}
+                      {new Date(message.createdAt).toLocaleString()}
 
                     </td>
 
@@ -201,9 +212,7 @@ export default function Contacts() {
                         {message.status === "NEW" && (
 
                           <button
-                            onClick={() =>
-                              handleRead(message.id)
-                            }
+                            onClick={() => handleRead(message.id)}
                             className="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-2 rounded-lg"
                           >
                             Read
@@ -212,9 +221,7 @@ export default function Contacts() {
                         )}
 
                         <button
-                          onClick={() =>
-                            handleDelete(message.id)
-                          }
+                          onClick={() => handleDelete(message.id)}
                           className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
                         >
                           Delete
@@ -235,6 +242,50 @@ export default function Contacts() {
           </table>
 
         </div>
+
+        {totalPages > 1 && (
+
+          <div className="flex items-center justify-between mt-6">
+
+            <button
+              onClick={() => setPage((prev) => prev - 1)}
+              disabled={page === 0}
+              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600"
+            >
+              Previous
+            </button>
+
+            <div className="flex gap-2">
+
+              {[...Array(totalPages)].map((_, index) => (
+
+                <button
+                  key={index}
+                  onClick={() => setPage(index)}
+                  className={`w-10 h-10 rounded-lg font-semibold transition ${
+                    page === index
+                      ? "bg-cyan-500 text-white"
+                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+
+              ))}
+
+            </div>
+
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={page === totalPages - 1}
+              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600"
+            >
+              Next
+            </button>
+
+          </div>
+
+        )}
 
       </div>
 

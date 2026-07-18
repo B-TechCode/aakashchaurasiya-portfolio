@@ -5,14 +5,18 @@ import toast from "react-hot-toast";
  import ProjectFormModal from "../../components/admin/projects/ProjectFormModal";
  import ImageUploadModal from "../../components/admin/projects/ImageUploadModal";
 import DeleteProjectModal from "../../components/admin/projects/DeleteProjectModal";
+import ProjectImagesModal from "../../components/admin/projects/ProjectImagesModal";
 
-  import {
-    getAllProjects,
-    createProject,
-    updateProject,
-    deleteProject,
-    uploadProjectImage,
-  } from "../../api/projectApi";
+
+import {
+  getAllProjects,
+  createProject,
+  updateProject,
+  deleteProject,
+  uploadProjectImage,
+  deleteProjectImage,
+  setPrimaryProjectImage,
+} from "../../api/projectApi";
 
 export default function Projects() {
  const [projects, setProjects] = useState([]);
@@ -21,6 +25,8 @@ const [saving, setSaving] = useState(false);
 const [showModal, setShowModal] = useState(false);
 const [showImageModal, setShowImageModal] = useState(false);
 const [selectedProject, setSelectedProject] = useState(null);
+const [showImagesModal, setShowImagesModal] = useState(false);
+const [imageActionLoading, setImageActionLoading] = useState(false);
 const [showDeleteModal, setShowDeleteModal] = useState(false);
 const [deletingProject, setDeletingProject] = useState(null);
 const [deleting, setDeleting] = useState(false);
@@ -119,6 +125,14 @@ const handleDelete = async () => {
 
   };
 
+  const handleManageImages = (project) => {
+
+  setSelectedProject(project);
+
+  setShowImagesModal(true);
+
+};
+
   const handleImageUpload = async (image, meta) => {
 
     try {
@@ -130,6 +144,78 @@ const handleDelete = async () => {
     image,
     meta
 );
+
+
+const handleDeleteImage = async (imageId) => {
+
+  try {
+
+    setImageActionLoading(true);
+
+    await deleteProjectImage(imageId);
+
+    await loadProjects();
+
+    const response = await getAllProjects();
+
+    const updatedProject =
+      response.data.data.find(
+        p => p.id === selectedProject.id
+      );
+
+    setSelectedProject(updatedProject);
+
+    toast.success("Image deleted successfully.");
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error("Failed to delete image.");
+
+  } finally {
+
+    setImageActionLoading(false);
+
+  }
+
+};
+
+
+const handlePrimaryImage = async (imageId) => {
+
+  try {
+
+    setImageActionLoading(true);
+
+    await setPrimaryProjectImage(imageId);
+
+    const response = await getAllProjects();
+
+    setProjects(response.data.data);
+
+    const updatedProject =
+      response.data.data.find(
+        p => p.id === selectedProject.id
+      );
+
+    setSelectedProject(updatedProject);
+
+    toast.success("Primary image updated.");
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error("Failed to update primary image.");
+
+  } finally {
+
+    setImageActionLoading(false);
+
+  }
+
+};
 
 await loadProjects();
 
@@ -241,12 +327,13 @@ if (!project.summary.trim()) {
 
           ) : (
 
-          <ProjectTable
-    projects={projects}
-    loading={loading}
-    onEdit={handleEdit}
+      <ProjectTable
+  projects={projects}
+  loading={loading}
+  onEdit={handleEdit}
   onDelete={handleDeleteClick}
-    onUploadImage={handleUploadImageClick}
+  onUploadImage={handleUploadImageClick}
+  onManageImages={handleManageImages}
 />
 
           )}
@@ -290,6 +377,25 @@ if (!project.summary.trim()) {
     setDeletingProject(null);
   }}
   onConfirm={handleDelete}
+/>
+
+
+
+<ProjectImagesModal
+  open={showImagesModal}
+  project={selectedProject}
+  loading={imageActionLoading}
+  onClose={() => {
+
+    setShowImagesModal(false);
+
+    setSelectedProject(null);
+
+  }}
+
+ onDelete={handleDeleteImage}
+
+onPrimary={handlePrimaryImage}
 />
 
   </AdminLayout>
