@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+
 import AdminLayout from "../../layouts/AdminLayout";
 
-import toast from "react-hot-toast";
 import {
   getAnalyticsCounts,
   getAllAnalyticsEvents,
@@ -9,65 +10,117 @@ import {
 } from "../../api/analyticsApi";
 
 export default function Analytics() {
+
   const [counts, setCounts] = useState(null);
+
   const [events, setEvents] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
+  const [page, setPage] = useState(0);
+
+  const [size] = useState(10);
+
+  const [totalPages, setTotalPages] = useState(0);
+
   useEffect(() => {
+
     loadAnalytics();
-  }, []);
+
+  }, [page]);
 
   const loadAnalytics = async () => {
+
+    setLoading(true);
+
     try {
+
       const countsResponse = await getAnalyticsCounts();
-      const eventsResponse = await getAllAnalyticsEvents();
 
-      setCounts(countsResponse.data.data);
+      const eventsResponse =
+        await getAllAnalyticsEvents(page, size);
 
-      setEvents(eventsResponse.data.data);
+      setCounts(countsResponse.data);
+
+      setEvents(eventsResponse.data.content);
+
+      setTotalPages(eventsResponse.data.totalPages);
+
     } catch (error) {
+
       console.error(error);
+
+      toast.error("Failed to load analytics.");
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
   const handleDelete = async (id) => {
+
     if (!window.confirm("Delete this analytics event?")) return;
 
     try {
+
       await deleteAnalyticsEvent(id);
+
       toast.success("Analytics event deleted.");
-      loadAnalytics();
+
+      await loadAnalytics();
+
     } catch (error) {
+
       console.error(error);
+
       toast.error("Failed to delete analytics event.");
+
     }
+
   };
 
   if (loading) {
+
     return (
+
       <AdminLayout>
-        <div className="text-white text-xl">Loading Analytics...</div>
+
+        <div className="text-white text-xl">
+
+          Loading Analytics...
+
+        </div>
+
       </AdminLayout>
+
     );
+
   }
 
   return (
+
     <AdminLayout>
+
       <div className="max-w-7xl mx-auto">
 
         <div className="mb-8">
+
           <h1 className="text-4xl font-bold text-white">
+
             Analytics
+
           </h1>
 
           <p className="text-slate-400 mt-2">
-            Monitor portfolio activities.
-          </p>
-        </div>
 
-        {/* Statistics */}
+            Monitor portfolio activities.
+
+          </p>
+
+        </div>
 
         <div className="grid md:grid-cols-5 gap-5 mb-8">
 
@@ -82,8 +135,6 @@ export default function Analytics() {
           <Card title="Contact Forms" value={counts.contactFormSubmissions} />
 
         </div>
-
-        {/* Events */}
 
         <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
 
@@ -130,21 +181,15 @@ export default function Analytics() {
                   >
 
                     <td className="p-5 text-white">
-
                       {event.eventType}
-
                     </td>
 
                     <td className="p-5 text-slate-300">
-
                       {event.entityType || "-"}
-
                     </td>
 
                     <td className="p-5 text-slate-300">
-
                       {new Date(event.createdAt).toLocaleString()}
-
                     </td>
 
                     <td className="p-5 text-right">
@@ -170,13 +215,62 @@ export default function Analytics() {
 
         </div>
 
+        {totalPages > 1 && (
+
+          <div className="flex justify-between items-center mt-6">
+
+            <button
+              onClick={() => setPage((prev) => prev - 1)}
+              disabled={page === 0}
+              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            <div className="flex gap-2">
+
+              {[...Array(totalPages)].map((_, index) => (
+
+                <button
+                  key={index}
+                  onClick={() => setPage(index)}
+                  className={`w-10 h-10 rounded-lg ${
+                    page === index
+                      ? "bg-cyan-500 text-white"
+                      : "bg-slate-700 text-slate-300"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+
+              ))}
+
+            </div>
+
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={page === totalPages - 1}
+              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50"
+            >
+              Next
+            </button>
+
+          </div>
+
+        )}
+
       </div>
+
     </AdminLayout>
+
   );
+
 }
 
 function Card({ title, value }) {
+
   return (
+
     <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
 
       <div className="text-slate-400 text-sm">
@@ -192,5 +286,7 @@ function Card({ title, value }) {
       </div>
 
     </div>
+
   );
+
 }

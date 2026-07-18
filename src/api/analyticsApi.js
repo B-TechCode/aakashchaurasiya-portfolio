@@ -30,9 +30,17 @@ export const getAnalyticsCounts = async () => {
   return response.data;
 };
 
-export const getAllAnalyticsEvents = async () => {
-  const response = await api.get("/admin/analytics");
+export const getAllAnalyticsEvents = async (
+  page = 0,
+  size = 10
+) => {
+
+  const response = await api.get(
+    `/admin/analytics?page=${page}&size=${size}`
+  );
+
   return response.data;
+
 };
 
 export const deleteAnalyticsEvent = async (id) => {
