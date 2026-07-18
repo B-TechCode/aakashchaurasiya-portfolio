@@ -6,7 +6,7 @@ import com.aakash.portfolio.cms.dto.response.AnalyticsResponse;
 import com.aakash.portfolio.cms.entity.AnalyticsEventType;
 
 import jakarta.servlet.http.HttpServletRequest;
-
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface AnalyticsService {
@@ -17,7 +17,7 @@ public interface AnalyticsService {
             HttpServletRequest httpRequest
     );
 
-    List<AnalyticsResponse> getAllEvents();
+    Page<AnalyticsResponse> getAllEvents(int page, int size);
 
     List<AnalyticsResponse> getEventsByType(AnalyticsEventType eventType);
 

@@ -8,7 +8,7 @@ import com.aakash.portfolio.cms.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 @RestController
@@ -18,20 +18,29 @@ public class AdminAnalyticsController {
 
     private final AnalyticsService analyticsService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse> getAllEvents() {
+   @GetMapping
+public ResponseEntity<ApiResponse> getAllEvents(
 
-        List<AnalyticsResponse> events =
-                analyticsService.getAllEvents();
+        @RequestParam(defaultValue = "0") int page,
 
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .success(true)
-                        .message("Analytics events fetched successfully")
-                        .data(events)
-                        .build()
-        );
-    }
+        @RequestParam(defaultValue = "10") int size
+
+) {
+
+    Page<AnalyticsResponse> events =
+            analyticsService.getAllEvents(page, size);
+
+    return ResponseEntity.ok(
+
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Analytics events fetched successfully")
+                    .data(events)
+                    .build()
+
+    );
+
+}
 
     @GetMapping("/type/{eventType}")
     public ResponseEntity<ApiResponse> getEventsByType(
