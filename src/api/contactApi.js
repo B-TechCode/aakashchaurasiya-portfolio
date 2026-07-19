@@ -8,11 +8,9 @@ export const getAllMessages = (
 
 ) => {
 
-  return axiosInstance.get(
-
-    `/admin/contact?page=${page}&size=${size}`
-
-  );
+return axios.get(
+  `/admin/contact?page=${page}&size=${size}`
+);
 
 };
 

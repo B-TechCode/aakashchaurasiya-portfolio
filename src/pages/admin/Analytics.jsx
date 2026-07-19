@@ -35,15 +35,15 @@ export default function Analytics() {
 
   try {
 
-    const countsResponse = await getAnalyticsCounts();
+  const countsResponse = await getAnalyticsCounts();
 
-    const eventsResponse = await getAllAnalyticsEvents(page, size);
+const eventsResponse = await getAllAnalyticsEvents(page, size);
 
-    setCounts(countsResponse.data.data);
+setCounts(countsResponse.data);
 
-    setEvents(eventsResponse.data.data.content);
+setEvents(eventsResponse.data.content);
 
-    setTotalPages(eventsResponse.data.data.totalPages);
+setTotalPages(eventsResponse.data.totalPages);
 
   } catch (error) {
 
@@ -123,15 +123,30 @@ export default function Analytics() {
 
         <div className="grid md:grid-cols-5 gap-5 mb-8">
 
-          <Card title="Resume Downloads" value={counts.resumeDownloads} />
+<Card
+  title="Resume Downloads"
+  value={counts?.resumeDownloads ?? 0}
+/>
 
-          <Card title="Project Clicks" value={counts.projectClicks} />
+<Card
+  title="Project Clicks"
+  value={counts?.projectClicks ?? 0}
+/>
 
-          <Card title="GitHub Clicks" value={counts.githubClicks} />
+<Card
+  title="GitHub Clicks"
+  value={counts?.githubClicks ?? 0}
+/>
 
-          <Card title="LinkedIn Clicks" value={counts.linkedinClicks} />
+<Card
+  title="LinkedIn Clicks"
+  value={counts?.linkedinClicks ?? 0}
+/>
 
-          <Card title="Contact Forms" value={counts.contactFormSubmissions} />
+<Card
+  title="Contact Forms"
+  value={counts?.contactFormSubmissions ?? 0}
+/>
 
         </div>
 

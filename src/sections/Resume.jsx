@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import SectionWrapper from "../components/SectionWrapper";
 import { FiDownload, FiCalendar, FiMapPin } from "react-icons/fi";
-import { recordAnalytics } from "../services/analyticsService";
 import { fetchPublicExperiences } from "../services/experienceService";
 import { fetchLatestResume } from "../services/resumeService";
 
@@ -35,15 +34,7 @@ export default function Resume() {
   }
 };
 
- const handleResumeDownload = () => {
-  if (!resume) return;
-
-  recordAnalytics(
-    "RESUME_DOWNLOAD",
-    resume.fileUrl,
-    1
-  );
-};
+ 
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -72,10 +63,10 @@ export default function Resume() {
 
         <div className="flex justify-center mb-14">
           <motion.a
-                href={resume?.fileUrl}
+                href={`${import.meta.env.VITE_API_BASE_URL}/public/resume/download`}
                 target="_blank"
                 rel="noopener noreferrer"
-              onClick={handleResumeDownload}
+            
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             className={`btn-primary text-base px-8 py-4 animate-pulse-glow ${

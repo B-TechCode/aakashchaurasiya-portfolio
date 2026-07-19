@@ -135,16 +135,39 @@ const handleDelete = async () => {
 
   const handleImageUpload = async (image, meta) => {
 
-    try {
+  try {
 
-      setUploadingImage(true);
+    setUploadingImage(true);
 
-     await uploadProjectImage(
-    selectedProject.id,
-    image,
-    meta
-);
+    await uploadProjectImage(
+      selectedProject.id,
+      image,
+      meta
+    );
 
+    await loadProjects();
+
+    toast.success("Project image uploaded successfully.");
+
+    setShowImageModal(false);
+    setSelectedProject(null);
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Image upload failed."
+    );
+
+  } finally {
+
+    setUploadingImage(false);
+
+  }
+
+};
 
 const handleDeleteImage = async (imageId) => {
 
@@ -154,14 +177,13 @@ const handleDeleteImage = async (imageId) => {
 
     await deleteProjectImage(imageId);
 
-    await loadProjects();
-
     const response = await getAllProjects();
 
-    const updatedProject =
-      response.data.data.find(
-        p => p.id === selectedProject.id
-      );
+    setProjects(response.data.data);
+
+    const updatedProject = response.data.data.find(
+      p => p.id === selectedProject.id
+    );
 
     setSelectedProject(updatedProject);
 
@@ -181,7 +203,6 @@ const handleDeleteImage = async (imageId) => {
 
 };
 
-
 const handlePrimaryImage = async (imageId) => {
 
   try {
@@ -194,10 +215,9 @@ const handlePrimaryImage = async (imageId) => {
 
     setProjects(response.data.data);
 
-    const updatedProject =
-      response.data.data.find(
-        p => p.id === selectedProject.id
-      );
+    const updatedProject = response.data.data.find(
+      p => p.id === selectedProject.id
+    );
 
     setSelectedProject(updatedProject);
 
@@ -216,33 +236,6 @@ const handlePrimaryImage = async (imageId) => {
   }
 
 };
-
-await loadProjects();
-
-toast.success(
-    "Project image uploaded successfully."
-);
-
-setShowImageModal(false);
-
-setSelectedProject(null);
-
-    } catch (error) {
-
-      console.error(error);
-
-     toast.error(
-    error.response?.data?.message ||
-    "Image upload failed."
-);
-
-    } finally {
-
-      setUploadingImage(false);
-
-    }
-
-  };
 
       const handleSubmit = async (project) => {
 
