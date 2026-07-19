@@ -92,70 +92,70 @@ export default function Dashboard() {
 
         <DashboardCard
           title="Projects"
-          value={dashboard.projects}
+          value={dashboard?.projects ?? 0}
           icon={<FaProjectDiagram />}
           color="text-cyan-400"
         />
 
         <DashboardCard
           title="Skills"
-          value={dashboard.skills}
+        value={dashboard?.skills ?? 0}
           icon={<FaTools />}
           color="text-green-400"
         />
 
         <DashboardCard
           title="Experience"
-          value={dashboard.experiences}
+       value={dashboard?.experiences ?? 0}
           icon={<FaBriefcase />}
           color="text-purple-400"
         />
 
         <DashboardCard
           title="Certificates"
-          value={dashboard.certificates}
+          value={dashboard?.certificates ?? 0}
           icon={<FaCertificate />}
           color="text-orange-400"
         />
 
         <DashboardCard
           title="Messages"
-          value={dashboard.messages}
+         value={dashboard?.messages ?? 0}
           icon={<FaEnvelope />}
           color="text-pink-400"
         />
 
         <DashboardCard
           title="Unread"
-          value={dashboard.unreadMessages}
+        value={dashboard?.unreadMessages ?? 0}
           icon={<FaEnvelopeOpenText />}
           color="text-red-400"
         />
 
         <DashboardCard
           title="Resume Downloads"
-          value={dashboard.resumeDownloads}
+         value={dashboard?.resumeDownloads ?? 0}
           icon={<FaDownload />}
           color="text-yellow-400"
         />
 
         <DashboardCard
           title="Project Views"
-          value={dashboard.projectClicks}
+         value={dashboard?.projectClicks ?? 0}
           icon={<FaEye />}
           color="text-indigo-400"
         />
 
         <DashboardCard
           title="GitHub Clicks"
-          value={dashboard.githubClicks}
+          value={dashboard?.githubClicks ?? 0}
           icon={<FaGithub />}
           color="text-slate-300"
         />
 
         <DashboardCard
           title="LinkedIn Clicks"
-          value={dashboard.linkedinClicks}
+          value={dashboard?.linkedinClicks ?? 0}
           icon={<FaLinkedin />}
           color="text-blue-400"
         />
