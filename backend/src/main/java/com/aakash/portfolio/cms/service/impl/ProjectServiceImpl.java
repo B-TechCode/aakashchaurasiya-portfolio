@@ -103,15 +103,6 @@ project.setSkills(skills);
                 }
 
                 @Override
-                @Transactional
-                public void deleteProject(Long id) {
-                    if (!projectRepository.existsById(id)) {
-                        throw new ResourceNotFoundException("Project not found with id: " + id);
-                    }
-                    projectRepository.deleteById(id);
-                }
-
-                @Override
                 public ProjectResponse getProjectById(Long id) {
                     Project project = projectRepository.findById(id)
                             .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
@@ -275,7 +266,7 @@ public ProjectImageResponse uploadProjectImage(
     return toProjectImageResponse(projectImage);
 }
 
-    @Override
+@Override
 @Transactional
 public void deleteProjectImage(Long imageId) {
 
@@ -284,16 +275,56 @@ public void deleteProjectImage(Long imageId) {
                     new ResourceNotFoundException(
                             "Project image not found with id : " + imageId));
 
-    if (image.getPublicId() != null && !image.getPublicId().isBlank()) {
+    if (image.getPublicId() != null &&
+            !image.getPublicId().isBlank()) {
 
         cloudinaryService.deleteResource(
                 image.getPublicId(),
                 "image"
         );
     }
-  
-   
-}  
+
+    projectImageRepository.delete(image);
+}
+
+
+
+@Override
+@Transactional
+public void deleteProject(Long id) {
+
+    Project project = projectRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Project not found with id : " + id));
+
+    List<ProjectImage> images =
+            projectImageRepository.findByProjectId(project.getId());
+
+    for (ProjectImage image : images) {
+
+        if (image.getPublicId() != null &&
+                !image.getPublicId().isBlank()) {
+
+            cloudinaryService.deleteResource(
+                    image.getPublicId(),
+                    "image"
+            );
+        }
+
+        projectImageRepository.delete(image);
+    }
+
+    projectRepository.delete(project);
+}
+
+
+
+
+
+
+
+
    
    @Override
 @Transactional

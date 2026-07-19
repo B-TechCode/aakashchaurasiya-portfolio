@@ -1,6 +1,8 @@
 package com.aakash.portfolio.cms.repository;
 
 import com.aakash.portfolio.cms.entity.Project;
+import com.aakash.portfolio.cms.entity.ProjectImage;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

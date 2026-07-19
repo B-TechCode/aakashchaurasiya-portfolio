@@ -16,4 +16,5 @@ public interface ProjectImageRepository extends JpaRepository<ProjectImage, Long
     List<ProjectImage> findByProjectIdOrderByCreatedAtAsc(Long projectId);
 
     Optional<ProjectImage> findByProjectIdAndPrimaryTrue(Long projectId);
+    List<ProjectImage> findByProjectId(Long projectId);
 }
