@@ -54,6 +54,10 @@ export default function ProjectTable({
             </th>
 
             <th className="px-6 py-4 text-left text-slate-300">
+            Skills
+           </th>
+
+            <th className="px-6 py-4 text-left text-slate-300">
               Images
             </th>
 
@@ -102,6 +106,25 @@ export default function ProjectTable({
                   </span>
                 )}
               </td>
+
+              <td className="px-6 py-5">
+  <div className="flex flex-wrap gap-2">
+    {project.skills && project.skills.length > 0 ? (
+      project.skills.map((skill) => (
+        <span
+          key={skill.id}
+          className="bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 px-2 py-1 rounded-md text-xs"
+        >
+          {skill.name}
+        </span>
+      ))
+    ) : (
+      <span className="text-slate-500 text-sm">
+        No Skills
+      </span>
+    )}
+  </div>
+</td>
 
               <td className="px-6 py-5">
                 <button
