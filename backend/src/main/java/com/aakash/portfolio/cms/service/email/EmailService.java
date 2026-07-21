@@ -1,4 +1,3 @@
-
 package com.aakash.portfolio.cms.service.email;
 
 public interface EmailService {
@@ -9,4 +8,10 @@ public interface EmailService {
             String subject,
             String message
     );
+
+    void sendLoginOtp(
+            String email,
+            String otp
+    );
+
 }

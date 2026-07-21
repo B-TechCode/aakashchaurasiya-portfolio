@@ -64,15 +64,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Public APIs
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/public/**",
-                               
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/webjars/**"
-                        ).permitAll()
+                       .requestMatchers(
+        "/api/auth/**",
+        "/api/public/**",
+        "/api/test/**",
+
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/webjars/**"
+).permitAll()
 
                         // Admin APIs
                         .requestMatchers("/api/admin/**")

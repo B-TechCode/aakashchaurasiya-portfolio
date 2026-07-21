@@ -1,5 +1,3 @@
-
-
 package com.aakash.portfolio.cms.service.email;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${ADMIN_EMAIL}")
     private String recipientEmail;
 
     @Override
@@ -31,12 +29,13 @@ public class EmailServiceImpl implements EmailService {
 
             SimpleMailMessage mail = new SimpleMailMessage();
 
+            mail.setFrom(recipientEmail);
             mail.setTo(recipientEmail);
 
             mail.setSubject("📩 New Portfolio Contact Message");
 
             mail.setText("""
-                    You have received a new message from your portfolio website.
+                    You have received a new contact message.
 
                     Name:
                     %s
@@ -63,6 +62,48 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception ex) {
 
             log.error("Failed to send contact notification email.", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public void sendLoginOtp(
+            String email,
+            String otp
+    ) {
+
+        try {
+
+            SimpleMailMessage mail = new SimpleMailMessage();
+
+            mail.setFrom(recipientEmail);
+            mail.setTo(email);
+
+            mail.setSubject("Portfolio CMS - Login OTP");
+
+            mail.setText("""
+                    Hello,
+
+                    Your Portfolio CMS verification code is:
+
+                    %s
+
+                    This OTP is valid for 5 minutes.
+
+                    If you didn't request this login, please ignore this email.
+
+                    Regards,
+                    Portfolio CMS
+                    """.formatted(otp));
+
+            mailSender.send(mail);
+
+            log.info("OTP email sent successfully to {}", email);
+
+        } catch (Exception ex) {
+
+            log.error("Failed to send OTP email.", ex);
+            throw new RuntimeException(ex);
         }
     }
 }
