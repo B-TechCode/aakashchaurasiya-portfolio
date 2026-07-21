@@ -21,6 +21,8 @@ import Contact from "./sections/Contact";
 // ====================
 
 import Login from "./pages/auth/Login";
+import VerifyOtp from "./pages/auth/VerifyOtp";
+
 import Dashboard from "./pages/admin/Dashboard";
 import Profile from "./pages/admin/Profile";
 import ProjectsAdmin from "./pages/admin/Projects";
@@ -99,6 +101,17 @@ export default function App() {
         element={
           <PublicRoute>
             <Login />
+          </PublicRoute>
+        }
+      />
+
+      {/* ================= Verify OTP ================= */}
+
+      <Route
+        path="/verify-otp"
+        element={
+          <PublicRoute>
+            <VerifyOtp />
           </PublicRoute>
         }
       />
