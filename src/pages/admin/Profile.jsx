@@ -63,7 +63,7 @@ import {
 
                 setSaving(true);
 
-                await updateProfile(form);
+              await updateProfile(profile);
 
                 toast.success("Profile updated successfully.");
 

@@ -87,15 +87,6 @@ private final CloudinaryService cloudinaryService;
                       Set<Skill> skills =
         new HashSet<>(skillRepository.findAllById(request.getSkillIds()));
 
-System.out.println("========== SKILLS ==========");
-System.out.println(request.getSkillIds());
-System.out.println(skills.size());
-
-for (Skill s : skills) {
-    System.out.println(s.getId() + " -> " + s.getName());
-}
-System.out.println("============================");
-
 project.setSkills(skills);
                     }
 
