@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { loginApi } from "../../api/authApi";
-import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,14 +26,18 @@ export default function Login() {
         throw new Error(response.message);
       }
 
-      login(response.data.token);
-
       toast.success(response.message);
 
-      navigate("/admin/dashboard");
+      navigate("/verify-otp", {
+        state: {
+          email: response.data.email,
+        },
+      });
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Invalid username or password"
+        error.response?.data?.message ||
+          error.message ||
+          "Invalid username or password"
       );
     } finally {
       setLoading(false);
@@ -44,20 +46,15 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-
       <form
         onSubmit={handleLogin}
         className="w-[430px] bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-10"
       >
-
         <h1 className="text-3xl font-bold text-white text-center mb-10">
           Admin Login
         </h1>
 
         <div className="space-y-6">
-
-          {/* Username */}
-
           <input
             type="text"
             placeholder="Username"
@@ -80,8 +77,6 @@ export default function Login() {
               focus:ring-cyan-500/30
             "
           />
-
-          {/* Password */}
 
           <input
             type="password"
@@ -122,13 +117,11 @@ export default function Login() {
               rounded-xl
             "
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Sending OTP..." : "Send OTP"}
           </button>
-
         </div>
-
       </form>
-
     </div>
   );
 }
+

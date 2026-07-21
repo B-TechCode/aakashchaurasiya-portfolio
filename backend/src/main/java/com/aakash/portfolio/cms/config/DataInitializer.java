@@ -29,7 +29,7 @@ public class DataInitializer implements CommandLineRunner {
 
             AdminUser admin = AdminUser.builder()
                     .username("admin")
-                    .email("admin@portfolio.com")
+                   .email("aakashchaurasiya630@gmail.com")
                     .passwordHash(passwordEncoder.encode("admin123"))
                     .fullName("Aakash Prasad Chaurasiya")
                     .enabled(true)
