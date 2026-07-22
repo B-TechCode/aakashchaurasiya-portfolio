@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 
 import { fetchSocialLinks } from "../services/socialLinkService";
+import { recordAnalytics } from "../services/analyticsService";
 
 export default function Footer() {
   const [socialLinks, setSocialLinks] = useState([]);
@@ -26,13 +27,33 @@ export default function Footer() {
     }
   };
 
-  const scrollTop = () =>
+  // ===============================
+  // Analytics
+  // ===============================
+
+  const handleSocialClick = (platform) => {
+    switch (platform) {
+      case "GitHub":
+        recordAnalytics("GITHUB_CLICK");
+        break;
+
+      case "LinkedIn":
+        recordAnalytics("LINKEDIN_CLICK");
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  const scrollTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
+  };
 
-  return (
+    return (
     <footer className="border-t border-white/5 bg-navy-950/80">
       <div className="section-container py-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -52,21 +73,18 @@ export default function Footer() {
 
           {/* Copyright */}
 
-          <p className="font-mono text-xs text-slate-500">
+          <p className="font-mono text-xs text-slate-500 text-center">
             © {new Date().getFullYear()} Aakash Prasad Chaurasiya. Built with
             React + Tailwind.
           </p>
 
-          {/* Social Links + Back to Top */}
+          {/* Social Links */}
 
           <div className="flex items-center gap-4">
-
             {socialLinks.map((item) => {
-
               let Icon = FiGlobe;
 
               switch (item.platform) {
-
                 case "GitHub":
                   Icon = FiGithub;
                   break;
@@ -81,7 +99,6 @@ export default function Footer() {
 
                 default:
                   Icon = FiGlobe;
-
               }
 
               return (
@@ -91,22 +108,21 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={item.platform}
-                  className="text-slate-400 hover:text-accent transition-colors duration-200"
+                  onClick={() => handleSocialClick(item.platform)}
+                  className="text-slate-400 hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded transition-all duration-200"
                 >
                   <Icon size={18} />
                 </a>
               );
-
             })}
 
             <button
               onClick={scrollTop}
               aria-label="Back to top"
-              className="ml-2 w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-slate-400 hover:border-accent hover:text-accent transition-all duration-200"
+              className="ml-2 w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-slate-400 hover:border-accent hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200"
             >
               <FiArrowUp size={14} />
             </button>
-
           </div>
 
         </div>
