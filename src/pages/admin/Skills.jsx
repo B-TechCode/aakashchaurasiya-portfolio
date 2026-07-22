@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import toast from "react-hot-toast";
 import AdminLayout from "../../layouts/AdminLayout";
 
 import SkillTable from "../../components/admin/skills/SkillTable";
@@ -58,7 +58,7 @@ export default function Skills() {
       loadSkills();
     } catch (error) {
       console.error(error);
-      alert("Delete failed.");
+   toast.error("Failed to delete skill.");
     }
   };
 
@@ -80,7 +80,7 @@ export default function Skills() {
     } catch (error) {
       console.error(error);
 
-      alert("Save failed.");
+     toast.error("Failed to save skill.");
     } finally {
       setSaving(false);
     }

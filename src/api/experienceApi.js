@@ -1,8 +1,8 @@
 import axiosInstance from "./axios";
 
-// ==========================
+// ===============================
 // Experience CRUD
-// ==========================
+// ===============================
 
 export const getAllExperiences = () => {
   return axiosInstance.get("/admin/experience");
@@ -24,20 +24,10 @@ export const deleteExperience = (id) => {
   return axiosInstance.delete(`/admin/experience/${id}`);
 };
 
-
-// ==========================
+// ===============================
 // Public Experience
-// ==========================
+// ===============================
 
 export const getPublicExperiences = () => {
   return axiosInstance.get("/public/experience");
-};
-
-
-// ==========================
-// Public Certificates
-// ==========================
-
-export const getPublicCertificates = () => {
-  return axiosInstance.get("/public/certificates");
 };
