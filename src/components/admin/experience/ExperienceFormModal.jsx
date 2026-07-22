@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const initialState = {
   title: "",
@@ -18,36 +19,26 @@ export default function ExperienceFormModal({
   initialData,
   loading,
 }) {
-
   const [form, setForm] = useState(initialState);
 
   useEffect(() => {
-
     if (initialData) {
-
       setForm({
         title: initialData.title || "",
         organization: initialData.organization || "",
         location: initialData.location || "",
         startDate: initialData.startDate || "",
         endDate: initialData.endDate || "",
-        currentlyWorking:
-          initialData.currentlyWorking || false,
+        currentlyWorking: initialData.currentlyWorking ?? false,
         description: initialData.description || "",
-        displayOrder:
-          initialData.displayOrder ?? 0,
+        displayOrder: initialData.displayOrder ?? 0,
       });
-
     } else {
-
       setForm(initialState);
-
     }
-
   }, [initialData]);
 
   const handleChange = (e) => {
-
     const { name, value, checked, type } = e.target;
 
     setForm((prev) => ({
@@ -62,17 +53,39 @@ export default function ExperienceFormModal({
   };
 
   const handleSubmit = (e) => {
-
     e.preventDefault();
 
-    onSubmit(form);
+    if (!form.title.trim()) {
+      return toast.error("Job title is required.");
+    }
 
+    if (!form.organization.trim()) {
+      return toast.error("Organization is required.");
+    }
+
+    if (!form.startDate) {
+      return toast.error("Start date is required.");
+    }
+
+    if (!form.currentlyWorking && !form.endDate) {
+      return toast.error("End date is required.");
+    }
+
+    if (
+      !form.currentlyWorking &&
+      form.endDate < form.startDate
+    ) {
+      return toast.error(
+        "End date cannot be before start date."
+      );
+    }
+
+    onSubmit(form);
   };
 
   if (!open) return null;
 
   return (
-
     <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
 
       <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl p-8 max-h-[90vh] overflow-y-auto">
@@ -80,16 +93,12 @@ export default function ExperienceFormModal({
         <div className="flex justify-between items-center mb-8">
 
           <h2 className="text-3xl font-bold text-white">
-
-            {initialData
-              ? "Edit Experience"
-              : "Create Experience"}
-
+            {initialData ? "Edit Experience" : "Create Experience"}
           </h2>
 
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white text-2xl"
+            className="text-2xl text-slate-400 hover:text-white"
           >
             ✕
           </button>
@@ -104,12 +113,11 @@ export default function ExperienceFormModal({
           <div>
 
             <label className="block text-slate-300 mb-2">
-              Position
+              Job Title
             </label>
 
             <input
               name="title"
-              required
               value={form.title}
               onChange={handleChange}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
@@ -117,42 +125,38 @@ export default function ExperienceFormModal({
 
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div>
 
-            <div>
+            <label className="block text-slate-300 mb-2">
+              Organization
+            </label>
 
-              <label className="block text-slate-300 mb-2">
-                Organization
-              </label>
-
-              <input
-                name="organization"
-                required
-                value={form.organization}
-                onChange={handleChange}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
-
-            <div>
-
-              <label className="block text-slate-300 mb-2">
-                Location
-              </label>
-
-              <input
-                name="location"
-                value={form.location}
-                onChange={handleChange}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
-              />
-
-            </div>
+            <input
+              name="organization"
+              value={form.organization}
+              onChange={handleChange}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
+            />
 
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div>
+
+            <label className="block text-slate-300 mb-2">
+              Location
+            </label>
+
+            <input
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              placeholder="Remote / Hyderabad / Bengaluru"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
+            />
+
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
 
             <div>
 
@@ -178,11 +182,11 @@ export default function ExperienceFormModal({
 
               <input
                 type="date"
-                disabled={form.currentlyWorking}
                 name="endDate"
                 value={form.endDate}
+                disabled={form.currentlyWorking}
                 onChange={handleChange}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white disabled:opacity-40"
               />
 
             </div>
@@ -195,10 +199,19 @@ export default function ExperienceFormModal({
               type="checkbox"
               name="currentlyWorking"
               checked={form.currentlyWorking}
-              onChange={handleChange}
+              onChange={(e) => {
+                handleChange(e);
+
+                if (e.target.checked) {
+                  setForm((prev) => ({
+                    ...prev,
+                    endDate: "",
+                  }));
+                }
+              }}
             />
 
-            Currently Working Here
+            I currently work here
 
           </label>
 
@@ -234,24 +247,29 @@ export default function ExperienceFormModal({
 
           </div>
 
-          <div className="flex justify-end gap-4 pt-6">
+          <div className="flex justify-end gap-4 pt-4">
 
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                setForm(initialState);
+                onClose();
+              }}
               className="px-6 py-3 rounded-lg bg-slate-700 text-white"
             >
               Cancel
             </button>
 
             <button
-              disabled={loading}
               type="submit"
-              className="px-8 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
+              disabled={loading}
+              className="px-8 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white font-semibold"
             >
               {loading
                 ? "Saving..."
-                : "Save Experience"}
+                : initialData
+                ? "Update Experience"
+                : "Create Experience"}
             </button>
 
           </div>
@@ -261,7 +279,5 @@ export default function ExperienceFormModal({
       </div>
 
     </div>
-
   );
 }
-

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
 import AdminLayout from "../../layouts/AdminLayout";
 
 import {
@@ -8,14 +9,29 @@ import {
   markMessageAsRead,
 } from "../../api/contactApi";
 
+import ContactMessageTable from "../../components/admin/contact/ContactMessageTable";
+import ViewMessageModal from "../../components/admin/contact/ViewMessageModal";
+import DeleteMessageModal from "../../components/admin/contact/DeleteMessageModal";
+
 export default function Contacts() {
 
   const [messages, setMessages] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const [page, setPage] = useState(0);
+
   const [size] = useState(10);
+
   const [totalPages, setTotalPages] = useState(0);
+
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   useEffect(() => {
 
@@ -39,11 +55,35 @@ export default function Contacts() {
 
       console.error(error);
 
-      toast.error("Failed to load messages.");
+      toast.error("Failed to load contact messages.");
 
     } finally {
 
       setLoading(false);
+
+    }
+
+  };
+
+  const handleView = async (message) => {
+
+    setSelectedMessage(message);
+
+    setViewModalOpen(true);
+
+    if (message.status === "NEW") {
+
+      try {
+
+        await markMessageAsRead(message.id);
+
+        await loadMessages();
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
 
     }
 
@@ -69,23 +109,41 @@ export default function Contacts() {
 
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (message) => {
 
-    if (!window.confirm("Delete this message?")) return;
+    setSelectedMessage(message);
+
+    setDeleteModalOpen(true);
+
+  };
+
+  const handleDeleteConfirm = async () => {
+
+    if (!selectedMessage) return;
 
     try {
 
-      await deleteMessage(id);
+      setDeleteLoading(true);
 
-      await loadMessages();
+      await deleteMessage(selectedMessage.id);
 
       toast.success("Message deleted successfully.");
+
+      setDeleteModalOpen(false);
+
+      setSelectedMessage(null);
+
+      await loadMessages();
 
     } catch (error) {
 
       console.error(error);
 
       toast.error("Failed to delete message.");
+
+    } finally {
+
+      setDeleteLoading(false);
 
     }
 
@@ -125,123 +183,12 @@ export default function Contacts() {
 
         </div>
 
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-
-          <table className="w-full">
-
-            <thead className="bg-slate-900">
-
-              <tr>
-
-                <th className="text-left text-white p-5">Name</th>
-
-                <th className="text-left text-white">Email</th>
-
-                <th className="text-left text-white">Status</th>
-
-                <th className="text-left text-white">Received</th>
-
-                <th className="text-right text-white pr-8">
-                  Actions
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {messages.length === 0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan={5}
-                    className="text-center py-12 text-slate-400"
-                  >
-                    No Messages Found
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                messages.map((message) => (
-
-                  <tr
-                    key={message.id}
-                    className="border-t border-slate-700"
-                  >
-
-                    <td className="p-5">
-
-                      <div className="font-semibold text-white">
-                        {message.name}
-                      </div>
-
-                    </td>
-
-                    <td className="text-slate-300">
-                      {message.email}
-                    </td>
-
-                    <td>
-
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          message.status === "NEW"
-                            ? "bg-red-500 text-white"
-                            : "bg-green-500 text-white"
-                        }`}
-                      >
-                        {message.status}
-                      </span>
-
-                    </td>
-
-                    <td className="text-slate-400">
-
-                      {new Date(message.createdAt).toLocaleString()}
-
-                    </td>
-
-                    <td>
-
-                      <div className="flex justify-end gap-3 pr-5">
-
-                        {message.status === "NEW" && (
-
-                          <button
-                            onClick={() => handleRead(message.id)}
-                            className="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-2 rounded-lg"
-                          >
-                            Read
-                          </button>
-
-                        )}
-
-                        <button
-                          onClick={() => handleDelete(message.id)}
-                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
-                        >
-                          Delete
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
+        <ContactMessageTable
+          messages={messages}
+          onView={handleView}
+          onRead={handleRead}
+          onDelete={handleDeleteClick}
+        />
 
         {totalPages > 1 && (
 
@@ -286,6 +233,25 @@ export default function Contacts() {
           </div>
 
         )}
+                <ViewMessageModal
+          open={viewModalOpen}
+          message={selectedMessage}
+          onClose={() => {
+            setViewModalOpen(false);
+            setSelectedMessage(null);
+          }}
+        />
+
+        <DeleteMessageModal
+          open={deleteModalOpen}
+          loading={deleteLoading}
+          message={selectedMessage}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setSelectedMessage(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+        />
 
       </div>
 

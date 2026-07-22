@@ -4,7 +4,7 @@ import AdminLayout from "../../layouts/AdminLayout";
 
 import ResumeTable from "../../components/admin/resume/ResumeTable";
 import ResumeUploadModal from "../../components/admin/resume/ResumeUploadModal";
-
+import DeleteResumeModal from "../../components/admin/resume/DeleteResumeModal";
 import {
   getAllResumes,
   uploadResume,
@@ -20,6 +20,13 @@ export default function Resume() {
   const [uploading, setUploading] = useState(false);
 
   const [showUploadModal, setShowUploadModal] = useState(false);
+
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+const [selectedResume, setSelectedResume] = useState(null);
+
+const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
 
@@ -76,27 +83,31 @@ setShowUploadModal(false);
 
   };
 
-  const handleDelete = async (id) => {
+ const handleDelete = (resume) => {
+  setSelectedResume(resume);
+  setShowDeleteModal(true);
+};
 
-    if (!window.confirm("Delete this resume?")) return;
+const confirmDelete = async () => {
+  try {
+    setDeleting(true);
 
-    try {
-
-     await deleteResume(id);
+    await deleteResume(selectedResume.id);
 
 toast.success("Resume deleted successfully.");
 
-loadResumes();
+setShowDeleteModal(false);
+setSelectedResume(null);
 
-    } catch (error) {
-
-      console.error(error);
-
-      toast.error("Failed to delete resume.");
-
-    }
-
-  };
+await loadResumes();
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to delete resume.");
+  } finally {
+    setDeleting(false);
+    setSelectedResume(null);
+}
+};
 
   return (
 
@@ -146,6 +157,17 @@ loadResumes();
         onClose={() => setShowUploadModal(false)}
         onUpload={handleUpload}
       />
+
+      <DeleteResumeModal
+  open={showDeleteModal}
+  loading={deleting}
+  resumeName={selectedResume?.fileName}
+  onClose={() => {
+    setShowDeleteModal(false);
+    setSelectedResume(null);
+  }}
+  onConfirm={confirmDelete}
+/>
 
     </AdminLayout>
 

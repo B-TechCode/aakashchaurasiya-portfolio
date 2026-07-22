@@ -64,17 +64,20 @@ export default function ResumeTable({
                 v{resume.version}
               </td>
 
-              <td className="px-6 py-5 text-slate-300">
-                {new Date(resume.createdAt).toLocaleDateString()}
-              </td>
+             <td className="px-6 py-5 text-slate-300">
+  {resume.uploadedAt
+    ? new Date(resume.uploadedAt).toLocaleDateString()
+    : "-"}
+</td>
 
               <td className="px-6 py-5">
 
-                <a
-                  href={resume.fileUrl}
-                  target="_blank"
-                  className="text-cyan-400 hover:text-cyan-300"
-                >
+               <a
+  href={resume.fileUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="text-cyan-400 hover:text-cyan-300"
+>
                   View Resume
                 </a>
 
@@ -84,16 +87,17 @@ export default function ResumeTable({
 
                 <div className="flex justify-center gap-3">
 
-                  <a
-                    href={resume.fileUrl}
-                    target="_blank"
-                    className="bg-cyan-600 hover:bg-cyan-700 p-2 rounded-lg text-white"
-                  >
+                 <a
+  href={resume.fileUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="bg-cyan-600 hover:bg-cyan-700 p-2 rounded-lg text-white"
+>
                     <FaDownload />
                   </a>
 
                   <button
-                    onClick={() => onDelete(resume.id)}
+                    onClick={() => onDelete(resume)}
                     className="bg-red-600 hover:bg-red-700 p-2 rounded-lg text-white"
                   >
                     <FaTrash />

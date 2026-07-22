@@ -1,32 +1,33 @@
 import axios from "./axios";
 
-export const getAllMessages = (
+// ===============================
+// Admin Contact APIs
+// ===============================
 
-  page = 0,
-
-  size = 10
-
-) => {
-
-return axios.get(
-  `/admin/contact?page=${page}&size=${size}`
-);
-
+// Get All Messages (Paginated)
+export const getAllMessages = (page = 0, size = 10) => {
+  return axios.get(`/admin/contact?page=${page}&size=${size}`);
 };
 
+// Get Single Message
+export const getMessageById = (id) => {
+  return axios.get(`/admin/contact/${id}`);
+};
 
-export const getMessageById = (id) =>
-  axios.get(`/admin/contact/${id}`);
+// Mark Message as Read
+export const markMessageAsRead = (id) => {
+  return axios.put(`/admin/contact/${id}/read`);
+};
 
-export const markMessageAsRead = (id) =>
-  axios.put(`/admin/contact/${id}/read`);
-
-export const deleteMessage = (id) =>
-  axios.delete(`/admin/contact/${id}`);
+// Delete Message
+export const deleteMessage = (id) => {
+  return axios.delete(`/admin/contact/${id}`);
+};
 
 // ===============================
 // Public Contact API
 // ===============================
 
-export const sendContactMessage = (data) =>
-  axios.post("/public/contact", data);
+export const sendContactMessage = (data) => {
+  return axios.post("/contact", data);
+};

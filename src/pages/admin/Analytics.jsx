@@ -9,6 +9,10 @@ import {
   deleteAnalyticsEvent,
 } from "../../api/analyticsApi";
 
+import AnalyticsCards from "../../components/admin/analytics/AnalyticsCards";
+import AnalyticsTable from "../../components/admin/analytics/AnalyticsTable";
+import DeleteAnalyticsModal from "../../components/admin/analytics/DeleteAnalyticsModal";
+
 export default function Analytics() {
 
   const [counts, setCounts] = useState(null);
@@ -17,11 +21,17 @@ export default function Analytics() {
 
   const [loading, setLoading] = useState(true);
 
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const [page, setPage] = useState(0);
 
   const [size] = useState(10);
 
   const [totalPages, setTotalPages] = useState(0);
+
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   useEffect(() => {
 
@@ -29,45 +39,60 @@ export default function Analytics() {
 
   }, [page]);
 
- const loadAnalytics = async () => {
+  const loadAnalytics = async () => {
 
-  setLoading(true);
-
-  try {
-
-  const countsResponse = await getAnalyticsCounts();
-
-const eventsResponse = await getAllAnalyticsEvents(page, size);
-
-setCounts(countsResponse.data);
-
-setEvents(eventsResponse.data.content);
-
-setTotalPages(eventsResponse.data.totalPages);
-
-  } catch (error) {
-
-    console.error(error);
-
-    toast.error("Failed to load analytics.");
-
-  } finally {
-
-    setLoading(false);
-
-  }
-
-};
-
-  const handleDelete = async (id) => {
-
-    if (!window.confirm("Delete this analytics event?")) return;
+    setLoading(true);
 
     try {
 
-      await deleteAnalyticsEvent(id);
+      const countsResponse = await getAnalyticsCounts();
 
-      toast.success("Analytics event deleted.");
+      const eventsResponse =
+        await getAllAnalyticsEvents(page, size);
+
+      setCounts(countsResponse.data);
+
+      setEvents(eventsResponse.data.content);
+
+      setTotalPages(eventsResponse.data.totalPages);
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Failed to load analytics.");
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  const handleDeleteClick = (event) => {
+
+    setSelectedEvent(event);
+
+    setDeleteModalOpen(true);
+
+  };
+
+  const handleDeleteConfirm = async () => {
+
+    if (!selectedEvent) return;
+
+    try {
+
+      setDeleteLoading(true);
+
+      await deleteAnalyticsEvent(selectedEvent.id);
+
+      toast.success("Analytics event deleted successfully.");
+
+      setDeleteModalOpen(false);
+
+      setSelectedEvent(null);
 
       await loadAnalytics();
 
@@ -76,6 +101,10 @@ setTotalPages(eventsResponse.data.totalPages);
       console.error(error);
 
       toast.error("Failed to delete analytics event.");
+
+    } finally {
+
+      setDeleteLoading(false);
 
     }
 
@@ -88,9 +117,7 @@ setTotalPages(eventsResponse.data.totalPages);
       <AdminLayout>
 
         <div className="text-white text-xl">
-
           Loading Analytics...
-
         </div>
 
       </AdminLayout>
@@ -108,124 +135,25 @@ setTotalPages(eventsResponse.data.totalPages);
         <div className="mb-8">
 
           <h1 className="text-4xl font-bold text-white">
-
             Analytics
-
           </h1>
 
           <p className="text-slate-400 mt-2">
-
             Monitor portfolio activities.
-
           </p>
 
         </div>
 
-        <div className="grid md:grid-cols-5 gap-5 mb-8">
+        <AnalyticsCards
+          counts={counts}
+        />
 
-<Card
-  title="Resume Downloads"
-  value={counts?.resumeDownloads ?? 0}
-/>
+        <div className="mt-8">
 
-<Card
-  title="Project Clicks"
-  value={counts?.projectClicks ?? 0}
-/>
-
-<Card
-  title="GitHub Clicks"
-  value={counts?.githubClicks ?? 0}
-/>
-
-<Card
-  title="LinkedIn Clicks"
-  value={counts?.linkedinClicks ?? 0}
-/>
-
-<Card
-  title="Contact Forms"
-  value={counts?.contactFormSubmissions ?? 0}
-/>
-
-        </div>
-
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-
-          <table className="w-full">
-
-            <thead className="bg-slate-900 text-white">
-
-              <tr>
-
-                <th className="text-left p-5">Event</th>
-
-                <th className="text-left p-5">Entity</th>
-
-                <th className="text-left p-5">Date</th>
-
-                <th className="text-right p-5">Action</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {events.length === 0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan="4"
-                    className="text-center p-10 text-slate-400"
-                  >
-                    No analytics events found.
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                events.map((event) => (
-
-                  <tr
-                    key={event.id}
-                    className="border-t border-slate-700"
-                  >
-
-                    <td className="p-5 text-white">
-                      {event.eventType}
-                    </td>
-
-                    <td className="p-5 text-slate-300">
-                      {event.entityType || "-"}
-                    </td>
-
-                    <td className="p-5 text-slate-300">
-                      {new Date(event.createdAt).toLocaleString()}
-                    </td>
-
-                    <td className="p-5 text-right">
-
-                      <button
-                        onClick={() => handleDelete(event.id)}
-                        className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white"
-                      >
-                        Delete
-                      </button>
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              )}
-
-            </tbody>
-
-          </table>
+          <AnalyticsTable
+            events={events}
+            onDelete={handleDeleteClick}
+          />
 
         </div>
 
@@ -236,7 +164,7 @@ setTotalPages(eventsResponse.data.totalPages);
             <button
               onClick={() => setPage((prev) => prev - 1)}
               disabled={page === 0}
-              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600"
             >
               Previous
             </button>
@@ -248,10 +176,10 @@ setTotalPages(eventsResponse.data.totalPages);
                 <button
                   key={index}
                   onClick={() => setPage(index)}
-                  className={`w-10 h-10 rounded-lg ${
+                  className={`w-10 h-10 rounded-lg font-semibold transition ${
                     page === index
                       ? "bg-cyan-500 text-white"
-                      : "bg-slate-700 text-slate-300"
+                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
                   }`}
                 >
                   {index + 1}
@@ -264,7 +192,7 @@ setTotalPages(eventsResponse.data.totalPages);
             <button
               onClick={() => setPage((prev) => prev + 1)}
               disabled={page === totalPages - 1}
-              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-slate-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600"
             >
               Next
             </button>
@@ -273,33 +201,20 @@ setTotalPages(eventsResponse.data.totalPages);
 
         )}
 
+                <DeleteAnalyticsModal
+          open={deleteModalOpen}
+          loading={deleteLoading}
+          event={selectedEvent}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setSelectedEvent(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+        />
+
       </div>
 
     </AdminLayout>
-
-  );
-
-}
-
-function Card({ title, value }) {
-
-  return (
-
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
-
-      <div className="text-slate-400 text-sm">
-
-        {title}
-
-      </div>
-
-      <div className="text-3xl font-bold text-cyan-400 mt-3">
-
-        {value}
-
-      </div>
-
-    </div>
 
   );
 
