@@ -6,103 +6,190 @@ import ProjectCard from "../components/ProjectCard";
 
 import { fetchPublicProjects } from "../services/projectService";
 import { fetchSocialLinks } from "../services/socialLinkService";
+import { recordAnalytics } from "../services/analyticsService";
 
 export default function Projects() {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [githubUrl, setGithubUrl] = useState("#");
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
   useEffect(() => {
-    loadProjects();
-    loadSocialLinks();
+    loadData();
   }, []);
 
-  const loadProjects = async () => {
+  const loadData = async () => {
     try {
-      const data = await fetchPublicProjects();
+      setLoading(true);
+      setError(false);
 
-      setProjects(data);
-    } catch (error) {
-      console.error("Failed to load projects", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      const [projectsData, socialLinks] = await Promise.all([
+        fetchPublicProjects(),
+        fetchSocialLinks(),
+      ]);
 
-  const loadSocialLinks = async () => {
-    try {
-      const links = await fetchSocialLinks();
+      setProjects(projectsData);
 
-      const github = links.find(
+      const github = socialLinks.find(
         (item) => item.platform === "GitHub"
       );
 
       if (github) {
         setGithubUrl(github.url);
       }
-    } catch (error) {
-      console.error("Failed to load social links", error);
+    } catch (err) {
+      console.error(err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGithubClick = () => {
+    if (githubUrl !== "#") {
+      recordAnalytics("GITHUB_CLICK");
     }
   };
 
   return (
-    <SectionWrapper id="projects">
-      <div className="section-container">
+  <SectionWrapper id="projects">
+    <div className="section-container">
 
-        {/* Heading */}
+      {/* ====================== */}
+      {/* Section Heading */}
+      {/* ====================== */}
 
-        <div className="text-center mb-8">
-          <p className="section-label">
-            Projects
-          </p>
+      <div className="text-center mb-10">
+
+        <p className="section-label">
+          Projects
+        </p>
+
+        <h2 className="section-heading">
+          Featured <span className="gradient-text">Projects</span>
+        </h2>
+
+        <p className="text-slate-400 mt-4 max-w-2xl mx-auto text-sm leading-relaxed">
+          A selection of projects showcasing my experience in full-stack
+          development, scalable backend systems, modern frontend design,
+          authentication, cloud deployment, and real-world problem solving.
+        </p>
+
+      </div>
+
+      {/* ====================== */}
+      {/* Loading */}
+      {/* ====================== */}
+
+      {loading ? (
+
+        <div className="flex justify-center items-center py-24">
+
+          <div className="text-center">
+
+            <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-5" />
+
+            <p className="font-mono text-slate-400">
+              Loading Projects...
+            </p>
+
+          </div>
+
         </div>
 
-        {/* Loading */}
+      ) : error ? (
 
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-slate-400">
-              Loading projects...
-            </p>
-          </div>
-        ) : !projects.length ? (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white">
-              No Projects Yet
-            </h3>
+        /* ====================== */
+        /* Error State */
+        /* ====================== */
 
-            <p className="text-slate-400 mt-3">
-              Projects will appear here soon.
-            </p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={index}
-              />
-            ))}
-          </div>
-        )}
+        <div className="text-center py-20">
 
-        {/* GitHub Button */}
+          <h3 className="text-2xl font-bold text-white mb-3">
+            Failed to load projects
+          </h3>
 
-        <div className="text-center mt-8">
+          <p className="text-slate-400 mb-6">
+            Something went wrong while loading your projects.
+          </p>
+
+          <button
+            onClick={loadData}
+            className="btn-primary"
+          >
+            Retry
+          </button>
+
+        </div>
+
+      ) : projects.length === 0 ? (
+
+        /* ====================== */
+        /* Empty State */
+        /* ====================== */
+
+        <div className="text-center py-20">
+
+          <h3 className="text-2xl font-bold text-white">
+            No Projects Yet
+          </h3>
+
+          <p className="text-slate-400 mt-3">
+            Projects will appear here once they are published.
+          </p>
+
+        </div>
+
+      ) : (
+
+        /* ====================== */
+        /* Projects Grid */
+        /* ====================== */
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+          {projects.map((project, index) => (
+
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={index}
+            />
+
+          ))}
+
+        </div>
+
+      )}
+
+      {/* ====================== */}
+      {/* GitHub Button */}
+      {/* ====================== */}
+
+      {!loading && !error && githubUrl !== "#" && (
+
+        <div className="text-center mt-12">
+
           <a
             href={githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-ghost py-2 px-4 text-sm"
+            onClick={handleGithubClick}
+            className="btn-ghost inline-flex items-center gap-2 px-6 py-3"
           >
+
             See All Projects
 
-            <FiArrowRight className="inline ml-2" />
+            <FiArrowRight size={18} />
+
           </a>
+
         </div>
 
-      </div>
-    </SectionWrapper>
-  );
+      )}
+
+    </div>
+  </SectionWrapper>
+);
 }
