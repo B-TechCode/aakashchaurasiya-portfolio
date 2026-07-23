@@ -53,3 +53,4 @@ export default function DeleteResumeModal({
     </div>
   );
 }
+

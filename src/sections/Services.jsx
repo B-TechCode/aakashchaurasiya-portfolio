@@ -54,6 +54,7 @@ const SERVICES = [
   },
 ];
 
+export default function Services() {
 return (
   <SectionWrapper id="services" className="bg-navy-950/50">
     <div className="section-container">
@@ -160,3 +161,4 @@ return (
 
   </SectionWrapper>
 );
+}
