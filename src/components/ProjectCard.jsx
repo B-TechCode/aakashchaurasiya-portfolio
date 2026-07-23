@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { FiGithub, FiExternalLink } from "react-icons/fi";
 import { recordAnalytics } from "../services/analyticsService";
 
-export default function ProjectCard({ project, index }) {
+function ProjectCard({ project, index }) {
 
 const {
   id,
@@ -219,5 +219,6 @@ const [imageSrc, setImageSrc] = useState(
     </motion.div>
 
   );
-
 }
+
+export default memo(ProjectCard);
