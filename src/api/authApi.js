@@ -19,3 +19,4 @@ export const verifyOtpApi = async (data) => {
 
   return response.data;
 };
+

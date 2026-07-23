@@ -68,15 +68,16 @@ protected void doFilterInternal(
 
     } else {
 
-        response.setStatus(429);
-        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);
+response.setContentType("application/json");
+response.setHeader("Retry-After", "60");
 
-        response.getWriter().write("""
-        {
-          "success": false,
-          "message": "Too many requests. Please try again later."
-        }
-        """);
+response.getWriter().write("""
+{
+  "success": false,
+  "message": "Too many requests. Please try again later."
+}
+""");
     }
 }
 

@@ -20,9 +20,7 @@ public class GlobalExceptionHandler {
     private static final Logger log =
             LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-     public GlobalExceptionHandler() {
-    log.info("GlobalExceptionHandler loaded.");
-}
+ 
 
     // ==========================================
     // Resource Not Found (404)
@@ -32,10 +30,7 @@ public ResponseEntity<ApiResponse> handleResourceNotFoundException(
         ResourceNotFoundException ex
 ) {
 
-   log.warn("################################################");
-log.warn("ResourceNotFoundException handled.");
-log.warn("Message: {}", ex.getMessage());
-log.warn("################################################");;
+  
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(

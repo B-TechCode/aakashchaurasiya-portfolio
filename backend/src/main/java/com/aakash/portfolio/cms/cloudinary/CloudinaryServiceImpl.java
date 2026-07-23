@@ -101,9 +101,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             params.put("use_filename", false);
             params.put("unique_filename", false);
 
-            log.debug("========== CLOUDINARY DEBUG ==========");
-            log.debug("Uploading to Cloudinary...");
-            log.debug("Params: {}", params);
+          
 
             Map uploadResult =
                     cloudinary.uploader().upload(
@@ -111,8 +109,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
                             params
                     );
 
-            log.debug("Upload Result: {}", uploadResult);
-            log.debug("======================================");
+            
 
             String secureUrl =
                     (String) uploadResult.get("secure_url");
