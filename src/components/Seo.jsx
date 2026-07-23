@@ -23,14 +23,25 @@ export default function Seo() {
     return null;
   }
 
+  const siteUrl = window.location.origin;
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: seo.siteTitle,
+    url: siteUrl,
+    image: seo.ogImageUrl,
+    description: seo.metaDescription,
+  };
+
   return (
     <Helmet>
 
-      {/* Title */}
+      {/* ========================= */}
+      {/* Basic SEO */}
+      {/* ========================= */}
 
       <title>{seo.siteTitle}</title>
-
-      {/* Basic SEO */}
 
       <meta
         name="description"
@@ -42,7 +53,62 @@ export default function Seo() {
         content={seo.keywords}
       />
 
+      <meta
+        name="author"
+        content={seo.siteTitle}
+      />
+
+      <meta
+        name="robots"
+        content="index, follow"
+      />
+
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+      />
+
+      <meta
+        name="theme-color"
+        content="#0f172a"
+      />
+
+      {/* ========================= */}
+      {/* Canonical */}
+      {/* ========================= */}
+
+      <link
+        rel="canonical"
+        href={siteUrl}
+      />
+
+      {/* ========================= */}
+      {/* Favicon */}
+      {/* ========================= */}
+
+      <link
+        rel="icon"
+        href="/favicon.ico"
+      />
+
+      {/* ========================= */}
       {/* Open Graph */}
+      {/* ========================= */}
+
+      <meta
+        property="og:type"
+        content="website"
+      />
+
+      <meta
+        property="og:url"
+        content={siteUrl}
+      />
+
+      <meta
+        property="og:site_name"
+        content={seo.siteTitle}
+      />
 
       <meta
         property="og:title"
@@ -59,12 +125,9 @@ export default function Seo() {
         content={seo.ogImageUrl}
       />
 
-      <meta
-        property="og:type"
-        content="website"
-      />
-
+      {/* ========================= */}
       {/* Twitter */}
+      {/* ========================= */}
 
       <meta
         name="twitter:card"
@@ -85,6 +148,14 @@ export default function Seo() {
         name="twitter:image"
         content={seo.ogImageUrl}
       />
+
+      {/* ========================= */}
+      {/* Structured Data */}
+      {/* ========================= */}
+
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </script>
 
     </Helmet>
   );
