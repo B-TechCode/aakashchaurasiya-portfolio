@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 import { recordAnalytics } from "./services/analyticsService";
 
@@ -20,20 +20,22 @@ import Contact from "./sections/Contact";
 // Admin Pages
 // ====================
 
-import Login from "./pages/auth/Login";
-import VerifyOtp from "./pages/auth/VerifyOtp";
+const Login = lazy(() => import("./pages/auth/Login"));
+const VerifyOtp = lazy(() => import("./pages/auth/VerifyOtp"));
 
-import Dashboard from "./pages/admin/Dashboard";
-import Profile from "./pages/admin/Profile";
-import ProjectsAdmin from "./pages/admin/Projects";
-import SkillsAdmin from "./pages/admin/Skills";
-import ExperienceAdmin from "./pages/admin/Experience";
-import CertificatesAdmin from "./pages/admin/Certificates";
-import ResumeAdmin from "./pages/admin/Resume";
-import SocialLinksAdmin from "./pages/admin/SocialLinks";
-import SeoAdmin from "./pages/admin/Seo";
-import ContactsAdmin from "./pages/admin/Contacts";
-import AnalyticsAdmin from "./pages/admin/Analytics";
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const Profile = lazy(() => import("./pages/admin/Profile"));
+const ProjectsAdmin = lazy(() => import("./pages/admin/Projects"));
+const SkillsAdmin = lazy(() => import("./pages/admin/Skills"));
+const ExperienceAdmin = lazy(() => import("./pages/admin/Experience"));
+const CertificatesAdmin = lazy(() => import("./pages/admin/Certificates"));
+const ResumeAdmin = lazy(() => import("./pages/admin/Resume"));
+const SocialLinksAdmin = lazy(() => import("./pages/admin/SocialLinks"));
+const SeoAdmin = lazy(() => import("./pages/admin/Seo"));
+const ContactsAdmin = lazy(() => import("./pages/admin/Contacts"));
+const AnalyticsAdmin = lazy(() => import("./pages/admin/Analytics"));
+
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 // ====================
 // Route Protection
@@ -41,6 +43,7 @@ import AnalyticsAdmin from "./pages/admin/Analytics";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
+
 
 // ====================
 // Portfolio Homepage
@@ -93,6 +96,21 @@ function Portfolio() {
 
 export default function App() {
   return (
+  <Suspense
+    fallback={
+      <div className="min-h-screen bg-navy-900 flex items-center justify-center">
+        <div className="text-center">
+
+          <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-5" />
+
+          <p className="text-slate-400 font-mono">
+            Loading...
+          </p>
+
+        </div>
+      </div>
+    }
+  >
     <Routes>
 
       {/* ================= Public Portfolio ================= */}
@@ -245,6 +263,22 @@ export default function App() {
         }
       />
 
-    </Routes>
-  );
+
+
+
+
+      {/* ================= 404 ================= */}
+
+<Route
+  path="*"
+  element={<NotFound />}
+/>
+
+
+</Routes>
+</Suspense>
+);
+
+   
 }
+
