@@ -10,11 +10,11 @@ import Footer from "./components/Footer";
 import Hero from "./sections/Hero";
 import About from "./sections/About";
 import Skills from "./sections/Skills";
-import Projects from "./sections/Projects";
-import Services from "./sections/Services";
-import Resume from "./sections/Resume";
-import Certificates from "./sections/Certificates";
-import Contact from "./sections/Contact";
+const Projects = lazy(() => import("./sections/Projects"));
+const Services = lazy(() => import("./sections/Services"));
+const Resume = lazy(() => import("./sections/Resume"));
+const Certificates = lazy(() => import("./sections/Certificates"));
+const Contact = lazy(() => import("./sections/Contact"));
 
 // ====================
 // Admin Pages
@@ -74,15 +74,18 @@ function Portfolio() {
         <Navbar />
 
         <main id="main-content">
-          <Hero />
-          <About />
-          <Skills />
-          <Projects />
-          <Services />
-          <Resume />
-          <Certificates />
-          <Contact />
-        </main>
+  <Hero />
+  <About />
+  <Skills />
+
+  <Suspense fallback={null}>
+    <Projects />
+    <Services />
+    <Resume />
+    <Certificates />
+    <Contact />
+  </Suspense>
+</main>
 
         <Footer />
       </div>
