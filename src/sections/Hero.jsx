@@ -70,32 +70,70 @@ export default function Hero() {
 
   const loadData = async () => {
 
-    try {
+  setLoading(true);
+  setError(false);
 
-      setLoading(true);
+  try {
 
-      const [profileData, socialData, resumeData] = await Promise.all([
-        fetchPublicProfile(),
-        fetchSocialLinks(),
-        fetchLatestResume(),
-      ]);
+    // ===============================
+    // Profile (Required)
+    // ===============================
 
-      setProfile(profileData);
-      setSocialLinks(socialData);
-      setResume(resumeData);
+    const profileData = await fetchPublicProfile();
+    setProfile(profileData);
 
-    } catch (err) {
+  } catch (err) {
 
-      console.error(err);
-      setError(true);
+    console.error("Profile:", err);
 
-    } finally {
+    // Hero cannot work without profile
+    setError(true);
 
-      setLoading(false);
+    setLoading(false);
 
-    }
+    return;
 
-  };
+  }
+
+  // ===============================
+  // Social Links (Optional)
+  // ===============================
+
+  try {
+
+    const socialData = await fetchSocialLinks();
+    setSocialLinks(socialData);
+
+  } catch (err) {
+
+    console.error("Social Links:", err);
+
+    // Keep page working
+    setSocialLinks([]);
+
+  }
+
+  // ===============================
+  // Resume (Optional)
+  // ===============================
+
+  try {
+
+    const resumeData = await fetchLatestResume();
+    setResume(resumeData);
+
+  } catch (err) {
+
+    console.error("Resume:", err);
+
+    // Disable Resume button only
+    setResume(null);
+
+  }
+
+  setLoading(false);
+
+};
 
   // ===============================
   // Helpers
@@ -323,12 +361,16 @@ export default function Hero() {
               </a>
 
               <a
-                href={resume?.fileUrl || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleResumeDownload}
-                className="btn-ghost group"
-              >
+  href={resume?.fileUrl || "#"}
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={handleResumeDownload}
+  className={`btn-ghost group ${
+    !resume
+      ? "pointer-events-none opacity-50"
+      : ""
+  }`}
+>
 
                 <FiDownload
                   size={16}

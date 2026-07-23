@@ -22,25 +22,54 @@ export default function Resume() {
     loadData();
   }, []);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(false);
+ const loadData = async () => {
 
-      const [experienceData, resumeData] = await Promise.all([
-        fetchPublicExperiences(),
-        fetchLatestResume(),
-      ]);
+  setLoading(true);
+  setError(false);
 
-      setExperiences(experienceData);
-      setResume(resumeData);
-    } catch (err) {
-      console.error(err);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ===============================
+  // Experiences (Required)
+  // ===============================
+
+  try {
+
+    const experienceData = await fetchPublicExperiences();
+    setExperiences(experienceData);
+
+  } catch (err) {
+
+    console.error("Experiences:", err);
+
+    // Without experiences this section cannot render properly
+    setError(true);
+
+    setLoading(false);
+
+    return;
+
+  }
+
+  // ===============================
+  // Resume PDF (Optional)
+  // ===============================
+
+  try {
+
+    const resumeData = await fetchLatestResume();
+    setResume(resumeData);
+
+  } catch (err) {
+
+    console.error("Resume PDF:", err);
+
+    // Timeline still works
+    setResume(null);
+
+  }
+
+  setLoading(false);
+
+};
 
   // ===============================
   // Analytics
@@ -153,10 +182,14 @@ export default function Resume() {
         <div className="flex justify-center mb-14">
 
           <motion.a
-            href={`${import.meta.env.VITE_API_BASE_URL}/public/resume/download`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleResumeDownload}
+  href={
+    resume
+      ? `${import.meta.env.VITE_API_BASE_URL}/public/resume/download`
+      : "#"
+  }
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={handleResumeDownload}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             className={`btn-primary text-base px-8 py-4 animate-pulse-glow ${
