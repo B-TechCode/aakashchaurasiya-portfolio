@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { FiGithub, FiExternalLink } from "react-icons/fi";
 import { recordAnalytics } from "../services/analyticsService";
 
@@ -14,6 +15,14 @@ const {
   images = [],
   skills = [],
 } = project;
+
+
+const placeholderImage =
+  "https://placehold.co/600x350/0f172a/94a3b8?text=Project";
+
+const [imageSrc, setImageSrc] = useState(
+  images.length ? images[0].imageUrl : placeholderImage
+);
 
   const handleGithubClick = () => {
 
@@ -65,15 +74,14 @@ const {
 
       <div className="overflow-hidden rounded-xl">
 
-        <img
-          src={
-            images.length
-              ? images[0].imageUrl
-              : "https://placehold.co/600x350/0f172a/94a3b8?text=Project"
-          }
-          alt={title}
-          className="w-full h-44 object-cover group-hover:scale-105 transition duration-500"
-        />
+       <img
+  src={imageSrc}
+  alt={`${title} project preview`}
+  loading="lazy"
+  decoding="async"
+  onError={() => setImageSrc(placeholderImage)}
+  className="w-full h-44 object-cover group-hover:scale-105 transition duration-500"
+/>
 
       </div>
 
@@ -92,12 +100,13 @@ const {
           {githubUrl && (
 
             <a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleGithubClick}
-              className="text-slate-400 hover:text-accent transition-colors"
-            >
+  href={githubUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`View ${title} source code on GitHub`}
+  onClick={handleGithubClick}
+  className="text-slate-400 hover:text-accent transition-colors"
+>
               <FiGithub size={18} />
             </a>
 
@@ -106,10 +115,11 @@ const {
           {liveUrl && (
 
             <a
-              href={liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleLiveDemoClick}
+  href={liveUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`Open live demo of ${title}`}
+  onClick={handleLiveDemoClick}
               className="text-slate-400 hover:text-accent transition-colors"
             >
               <FiExternalLink size={18} />
@@ -164,7 +174,8 @@ const {
 
         {githubUrl && (
 
-          <a
+         <a
+  aria-label={`View ${title} source code on GitHub`}
             href={githubUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -185,6 +196,7 @@ const {
         {liveUrl && (
 
           <a
+  aria-label={`Open live demo of ${title}`}
             href={liveUrl}
             target="_blank"
             rel="noopener noreferrer"
