@@ -2,7 +2,6 @@ package com.aakash.portfolio.cms.ratelimit;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,76 +19,76 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
 
-   @Override
-protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain
-) throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-    String ip = request.getRemoteAddr();
+        String ip = request.getRemoteAddr();
+        String path = request.getRequestURI();
 
-    String path = request.getRequestURI();
+        Bucket bucket;
 
-    Bucket bucket;
+        if (path.startsWith("/api/auth/login")) {
 
-    if (path.startsWith("/api/auth/login")) {
+            bucket = cache.computeIfAbsent(
+                    ip + "_login",
+                    key -> createBucket(5)
+            );
 
-        bucket = cache.computeIfAbsent(
-                ip + "_login",
-                key -> createBucket(5)
-        );
+        } else if (path.startsWith("/api/contact")) {
 
-    } else if (path.startsWith("/api/contact")) {
+            bucket = cache.computeIfAbsent(
+                    ip + "_contact",
+                    key -> createBucket(10)
+            );
 
-        bucket = cache.computeIfAbsent(
-                ip + "_contact",
-                key -> createBucket(10)
-        );
+        } else if (path.startsWith("/api/admin")) {
 
-    } else if (path.startsWith("/api/admin")) {
+            bucket = cache.computeIfAbsent(
+                    ip + "_admin",
+                    key -> createBucket(150)
+            );
 
-        bucket = cache.computeIfAbsent(
-                ip + "_admin",
-                key -> createBucket(150)
-        );
+        } else {
 
-    } else {
+            bucket = cache.computeIfAbsent(
+                    ip + "_public",
+                    key -> createBucket(60)
+            );
+        }
 
-        bucket = cache.computeIfAbsent(
-                ip + "_public",
-                key -> createBucket(60)
-        );
+        if (bucket.tryConsume(1)) {
+
+            filterChain.doFilter(request, response);
+
+        } else {
+
+            response.setStatus(429);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Retry-After", "60");
+
+            response.getWriter().write("""
+                    {
+                      "success": false,
+                      "message": "Too many requests. Please try again after 60 seconds."
+                    }
+                    """);
+        }
     }
-
-    if (bucket.tryConsume(1)) {
-
-        filterChain.doFilter(request, response);
-
-    } else {
-
-        response.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);
-response.setContentType("application/json");
-response.setHeader("Retry-After", "60");
-
-response.getWriter().write("""
-{
-  "success": false,
-  "message": "Too many requests. Please try again later."
-}
-""");
-    }
-}
 
     private Bucket createBucket(long capacity) {
 
-    Bandwidth limit = Bandwidth.builder()
-            .capacity(capacity)
-            .refillGreedy(capacity, Duration.ofMinutes(1))
-            .build();
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(capacity)
+                .refillGreedy(capacity, Duration.ofMinutes(1))
+                .build();
 
-    return Bucket.builder()
-            .addLimit(limit)
-            .build();
-}
+        return Bucket.builder()
+                .addLimit(limit)
+                .build();
+    }
 }
