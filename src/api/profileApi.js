@@ -44,3 +44,12 @@ export const uploadProfileImage = (image) => {
 export const getPublicProfile = () => {
   return axiosInstance.get("/public/profile");
 };
+
+
+// ==============================
+// UPDATE ACCOUNT
+// ==============================
+
+export const updateAccount = (data) => {
+  return axiosInstance.put("/admin/account", data);
+};
