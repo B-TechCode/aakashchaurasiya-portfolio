@@ -9,7 +9,8 @@ import {
     getProfile,
     updateProfile,
     uploadProfileImage,
-    } from "../../api/profileApi";
+    updateAccount,
+} from "../../api/profileApi";
 
                 export default function Profile() {
 
@@ -25,6 +26,16 @@ import {
 
                 const [loading, setLoading] = useState(true);
                 const [uploadingImage, setUploadingImage] = useState(false);
+
+                const [account, setAccount] = useState({
+    username: "",
+    email: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+});
+
+const [savingAccount, setSavingAccount] = useState(false);
                 const fileInputRef = useRef(null);
 
                 const [saving, setSaving] = useState(false);
@@ -41,7 +52,14 @@ import {
 
                     const response = await getProfile();
 
-                   setProfile(response.data.data);
+                 const profileData = response.data.data;
+
+setProfile(profileData);
+
+setAccount((prev) => ({
+    ...prev,
+    email: profileData.email || "",
+}));
 
                     } catch (error) {
 
@@ -115,7 +133,39 @@ import {
 
 
 
+    const handleAccountSave = async () => {
 
+    try {
+
+        setSavingAccount(true);
+
+        await updateAccount(account);
+
+        toast.success("Account updated successfully.");
+
+        setAccount({
+            ...account,
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        toast.error(
+            error?.response?.data?.message ||
+            "Failed to update account."
+        );
+
+    } finally {
+
+        setSavingAccount(false);
+
+    }
+
+};
                 if (loading) {
 
                     return (
@@ -347,6 +397,160 @@ import {
                         </div>
 
                     </div>
+
+
+                    {/* =======================================================
+                    ACCOUNT SETTINGS
+======================================================= */}
+
+<div className="bg-slate-800 rounded-2xl border border-slate-700 p-10 mt-10">
+
+    <div className="mb-8">
+
+        <h2 className="text-3xl font-bold text-white">
+            Account Settings
+        </h2>
+
+        <p className="text-slate-400 mt-2">
+            Update your login credentials.
+        </p>
+
+    </div>
+
+    <div className="grid md:grid-cols-2 gap-6">
+
+        {/* Username */}
+
+        <div>
+
+            <label className="text-slate-300 mb-2 block">
+                Username
+            </label>
+
+            <input
+                type="text"
+                value={account.username}
+                onChange={(e) =>
+                    setAccount({
+                        ...account,
+                        username: e.target.value,
+                    })
+                }
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+                placeholder="Username"
+            />
+
+        </div>
+
+        {/* Login Email */}
+
+        <div>
+
+            <label className="text-slate-300 mb-2 block">
+                Login Email
+            </label>
+
+            <input
+                type="email"
+                value={account.email}
+                onChange={(e) =>
+                    setAccount({
+                        ...account,
+                        email: e.target.value,
+                    })
+                }
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+                placeholder="Email"
+            />
+
+        </div>
+
+        {/* Current Password */}
+
+        <div>
+
+            <label className="text-slate-300 mb-2 block">
+                Current Password
+            </label>
+
+            <input
+                type="password"
+                value={account.currentPassword}
+                onChange={(e) =>
+                    setAccount({
+                        ...account,
+                        currentPassword: e.target.value,
+                    })
+                }
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+                placeholder="Current Password"
+            />
+
+        </div>
+
+        {/* New Password */}
+
+        <div>
+
+            <label className="text-slate-300 mb-2 block">
+                New Password
+            </label>
+
+            <input
+                type="password"
+                value={account.newPassword}
+                onChange={(e) =>
+                    setAccount({
+                        ...account,
+                        newPassword: e.target.value,
+                    })
+                }
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+                placeholder="New Password"
+            />
+
+        </div>
+
+                {/* Confirm Password */}
+
+        <div>
+
+            <label className="text-slate-300 mb-2 block">
+                Confirm Password
+            </label>
+
+            <input
+                type="password"
+                value={account.confirmPassword}
+                onChange={(e) =>
+                    setAccount({
+                        ...account,
+                        confirmPassword: e.target.value,
+                    })
+                }
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+                placeholder="Confirm Password"
+            />
+
+        </div>
+
+    </div>
+
+    <div className="mt-8 flex justify-end">
+
+        <button
+            onClick={handleAccountSave}
+            disabled={savingAccount}
+            className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-600 px-8 py-3 rounded-lg text-white font-semibold transition"
+        >
+            {savingAccount
+                ? "Updating..."
+                : "Update Account"}
+        </button>
+
+    </div>
+
+</div>
 
                     </AdminLayout>
 

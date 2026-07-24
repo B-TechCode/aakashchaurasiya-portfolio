@@ -1,6 +1,7 @@
 package com.aakash.portfolio.cms.service.impl;
 
 import com.aakash.portfolio.cms.dto.request.UpdateAccountRequest;
+import com.aakash.portfolio.cms.dto.response.AccountResponse;
 import com.aakash.portfolio.cms.entity.AdminUser;
 import com.aakash.portfolio.cms.entity.Profile;
 import com.aakash.portfolio.cms.exception.DuplicateResourceException;
@@ -23,6 +24,25 @@ public class AccountServiceImpl implements AccountService {
     private final AdminUserRepository adminUserRepository;
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Override
+@Transactional(readOnly = true)
+public AccountResponse getAccount() {
+
+    Authentication authentication =
+            SecurityContextHolder.getContext().getAuthentication();
+
+    String loggedInUsername = authentication.getName();
+
+    AdminUser adminUser = adminUserRepository.findByUsername(loggedInUsername)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Admin user not found"));
+
+    return AccountResponse.builder()
+            .username(adminUser.getUsername())
+            .email(adminUser.getEmail())
+            .build();
+}
 
     @Override
     public void updateAccount(UpdateAccountRequest request) {
