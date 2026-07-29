@@ -1,19 +1,26 @@
+
 package com.aakash.portfolio.cms.service.email;
 
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    private final JavaMailSender mailSender;
+    private static final String BREVO_EMAIL_API_URL =
+            "https://api.brevo.com/v3/smtp/email";
+
+    private final WebClient.Builder webClientBuilder;
 
     @Value("${ADMIN_EMAIL}")
     private String recipientEmail;
@@ -24,6 +31,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.mail.from-name}")
     private String fromName;
 
+    @Value("${BREVO_API_KEY}")
+    private String brevoApiKey;
+
     @Override
     public void sendContactNotification(
             String name,
@@ -32,47 +42,34 @@ public class EmailServiceImpl implements EmailService {
             String message
     ) {
 
-        try {
+        String emailBody = """
+                You have received a new contact message.
 
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper mail =
-                    new MimeMessageHelper(mimeMessage, false, "UTF-8");
+                Name:
+                %s
 
-            mail.setFrom(fromEmail, fromName);
-            mail.setTo(recipientEmail);
+                Email:
+                %s
 
-            mail.setSubject("📩 New Portfolio Contact Message");
+                Subject:
+                %s
 
-            mail.setText("""
-                    You have received a new contact message.
+                Message:
+                %s
+                """.formatted(
+                name,
+                email,
+                subject,
+                message
+        );
 
-                    Name:
-                    %s
+        sendEmail(
+                recipientEmail,
+                "New Portfolio Contact Message",
+                emailBody
+        );
 
-                    Email:
-                    %s
-
-                    Subject:
-                    %s
-
-                    Message:
-                    %s
-                    """.formatted(
-                    name,
-                    email,
-                    subject,
-                    message
-            ));
-
-            mailSender.send(mimeMessage);
-
-            log.info("Contact notification email sent successfully.");
-
-        } catch (Exception ex) {
-
-            log.error("Failed to send contact notification email.", ex);
-            throw new RuntimeException("Failed to send contact notification email", ex);
-        }
+        log.info("Contact notification email sent successfully.");
     }
 
     @Override
@@ -81,40 +78,74 @@ public class EmailServiceImpl implements EmailService {
             String otp
     ) {
 
+        String emailBody = """
+                Hello,
+
+                Your Portfolio CMS verification code is:
+
+                %s
+
+                This OTP is valid for 5 minutes.
+
+                If you didn't request this login, please ignore this email.
+
+                Regards,
+                Aakash Portfolio
+                """.formatted(otp);
+
+        sendEmail(
+                email,
+                "Portfolio CMS - Login OTP",
+                emailBody
+        );
+
+        log.info("OTP email sent successfully to {}", email);
+    }
+
+    private void sendEmail(
+            String toEmail,
+            String subject,
+            String textContent
+    ) {
+
         try {
 
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper mail =
-                    new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            Map<String, Object> requestBody = Map.of(
+                    "sender", Map.of(
+                            "name", fromName,
+                            "email", fromEmail
+                    ),
+                    "to", List.of(
+                            Map.of("email", toEmail)
+                    ),
+                    "subject", subject,
+                    "textContent", textContent
+            );
 
-            mail.setFrom(fromEmail, fromName);
-            mail.setTo(email);
-
-            mail.setSubject("Portfolio CMS - Login OTP");
-
-            mail.setText("""
-                    Hello,
-
-                    Your Portfolio CMS verification code is:
-
-                    %s
-
-                    This OTP is valid for 5 minutes.
-
-                    If you didn't request this login, please ignore this email.
-
-                    Regards,
-                    Aakash Portfolio
-                    """.formatted(otp));
-
-            mailSender.send(mimeMessage);
-
-            log.info("OTP email sent successfully to {}", email);
+            webClientBuilder
+                    .build()
+                    .post()
+                    .uri(BREVO_EMAIL_API_URL)
+                    .header("api-key", brevoApiKey)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
 
         } catch (Exception ex) {
 
-            log.error("Failed to send OTP email.", ex);
-            throw new RuntimeException("Failed to send OTP email", ex);
+            log.error(
+                    "Failed to send email through Brevo API to {}.",
+                    toEmail,
+                    ex
+            );
+
+            throw new RuntimeException(
+                    "Failed to send email through Brevo API",
+                    ex
+            );
         }
     }
 }
+
