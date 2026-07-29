@@ -124,32 +124,47 @@ export default function Navbar() {
   // Smooth Scroll
   // ===============================
 
-  const scrollToSection = (href) => {
-    const element = document.querySelector(href);
+ const scrollToSection = (href) => {
+  const element = document.querySelector(href);
 
-    if (!element) return;
+  if (!element) {
+    console.warn(`Section not found: ${href}`);
+    return;
+  }
 
-    const navbarHeight = 80;
+  const navbarHeight =
+    window.innerWidth < 768 ? 64 : 80;
 
-    const position =
-      element.getBoundingClientRect().top +
-      window.pageYOffset -
-      navbarHeight;
+  const position =
+    element.getBoundingClientRect().top +
+    window.scrollY -
+    navbarHeight;
 
-    window.scrollTo({
-      top: position,
-      behavior: "smooth",
-    });
-  };
+  window.scrollTo({
+    top: Math.max(position, 0),
+    behavior: "smooth",
+  });
+};
 
-  const handleLinkClick = (event, href) => {
-    event.preventDefault();
+ const handleLinkClick = (event, href) => {
+  event.preventDefault();
 
-    setActiveLink(href);
-    setIsOpen(false);
+  setActiveLink(href);
 
+  const wasMobileMenuOpen = isOpen;
+
+  setIsOpen(false);
+
+  if (wasMobileMenuOpen) {
+    // Allow the animated mobile menu to close before calculating
+    // the final section position.
+    setTimeout(() => {
+      scrollToSection(href);
+    }, 320);
+  } else {
     scrollToSection(href);
-  };
+  }
+};
 
     return (
     <motion.nav

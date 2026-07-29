@@ -436,48 +436,67 @@ export default function Hero() {
 
           </motion.div>
 
-          {/* ========================================= */}
-          {/* Right Side - Profile Image */}
-          {/* ========================================= */}
+        {/* ========================================= */}
+{/* Right Side - Profile Image */}
+{/* ========================================= */}
 
-          <motion.div
-            initial={{ opacity: 0, x: 80 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="hidden lg:flex justify-end"
-          >
+<motion.div
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+  className="
+    flex
+    justify-center
+    lg:justify-end
+    order-first
+    lg:order-none
+  "
+>
+  <div className="relative lg:translate-x-20">
 
-            <div className="relative translate-x-20">
+    {/* Glow */}
 
-              {/* Glow */}
+    <div
+      className="
+        absolute
+        inset-0
+        rounded-full
+        bg-emerald-500/20
+        blur-3xl
+        scale-110
+      "
+    />
 
-              <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-3xl scale-110" />
+    {/* Profile Image */}
 
-              {/* Profile Image */}
+    <img
+      src={
+        profile?.profileImageUrl ||
+        "/default-profile.png"
+      }
+      alt={profile.fullName}
+      loading="eager"
+      decoding="async"
+      className="
+        relative
+        w-40
+        h-40
+        sm:w-48
+        sm:h-48
+        md:w-56
+        md:h-56
+        lg:w-96
+        lg:h-96
+        rounded-full
+        object-cover
+        border-4
+        border-emerald-500/30
+        shadow-[0_0_60px_rgba(34,197,94,0.35)]
+      "
+    />
 
-              <img
-                src={
-                  profile?.profileImageUrl ||
-                  "/default-profile.png"
-                }
-                alt={profile.fullName}
-                loading="eager"
-                decoding="async"
-                className="
-                  relative
-                  w-96
-                  h-96
-                  rounded-full
-                  object-cover
-                  border-4
-                  border-emerald-500/30
-                  shadow-[0_0_60px_rgba(34,197,94,0.35)]
-                "
-              />
-
-            </div>
-
-          </motion.div>
+  </div>
+</motion.div>
 
         </div>
 
