@@ -1,4 +1,4 @@
-// sections/Contact.jsx
+// src/sections/Contact.jsx
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,6 +8,9 @@ import {
   FiMail,
   FiGithub,
   FiLinkedin,
+  FiFacebook,
+  FiInstagram,
+  FiCode,
   FiSend,
   FiCheck,
   FiAlertCircle,
@@ -19,24 +22,54 @@ import { fetchSocialLinks } from "../services/socialLinkService";
 function validate(fields) {
   const errors = {};
 
-  if (!fields.name.trim())
+  if (!fields.name.trim()) {
     errors.name = "Name is required.";
+  }
 
-  if (!fields.email.trim())
+  if (!fields.email.trim()) {
     errors.email = "Email is required.";
-  else if (!/\S+@\S+\.\S+/.test(fields.email))
+  } else if (!/\S+@\S+\.\S+/.test(fields.email)) {
     errors.email = "Enter a valid email.";
+  }
 
-  if (!fields.message.trim())
+  if (!fields.message.trim()) {
     errors.message = "Message is required.";
-  else if (fields.message.trim().length < 20)
+  } else if (fields.message.trim().length < 20) {
     errors.message = "Minimum 20 characters.";
+  }
 
   return errors;
 }
 
-export default function Contact() {
+// Select the correct icon based on the platform stored in CMS.
+const getSocialIcon = (platform) => {
+  const name = platform?.trim().toLowerCase();
 
+  switch (name) {
+    case "github":
+      return FiGithub;
+
+    case "linkedin":
+      return FiLinkedin;
+
+    case "leetcode":
+      return FiCode;
+
+    case "email":
+      return FiMail;
+
+    case "facebook":
+      return FiFacebook;
+
+    case "instagram":
+      return FiInstagram;
+
+    default:
+      return FiCode;
+  }
+};
+
+export default function Contact() {
   const [fields, setFields] = useState({
     name: "",
     email: "",
@@ -44,9 +77,7 @@ export default function Contact() {
   });
 
   const [errors, setErrors] = useState({});
-
   const [status, setStatus] = useState("idle");
-
   const [socialLinks, setSocialLinks] = useState([]);
 
   useEffect(() => {
@@ -63,7 +94,6 @@ export default function Contact() {
   };
 
   const handleChange = (e) => {
-
     const { name, value } = e.target;
 
     setFields((prev) => ({
@@ -77,11 +107,9 @@ export default function Contact() {
         [name]: "",
       }));
     }
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     const validationErrors = validate(fields);
@@ -92,7 +120,6 @@ export default function Contact() {
     }
 
     try {
-
       setStatus("sending");
 
       await submitContactMessage(fields);
@@ -108,9 +135,7 @@ export default function Contact() {
       setTimeout(() => {
         setStatus("idle");
       }, 4000);
-
     } catch (error) {
-
       console.error(error);
 
       setStatus("error");
@@ -118,9 +143,7 @@ export default function Contact() {
       setTimeout(() => {
         setStatus("idle");
       }, 4000);
-
     }
-
   };
 
   const inputClass = (field) =>
@@ -133,11 +156,9 @@ export default function Contact() {
 
   return (
     <SectionWrapper id="contact">
-
       <div className="section-container">
 
         <div className="text-center mb-14">
-
           <p className="section-label">
             Contact
           </p>
@@ -145,15 +166,13 @@ export default function Contact() {
           <p className="text-slate-400 mt-4 max-w-lg mx-auto text-sm">
             I'm open to internships, freelance work and collaborations.
           </p>
-
         </div>
 
         <div className="grid lg:grid-cols-2 gap-10 max-w-4xl mx-auto">
 
-          {/* Left */}
+          {/* Left - Social Links */}
 
           <div className="space-y-6">
-
             <div className="glass-card p-6">
 
               <h3 className="font-bold text-white mb-6">
@@ -163,17 +182,9 @@ export default function Contact() {
               <div className="space-y-4">
 
                 {socialLinks.map((item) => {
-
-                  let Icon = FiGithub;
-
-                  if (item.platform === "LinkedIn")
-                    Icon = FiLinkedin;
-
-                  if (item.platform === "Email")
-                    Icon = FiMail;
+                  const Icon = getSocialIcon(item.platform);
 
                   return (
-
                     <a
                       key={item.id}
                       href={item.url}
@@ -181,7 +192,6 @@ export default function Contact() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-4 group"
                     >
-
                       <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
 
                         <Icon
@@ -192,32 +202,23 @@ export default function Contact() {
                       </div>
 
                       <div>
-
                         <p className="text-xs text-slate-500">
                           {item.platform}
                         </p>
 
                         <p className="text-sm text-white group-hover:text-accent">
-
                           {item.displayText}
-
                         </p>
-
                       </div>
-
                     </a>
-
                   );
-
                 })}
 
               </div>
-
             </div>
-
           </div>
 
-          {/* Right */}
+          {/* Right - Contact Form */}
 
           <motion.div className="glass-card p-7">
 
@@ -302,10 +303,8 @@ export default function Contact() {
           </motion.div>
 
         </div>
-
       </div>
-
     </SectionWrapper>
   );
-
 }
+
