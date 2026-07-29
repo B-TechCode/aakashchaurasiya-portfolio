@@ -28,9 +28,9 @@ public class SocialLinkServiceImpl implements SocialLinkService {
     @Transactional
     public SocialLinkResponse createSocialLink(SocialLinkRequest request) {
 
-        Profile profile = profileRepository.findById(1L)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Profile not found"));
+       Profile profile = profileRepository.findFirstByOrderByIdAsc()
+        .orElseThrow(() ->
+                new ResourceNotFoundException("Profile not found"));
 
         if (socialLinkRepository.existsByProfileIdAndPlatformIgnoreCase(
                 profile.getId(),
@@ -103,9 +103,9 @@ public class SocialLinkServiceImpl implements SocialLinkService {
     @Override
     public List<SocialLinkResponse> getAllSocialLinks() {
 
-        Profile profile = profileRepository.findById(1L)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Profile not found"));
+       Profile profile = profileRepository.findFirstByOrderByIdAsc()
+        .orElseThrow(() ->
+                new ResourceNotFoundException("Profile not found"));
 
         return socialLinkRepository
                 .findByProfileOrderByDisplayOrderAsc(profile)

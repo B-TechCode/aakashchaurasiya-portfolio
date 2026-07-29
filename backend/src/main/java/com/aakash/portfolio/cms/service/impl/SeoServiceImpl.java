@@ -2,8 +2,10 @@ package com.aakash.portfolio.cms.service.impl;
 
 import com.aakash.portfolio.cms.dto.request.SeoSettingRequest;
 import com.aakash.portfolio.cms.dto.response.SeoSettingResponse;
+import com.aakash.portfolio.cms.entity.Profile;
 import com.aakash.portfolio.cms.entity.SeoSetting;
 import com.aakash.portfolio.cms.exception.ResourceNotFoundException;
+import com.aakash.portfolio.cms.repository.ProfileRepository;
 import com.aakash.portfolio.cms.repository.SeoSettingRepository;
 import com.aakash.portfolio.cms.service.SeoService;
 import lombok.RequiredArgsConstructor;
@@ -16,19 +18,36 @@ import org.springframework.transaction.annotation.Transactional;
 public class SeoServiceImpl implements SeoService {
 
     private final SeoSettingRepository seoSettingRepository;
+    private final ProfileRepository profileRepository;
 
-    @Override
-    public SeoSettingResponse getSeoSettings() {
-        SeoSetting seoSetting = seoSettingRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("SEO settings not found"));
-        return toResponse(seoSetting);
-    }
+   @Override
+@Transactional
+public SeoSettingResponse getSeoSettings() {
+
+    Profile profile = getProfile();
+
+    SeoSetting seoSetting = seoSettingRepository
+            .findByProfileId(profile.getId())
+            .orElseGet(() -> seoSettingRepository.save(
+                    SeoSetting.builder()
+                            .profile(profile)
+                            .build()
+            ));
+
+    return toResponse(seoSetting);
+}
 
     @Override
     @Transactional
     public SeoSettingResponse updateSeoSettings(SeoSettingRequest request) {
-        SeoSetting seoSetting = seoSettingRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("SEO settings not found"));
+
+        Profile profile = getProfile();
+
+        SeoSetting seoSetting = seoSettingRepository
+                .findByProfileId(profile.getId())
+                .orElseGet(() -> SeoSetting.builder()
+                        .profile(profile)
+                        .build());
 
         seoSetting.setSiteTitle(request.getSiteTitle());
         seoSetting.setMetaDescription(request.getMetaDescription());
@@ -40,7 +59,15 @@ public class SeoServiceImpl implements SeoService {
         return toResponse(seoSettingRepository.save(seoSetting));
     }
 
+    private Profile getProfile() {
+        return profileRepository
+                .findFirstByOrderByIdAsc()
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Profile not found"));
+    }
+
     private SeoSettingResponse toResponse(SeoSetting seoSetting) {
+
         return SeoSettingResponse.builder()
                 .id(seoSetting.getId())
                 .siteTitle(seoSetting.getSiteTitle())

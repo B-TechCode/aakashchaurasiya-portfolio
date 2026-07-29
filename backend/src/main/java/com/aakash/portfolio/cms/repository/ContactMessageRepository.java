@@ -22,5 +22,6 @@ Page<ContactMessage> findAllByOrderByCreatedAtDesc(Pageable pageable);
     long count();
 
     long countByReadAtIsNull();
+    
 
 }

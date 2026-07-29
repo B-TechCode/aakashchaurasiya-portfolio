@@ -102,30 +102,35 @@ public Page<ContactResponse> getAllMessages(int page, int size) {
         return toResponse(contactMessage);
     }
 
-    @Override
-    @Transactional
-    public void deleteMessage(Long id) {
+   @Override
+@Transactional
+public void deleteMessage(Long id) {
 
-        ContactMessage contactMessage = contactMessageRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Contact message not found with id: " + id));
+    ContactMessage contactMessage = contactMessageRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Contact message not found with id: " + id));
 
-        contactMessage.setDeletedAt(LocalDateTime.now());
+    contactMessage.setDeletedAt(LocalDateTime.now());
 
-        contactMessageRepository.delete(contactMessage);
-    }
+    contactMessageRepository.delete(contactMessage);
+}
 
-    private ContactResponse toResponse(ContactMessage contactMessage) {
+@Override
+public long getUnreadCount() {
+    return contactMessageRepository.countByStatus(ContactMessageStatus.NEW);
+}
 
-        return ContactResponse.builder()
-                .id(contactMessage.getId())
-                .name(contactMessage.getName())
-                .email(contactMessage.getEmail())
-                .message(contactMessage.getMessage())
-                .status(contactMessage.getStatus())
-                .createdAt(contactMessage.getCreatedAt())
-                .readAt(contactMessage.getReadAt())
-                .build();
-    }
+private ContactResponse toResponse(ContactMessage contactMessage) {
+
+    return ContactResponse.builder()
+            .id(contactMessage.getId())
+            .name(contactMessage.getName())
+            .email(contactMessage.getEmail())
+            .message(contactMessage.getMessage())
+            .status(contactMessage.getStatus())
+            .createdAt(contactMessage.getCreatedAt())
+            .readAt(contactMessage.getReadAt())
+            .build();
+}
 }
 

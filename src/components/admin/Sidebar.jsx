@@ -1,27 +1,31 @@
     import { NavLink } from "react-router-dom";
     import { useAuth } from "../../context/AuthContext";
 
-    import {
-    FaTachometerAlt,
-    FaUser,
-    FaProjectDiagram,
-    FaTools,
-    FaBriefcase,
-    FaCertificate,
-    FaFileAlt,
-    FaLink,
-    FaSearch,
-    FaEnvelope,
-    FaChartBar,
-    FaSignOutAlt,
-    } from "react-icons/fa";
+   import {
+  FaTachometerAlt,
+  FaUser,
+  FaProjectDiagram,
+  FaTools,
+  FaCode,
+  FaBriefcase,
+  FaCertificate,
+  FaFileAlt,
+  FaLink,
+  FaSearch,
+  FaEnvelope,
+  FaChartBar,
+  FaSignOutAlt,
+} from "react-icons/fa";
 
     const menuItems = [
     { icon: <FaTachometerAlt />, label: "Dashboard", path: "/admin/dashboard" },
     { icon: <FaUser />, label: "Profile", path: "/admin/profile" },
-    { icon: <FaProjectDiagram />, label: "Projects", path: "/admin/projects" },
-    { icon: <FaTools />, label: "Skills", path: "/admin/skills" },
-    { icon: <FaBriefcase />, label: "Experience", path: "/admin/experience" },
+
+   { icon: <FaProjectDiagram />, label: "Projects", path: "/admin/projects" },
+{ icon: <FaTools />, label: "Skills", path: "/admin/skills" },
+{ icon: <FaCode />, label: "Services", path: "/admin/services" },
+{ icon: <FaBriefcase />, label: "Experience", path: "/admin/experience" },
+
     { icon: <FaCertificate />, label: "Certificates", path: "/admin/certificates" },
     { icon: <FaFileAlt />, label: "Resume", path: "/admin/resume" },
     { icon: <FaLink />, label: "Social Links", path: "/admin/social-links" },

@@ -53,3 +53,11 @@ export const getPublicProfile = () => {
 export const updateAccount = (data) => {
   return axiosInstance.put("/admin/account", data);
 };
+
+// ==============================
+// GET ACCOUNT
+// ==============================
+
+export const getAccount = () => {
+  return axiosInstance.get("/admin/account");
+};

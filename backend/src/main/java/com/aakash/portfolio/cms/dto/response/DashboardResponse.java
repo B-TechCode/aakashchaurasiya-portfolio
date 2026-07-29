@@ -29,6 +29,9 @@ public class DashboardResponse {
     private long messages;
 
     private long unreadMessages;
+    private long readMessages;
+
+    private long archivedMessages;
 
     private long resumeDownloads;
 

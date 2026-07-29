@@ -8,6 +8,8 @@ public interface ProfileService {
 
     ProfileResponse getProfile();
 
+    ProfileResponse getPublicProfile();
+
     ProfileResponse updateProfile(ProfileRequest request);
 
     ProfileResponse uploadProfileImage(MultipartFile file);

@@ -40,6 +40,20 @@ public ResponseEntity<ApiResponse> getAllMessages(
 
 }
 
+@GetMapping("/unread-count")
+public ResponseEntity<ApiResponse> getUnreadCount() {
+
+    long unreadCount = contactMessageService.getUnreadCount();
+
+    return ResponseEntity.ok(
+            ApiResponse.builder()
+                    .success(true)
+                    .message("Unread message count fetched successfully")
+                    .data(unreadCount)
+                    .build()
+    );
+}
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getMessageById(
             @PathVariable Long id) {

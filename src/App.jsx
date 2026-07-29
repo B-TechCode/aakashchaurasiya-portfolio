@@ -1,12 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
-
 import { recordAnalytics } from "./services/analyticsService";
-
 import Seo from "./components/Seo";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-
 import Hero from "./sections/Hero";
 import About from "./sections/About";
 import Skills from "./sections/Skills";
@@ -16,38 +13,33 @@ const Resume = lazy(() => import("./sections/Resume"));
 const Certificates = lazy(() => import("./sections/Certificates"));
 const Contact = lazy(() => import("./sections/Contact"));
 
-// ====================
 // Admin Pages
 // ====================
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const VerifyOtp = lazy(() => import("./pages/auth/VerifyOtp"));
-
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const Profile = lazy(() => import("./pages/admin/Profile"));
+
 const ProjectsAdmin = lazy(() => import("./pages/admin/Projects"));
 const SkillsAdmin = lazy(() => import("./pages/admin/Skills"));
+const ServicesAdmin = lazy(() => import("./pages/admin/Services"));
 const ExperienceAdmin = lazy(() => import("./pages/admin/Experience"));
+
 const CertificatesAdmin = lazy(() => import("./pages/admin/Certificates"));
 const ResumeAdmin = lazy(() => import("./pages/admin/Resume"));
 const SocialLinksAdmin = lazy(() => import("./pages/admin/SocialLinks"));
 const SeoAdmin = lazy(() => import("./pages/admin/Seo"));
 const ContactsAdmin = lazy(() => import("./pages/admin/Contacts"));
 const AnalyticsAdmin = lazy(() => import("./pages/admin/Analytics"));
-
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// ====================
-// Route Protection
-// ====================
 
+// Route Protection
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 
-
-// ====================
 // Portfolio Homepage
-// ====================
 
 function Portfolio() {
   useEffect(() => {
@@ -189,6 +181,19 @@ export default function App() {
         }
       />
 
+
+
+      {/* ================= Services ================= */}
+
+<Route
+  path="/admin/services"
+  element={
+    <ProtectedRoute>
+      <ServicesAdmin />
+    </ProtectedRoute>
+  }
+/>
+
       {/* ================= Experience ================= */}
 
       <Route
@@ -265,11 +270,6 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-
-
-
-
-
       {/* ================= 404 ================= */}
 
 <Route
@@ -277,11 +277,7 @@ export default function App() {
   element={<NotFound />}
 />
 
-
 </Routes>
 </Suspense>
-);
-
-   
+);  
 }
-

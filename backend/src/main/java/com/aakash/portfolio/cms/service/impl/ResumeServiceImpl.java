@@ -30,8 +30,8 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     public ResumeResponse uploadResume(MultipartFile file) {
 
-        Profile profile = profileRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+       Profile profile = profileRepository.findFirstByOrderByIdAsc()
+        .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         Resume oldResume = resumeRepository
                 .findTopByProfileOrderByVersionDesc(profile)
@@ -44,20 +44,33 @@ public class ResumeServiceImpl implements ResumeService {
             );
         }
 
-        CloudinaryUploadResult uploadResult =
-                cloudinaryService.uploadRawPdf(
-                        file,
-                        "portfolio/resume",
-                        null
-                );
+      CloudinaryUploadResult uploadResult =
+        cloudinaryService.uploadRawPdf(
+                file,
+                "portfolio/resume",
+                null
+        );
 
-        Resume resume = Resume.builder()
-                .fileName(file.getOriginalFilename())
-                .fileUrl(uploadResult.secureUrl())
-                .publicId(uploadResult.publicId())
-                .version(oldResume == null ? 1 : oldResume.getVersion() + 1)
-                .profile(profile)
-                .build();
+String originalFilename = file.getOriginalFilename();
+
+if (originalFilename == null || originalFilename.isBlank()) {
+    originalFilename = "resume.pdf";
+}
+
+while (originalFilename.toLowerCase().endsWith(".pdf.pdf")) {
+    originalFilename = originalFilename.substring(
+            0,
+            originalFilename.length() - 4
+    );
+}
+
+Resume resume = Resume.builder()
+        .fileName(originalFilename)
+        .fileUrl(uploadResult.secureUrl())
+        .publicId(uploadResult.publicId())
+        .version(oldResume == null ? 1 : oldResume.getVersion() + 1)
+        .profile(profile)
+        .build();
 
         if (oldResume != null) {
             resumeRepository.delete(oldResume);
@@ -69,7 +82,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     public ResumeResponse getLatestResume() {
 
-        Profile profile = profileRepository.findById(1L)
+        Profile profile = profileRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         Resume resume = resumeRepository
@@ -85,7 +98,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
 public String getLatestResumeDownloadUrl() {
 
-    Profile profile = profileRepository.findById(1L)
+    Profile profile = profileRepository.findFirstByOrderByIdAsc()
             .orElseThrow(() ->
                     new ResourceNotFoundException("Profile not found"));
 
@@ -102,7 +115,7 @@ public String getLatestResumeDownloadUrl() {
     @Override
 public List<ResumeResponse> getAllResumes() {
 
-    Profile profile = profileRepository.findById(1L)
+    Profile profile = profileRepository.findFirstByOrderByIdAsc()
             .orElseThrow(() ->
                     new ResourceNotFoundException("Profile not found"));
 

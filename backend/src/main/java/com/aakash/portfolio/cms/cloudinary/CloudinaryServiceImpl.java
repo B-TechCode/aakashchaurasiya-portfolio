@@ -37,14 +37,48 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         return upload(file, folder, publicId, "image");
     }
 
-    @Override
-    public CloudinaryUploadResult uploadRawPdf(
-            MultipartFile file,
-            String folder,
-            String publicId
-    ) {
-        return upload(file, folder, publicId, "raw");
+  @Override
+public CloudinaryUploadResult uploadRawPdf(
+        MultipartFile file,
+        String folder,
+        String publicId
+) {
+
+    if (file == null || file.isEmpty()) {
+        throw new IllegalArgumentException("PDF file must not be empty");
     }
+
+    String originalFilename = file.getOriginalFilename();
+
+    if (originalFilename == null ||
+            !originalFilename.toLowerCase().endsWith(".pdf")) {
+        throw new IllegalArgumentException("Only PDF files are allowed");
+    }
+
+    String effectivePublicId = publicId;
+
+    if (effectivePublicId == null || effectivePublicId.isBlank()) {
+
+        String baseName = originalFilename.substring(
+                0,
+                originalFilename.length() - 4
+        );
+
+        // Keep the Cloudinary raw resource filename as a PDF.
+        effectivePublicId =
+                baseName + "-" + System.currentTimeMillis() + ".pdf";
+    } else if (!effectivePublicId.toLowerCase().endsWith(".pdf")) {
+
+        effectivePublicId += ".pdf";
+    }
+
+    return upload(
+            file,
+            folder,
+            effectivePublicId,
+            "raw"
+    );
+}
 
     @Override
     public void deleteResource(String publicId, String resourceType) {

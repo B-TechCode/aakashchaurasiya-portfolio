@@ -10,6 +10,7 @@ import {
     updateProfile,
     uploadProfileImage,
     updateAccount,
+    getAccount,
 } from "../../api/profileApi";
 
                 export default function Profile() {
@@ -46,35 +47,41 @@ const [savingAccount, setSavingAccount] = useState(false);
 
                 }, []);
 
-                const loadProfile = async () => {
+               const loadProfile = async () => {
 
-                    try {
+    try {
 
-                    const response = await getProfile();
+        const [profileResponse, accountResponse] = await Promise.all([
+            getProfile(),
+            getAccount(),
+        ]);
 
-                 const profileData = response.data.data;
+        const profileData = profileResponse.data.data;
+        const accountData = accountResponse.data.data;
 
-setProfile(profileData);
+        setProfile(profileData);
 
-setAccount((prev) => ({
-    ...prev,
-    email: profileData.email || "",
-}));
+        setAccount({
+            username: accountData.username || "",
+            email: accountData.email || "",
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+        });
 
-                    } catch (error) {
+    } catch (error) {
 
-                    console.error(error);
+        console.error(error);
 
-                    } finally {
+        toast.error("Failed to load profile.");
 
-                    setLoading(false);
+    } finally {
 
-                    }
+        setLoading(false);
 
-                };
+    }
 
-
-
+};
                 const handleSave = async () => {
 
             try {

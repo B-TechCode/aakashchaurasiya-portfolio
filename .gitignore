@@ -17,3 +17,16 @@ out/
 # Frontend
 node_modules/
 dist/
+
+
+
+.env.*
+!.env.example
+
+backend/.env
+backend/.env.*
+backend/target/
+
+frontend/.env
+frontend/.env.*
+backend/portfolio-cms-api-inspect.json

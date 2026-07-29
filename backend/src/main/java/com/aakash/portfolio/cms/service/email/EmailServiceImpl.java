@@ -1,10 +1,11 @@
 package com.aakash.portfolio.cms.service.email;
 
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,12 @@ public class EmailServiceImpl implements EmailService {
     @Value("${ADMIN_EMAIL}")
     private String recipientEmail;
 
+    @Value("${app.mail.from}")
+    private String fromEmail;
+
+    @Value("${app.mail.from-name}")
+    private String fromName;
+
     @Override
     public void sendContactNotification(
             String name,
@@ -27,9 +34,11 @@ public class EmailServiceImpl implements EmailService {
 
         try {
 
-            SimpleMailMessage mail = new SimpleMailMessage();
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper mail =
+                    new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
-            mail.setFrom(recipientEmail);
+            mail.setFrom(fromEmail, fromName);
             mail.setTo(recipientEmail);
 
             mail.setSubject("📩 New Portfolio Contact Message");
@@ -55,14 +64,14 @@ public class EmailServiceImpl implements EmailService {
                     message
             ));
 
-            mailSender.send(mail);
+            mailSender.send(mimeMessage);
 
             log.info("Contact notification email sent successfully.");
 
         } catch (Exception ex) {
 
             log.error("Failed to send contact notification email.", ex);
-            throw new RuntimeException(ex);
+            throw new RuntimeException("Failed to send contact notification email", ex);
         }
     }
 
@@ -74,9 +83,11 @@ public class EmailServiceImpl implements EmailService {
 
         try {
 
-            SimpleMailMessage mail = new SimpleMailMessage();
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper mail =
+                    new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
-            mail.setFrom(recipientEmail);
+            mail.setFrom(fromEmail, fromName);
             mail.setTo(email);
 
             mail.setSubject("Portfolio CMS - Login OTP");
@@ -93,17 +104,17 @@ public class EmailServiceImpl implements EmailService {
                     If you didn't request this login, please ignore this email.
 
                     Regards,
-                    Portfolio CMS
+                    Aakash Portfolio
                     """.formatted(otp));
 
-            mailSender.send(mail);
+            mailSender.send(mimeMessage);
 
             log.info("OTP email sent successfully to {}", email);
 
         } catch (Exception ex) {
 
             log.error("Failed to send OTP email.", ex);
-            throw new RuntimeException(ex);
+            throw new RuntimeException("Failed to send OTP email", ex);
         }
     }
 }

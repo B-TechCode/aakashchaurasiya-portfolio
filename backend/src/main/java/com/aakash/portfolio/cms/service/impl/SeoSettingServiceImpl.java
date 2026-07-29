@@ -23,12 +23,11 @@ public class SeoSettingServiceImpl implements SeoSettingService {
     @Override
     public SeoSettingResponse getSeoSettings() {
 
-Profile profile = profileRepository.findById(1L)
-        .orElseThrow(() ->
-                new ResourceNotFoundException("Profile not found"));
+        Profile profile = getProfile();
 
         SeoSetting seoSetting = seoSettingRepository.findByProfile(profile)
-                .orElseThrow(() -> new ResourceNotFoundException("SEO settings not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("SEO settings not found"));
 
         return toResponse(seoSetting);
     }
@@ -37,9 +36,7 @@ Profile profile = profileRepository.findById(1L)
     @Transactional
     public SeoSettingResponse updateSeoSettings(SeoSettingRequest request) {
 
-      Profile profile = profileRepository.findById(1L)
-        .orElseThrow(() ->
-                new ResourceNotFoundException("Profile not found"));
+        Profile profile = getProfile();
 
         SeoSetting seoSetting = seoSettingRepository.findByProfile(profile)
                 .orElseGet(() -> SeoSetting.builder()
@@ -53,12 +50,17 @@ Profile profile = profileRepository.findById(1L)
         seoSetting.setOgDescription(request.getOgDescription());
         seoSetting.setOgImageUrl(request.getOgImageUrl());
 
-        seoSetting = seoSettingRepository.save(seoSetting);
+        return toResponse(seoSettingRepository.save(seoSetting));
+    }
 
-        return toResponse(seoSetting);
+    private Profile getProfile() {
+        return profileRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Profile not found"));
     }
 
     private SeoSettingResponse toResponse(SeoSetting seoSetting) {
+
         return SeoSettingResponse.builder()
                 .id(seoSetting.getId())
                 .siteTitle(seoSetting.getSiteTitle())

@@ -5,6 +5,7 @@ package com.aakash.portfolio.cms.service.impl;
 
 import com.aakash.portfolio.cms.dto.response.DashboardResponse;
 import com.aakash.portfolio.cms.entity.AnalyticsEventType;
+import com.aakash.portfolio.cms.entity.ContactMessageStatus;
 import com.aakash.portfolio.cms.repository.AnalyticsEventRepository;
 import com.aakash.portfolio.cms.repository.CertificateRepository;
 import com.aakash.portfolio.cms.repository.ContactMessageRepository;
@@ -37,9 +38,12 @@ public class DashboardServiceImpl implements DashboardService {
                 .experiences(experienceRepository.count())
                 .certificates(certificateRepository.count())
                 .resumes(resumeRepository.count())
-                .messages(contactMessageRepository.count())
-                .unreadMessages(contactMessageRepository.countByReadAtIsNull())
-                .resumeDownloads(
+              
+.messages(contactMessageRepository.count())
+.unreadMessages(contactMessageRepository.countByStatus(ContactMessageStatus.NEW))
+.readMessages(contactMessageRepository.countByStatus(ContactMessageStatus.READ))
+.archivedMessages(contactMessageRepository.countByStatus(ContactMessageStatus.ARCHIVED))
+.resumeDownloads(
                         analyticsEventRepository.countByEventType(
                                 AnalyticsEventType.RESUME_DOWNLOAD
                         )

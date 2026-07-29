@@ -13,4 +13,6 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     Optional<Profile> findByAdminUser(AdminUser adminUser);
 
     Optional<Profile> findByAdminUserId(Long adminUserId);
+
+    Optional<Profile> findFirstByOrderByIdAsc();
 }

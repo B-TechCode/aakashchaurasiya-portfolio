@@ -4,8 +4,6 @@ import com.aakash.portfolio.cms.dto.request.ContactRequest;
 import com.aakash.portfolio.cms.dto.response.ContactResponse;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 public interface ContactMessageService {
 
     ContactResponse submitMessage(ContactRequest request);
@@ -17,4 +15,7 @@ public interface ContactMessageService {
     ContactResponse markAsRead(Long id);
 
     void deleteMessage(Long id);
+
+    // Number of new/unread contact messages
+    long getUnreadCount();
 }
