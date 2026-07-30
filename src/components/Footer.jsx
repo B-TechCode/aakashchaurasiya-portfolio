@@ -1,12 +1,20 @@
+
 import { useEffect, useState } from "react";
 
 import {
   FiGithub,
   FiLinkedin,
   FiMail,
+  FiCode,
   FiGlobe,
   FiArrowUp,
 } from "react-icons/fi";
+
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaYoutube,
+} from "react-icons/fa";
 
 import { fetchSocialLinks } from "../services/socialLinkService";
 import { recordAnalytics } from "../services/analyticsService";
@@ -32,12 +40,14 @@ export default function Footer() {
   // ===============================
 
   const handleSocialClick = (platform) => {
-    switch (platform) {
-      case "GitHub":
+    const normalizedPlatform = platform?.toLowerCase().trim();
+
+    switch (normalizedPlatform) {
+      case "github":
         recordAnalytics("GITHUB_CLICK");
         break;
 
-      case "LinkedIn":
+      case "linkedin":
         recordAnalytics("LINKEDIN_CLICK");
         break;
 
@@ -46,6 +56,44 @@ export default function Footer() {
     }
   };
 
+  // ===============================
+  // Social Icon Mapping
+  // ===============================
+
+  const getSocialIcon = (platform) => {
+    const normalizedPlatform = platform?.toLowerCase().trim();
+
+    switch (normalizedPlatform) {
+      case "github":
+        return FiGithub;
+
+      case "linkedin":
+        return FiLinkedin;
+
+      case "email":
+        return FiMail;
+
+      case "leetcode":
+        return FiCode;
+
+      case "youtube":
+        return FaYoutube;
+
+      case "facebook":
+        return FaFacebookF;
+
+      case "instagram":
+        return FaInstagram;
+
+      default:
+        return FiGlobe;
+    }
+  };
+
+  // ===============================
+  // Back to Top
+  // ===============================
+
   const scrollTop = () => {
     window.scrollTo({
       top: 0,
@@ -53,7 +101,7 @@ export default function Footer() {
     });
   };
 
-    return (
+  return (
     <footer className="border-t border-white/5 bg-navy-950/80">
       <div className="section-container py-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -82,24 +130,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-4">
             {socialLinks.map((item) => {
-              let Icon = FiGlobe;
-
-              switch (item.platform) {
-                case "GitHub":
-                  Icon = FiGithub;
-                  break;
-
-                case "LinkedIn":
-                  Icon = FiLinkedin;
-                  break;
-
-                case "Email":
-                  Icon = FiMail;
-                  break;
-
-                default:
-                  Icon = FiGlobe;
-              }
+              const Icon = getSocialIcon(item.platform);
 
               return (
                 <a
@@ -108,6 +139,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={item.platform}
+                  title={item.platform}
                   onClick={() => handleSocialClick(item.platform)}
                   className="text-slate-400 hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded transition-all duration-200"
                 >
@@ -119,6 +151,7 @@ export default function Footer() {
             <button
               onClick={scrollTop}
               aria-label="Back to top"
+              title="Back to top"
               className="ml-2 w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-slate-400 hover:border-accent hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all duration-200"
             >
               <FiArrowUp size={14} />
