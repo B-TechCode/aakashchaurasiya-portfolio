@@ -30,7 +30,15 @@ axiosInstance.interceptors.response.use(
 
     (error) => {
 
-        if (error.response?.status === 401) {
+        const status = error.response?.status;
+        const requestUrl = error.config?.url || "";
+
+        // Redirect only when an ADMIN API request
+        // fails because the admin is unauthorized.
+        if (
+            status === 401 &&
+            requestUrl.startsWith("/admin/")
+        ) {
 
             removeToken();
 

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -85,12 +86,20 @@ public class SecurityConfig {
                                 "/actuator/health/**"
                         ).permitAll()
 
-                        // ---------- Public APIs ----------
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/public/**",
-                                "/api/test/**"
-                        ).permitAll()
+                       // ---------- Public APIs ----------
+.requestMatchers(
+        "/api/auth/**",
+        "/api/public/**",
+        "/api/test/**",
+        "/api/contact"
+).permitAll()
+
+
+// ---------- Public Contact Form ----------
+.requestMatchers(
+        HttpMethod.POST,
+        "/api/contact"
+).permitAll()
 
                         // ---------- Swagger / OpenAPI ----------
                         .requestMatchers(
