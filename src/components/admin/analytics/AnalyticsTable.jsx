@@ -6,6 +6,7 @@ import {
   FaLinkedin,
   FaProjectDiagram,
   FaEnvelope,
+  FaClock,
 } from "react-icons/fa";
 
 function EventBadge({ type }) {
@@ -49,17 +50,24 @@ function EventBadge({ type }) {
 
   const badge =
     badgeStyles[type] || {
-      label: type,
+      label: type || "Unknown Event",
       color: "bg-slate-600",
       icon: null,
     };
 
   return (
     <span
-      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold text-white ${badge.color}`}
+      className={`inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-white ${badge.color}`}
     >
-      {badge.icon}
-      {badge.label}
+      {badge.icon && (
+        <span className="flex-shrink-0">
+          {badge.icon}
+        </span>
+      )}
+
+      <span className="min-w-0 break-words">
+        {badge.label}
+      </span>
     </span>
   );
 }
@@ -68,15 +76,20 @@ export default function AnalyticsTable({
   events,
   onDelete,
 }) {
-  if (!events.length) {
+  if (!events || events.length === 0) {
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center">
+      <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6 text-center sm:p-8 md:p-12">
 
-        <h2 className="text-2xl font-semibold text-white">
+        <FaChartLine
+          size={30}
+          className="mx-auto text-slate-500"
+        />
+
+        <h2 className="mt-4 text-xl font-semibold text-white sm:text-2xl">
           No Analytics Events
         </h2>
 
-        <p className="text-slate-400 mt-3">
+        <p className="mt-2 text-sm text-slate-400 sm:text-base">
           Analytics events will appear here.
         </p>
 
@@ -84,86 +97,193 @@ export default function AnalyticsTable({
     );
   }
 
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleString();
+  };
+
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+    <>
+      {/* ================================================
+          MOBILE + TABLET
+      ================================================= */}
 
-      <table className="w-full">
+      <div className="grid grid-cols-1 gap-4 lg:hidden">
 
-        <thead className="bg-slate-900">
+        {events.map((event) => (
+          <article
+            key={event.id}
+            className="min-w-0 overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 p-4 sm:p-5"
+          >
 
-          <tr>
+            {/* Event */}
 
-            <th className="px-6 py-4 text-left text-white">
-              Event
-            </th>
+            <div className="flex min-w-0 items-start justify-between gap-3">
 
-            <th className="px-6 py-4 text-left text-white">
-              Entity
-            </th>
-
-            <th className="px-6 py-4 text-left text-white">
-              Date
-            </th>
-
-            <th className="px-6 py-4 text-center text-white">
-              Action
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {events.map((event) => (
-
-            <tr
-              key={event.id}
-              className="border-t border-slate-700 hover:bg-slate-700/40 transition"
-            >
-
-              <td className="px-6 py-5">
+              <div className="min-w-0">
+                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Event
+                </p>
 
                 <EventBadge type={event.eventType} />
+              </div>
 
-              </td>
+              <button
+                type="button"
+                onClick={() => onDelete(event)}
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-red-600 text-white transition hover:bg-red-700"
+                title="Delete Event"
+                aria-label={`Delete ${
+                  event.eventType || "analytics"
+                } event`}
+              >
+                <FaTrash />
+              </button>
 
-              <td className="px-6 py-5 text-slate-300">
+            </div>
 
-                {event.entityType || "-"}
+            {/* Information */}
 
-              </td>
+            <div className="mt-4 grid grid-cols-1 gap-4 border-t border-slate-700 pt-4 sm:grid-cols-2">
 
-              <td className="px-6 py-5 text-slate-300">
+              {/* Entity */}
 
-                {new Date(event.createdAt).toLocaleString()}
+              <div className="min-w-0">
 
-              </td>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Entity
+                </p>
 
-              <td className="px-6 py-5">
+                <p className="mt-1 break-words text-sm text-slate-300">
+                  {event.entityType || "-"}
+                </p>
 
-                <div className="flex justify-center">
+              </div>
 
-                  <button
-                    onClick={() => onDelete(event)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
-                    title="Delete Event"
-                  >
-                    <FaTrash />
-                  </button>
+              {/* Date */}
+
+              <div className="min-w-0">
+
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Date
+                </p>
+
+                <div className="mt-1 flex items-start gap-2 text-sm text-slate-300">
+
+                  <FaClock className="mt-0.5 flex-shrink-0 text-slate-500" />
+
+                  <span className="break-words">
+                    {formatDate(event.createdAt)}
+                  </span>
 
                 </div>
 
-              </td>
+              </div>
 
-            </tr>
+            </div>
 
-          ))}
+          </article>
+        ))}
 
-        </tbody>
+      </div>
 
-      </table>
+      {/* ================================================
+          DESKTOP TABLE
+      ================================================= */}
 
-    </div>
+      <div className="hidden w-full min-w-0 overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 lg:block">
+
+        <div className="overflow-x-auto">
+
+          <table className="w-full min-w-[760px]">
+
+            <thead className="bg-slate-900">
+
+              <tr>
+
+                <th className="px-6 py-4 text-left text-white">
+                  Event
+                </th>
+
+                <th className="px-6 py-4 text-left text-white">
+                  Entity
+                </th>
+
+                <th className="px-6 py-4 text-left text-white">
+                  Date
+                </th>
+
+                <th className="px-6 py-4 text-center text-white">
+                  Action
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {events.map((event) => (
+                <tr
+                  key={event.id}
+                  className="border-t border-slate-700 transition hover:bg-slate-700/40"
+                >
+
+                  {/* Event */}
+
+                  <td className="px-6 py-5">
+                    <EventBadge type={event.eventType} />
+                  </td>
+
+                  {/* Entity */}
+
+                  <td className="px-6 py-5">
+
+                    <div className="max-w-[250px] break-words text-slate-300">
+                      {event.entityType || "-"}
+                    </div>
+
+                  </td>
+
+                  {/* Date */}
+
+                  <td className="whitespace-nowrap px-6 py-5 text-slate-300">
+                    {formatDate(event.createdAt)}
+                  </td>
+
+                  {/* Action */}
+
+                  <td className="px-6 py-5">
+
+                    <div className="flex justify-center">
+
+                      <button
+                        type="button"
+                        onClick={() => onDelete(event)}
+                        className="rounded-lg bg-red-600 p-2 text-white transition hover:bg-red-700"
+                        title="Delete Event"
+                        aria-label={`Delete ${
+                          event.eventType || "analytics"
+                        } event`}
+                      >
+                        <FaTrash />
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+    </>
   );
 }

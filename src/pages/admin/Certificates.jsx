@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import AdminLayout from "../../layouts/AdminLayout";
 
 import CertificateTable from "../../components/admin/certificates/CertificateTable";
 import CertificateFormModal from "../../components/admin/certificates/CertificateFormModal";
+import DeleteCertificateModal from "../../components/admin/certificates/DeleteCertificateModal";
 
 import {
   getAllCertificates,
@@ -19,8 +21,11 @@ export default function Certificates() {
   const [saving, setSaving] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
-
   const [editingCertificate, setEditingCertificate] = useState(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingCertificate, setDeletingCertificate] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadCertificates();
@@ -28,11 +33,15 @@ export default function Certificates() {
 
   const loadCertificates = async () => {
     try {
+      setLoading(true);
+
       const response = await getAllCertificates();
 
-      setCertificates(response.data.data);
+      setCertificates(response.data.data || []);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load certificates:", error);
+
+      toast.error("Failed to load certificates.");
     } finally {
       setLoading(false);
     }
@@ -48,26 +57,82 @@ export default function Certificates() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this certificate?")) return;
+  const handleCloseFormModal = () => {
+    if (saving) return;
+
+    setShowModal(false);
+    setEditingCertificate(null);
+  };
+
+  // ===============================
+  // Delete Certificate
+  // ===============================
+
+  const handleDeleteClick = (certificate) => {
+    setDeletingCertificate(certificate);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (deleting) return;
+
+    setShowDeleteModal(false);
+    setDeletingCertificate(null);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingCertificate) return;
 
     try {
-      await deleteCertificate(id);
-      loadCertificates();
+      setDeleting(true);
+
+      await deleteCertificate(deletingCertificate.id);
+
+      await loadCertificates();
+
+      toast.success("Certificate deleted successfully.");
+
+      setShowDeleteModal(false);
+      setDeletingCertificate(null);
     } catch (error) {
-      console.error(error);
-      alert("Failed to delete certificate.");
+      console.error("Failed to delete certificate:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to delete certificate."
+      );
+    } finally {
+      setDeleting(false);
     }
   };
 
+  // ===============================
+  // Create / Update Certificate
+  // ===============================
+
   const handleSubmit = async (certificate) => {
+    if (!certificate.title.trim()) {
+      return toast.error("Certificate title is required.");
+    }
+
+    if (!certificate.issuer.trim()) {
+      return toast.error("Issuer is required.");
+    }
+
     try {
       setSaving(true);
 
       if (editingCertificate) {
-        await updateCertificate(editingCertificate.id, certificate);
+        await updateCertificate(
+          editingCertificate.id,
+          certificate
+        );
+
+        toast.success("Certificate updated successfully.");
       } else {
         await createCertificate(certificate);
+
+        toast.success("Certificate created successfully.");
       }
 
       await loadCertificates();
@@ -75,8 +140,12 @@ export default function Certificates() {
       setShowModal(false);
       setEditingCertificate(null);
     } catch (error) {
-      console.error(error);
-      alert("Failed to save certificate.");
+      console.error("Failed to save certificate:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to save certificate."
+      );
     } finally {
       setSaving(false);
     }
@@ -84,54 +153,62 @@ export default function Certificates() {
 
   return (
     <AdminLayout>
+      <div className="w-full min-w-0">
 
-      <div className="flex items-center justify-between mb-8">
+        {/* ================= Header ================= */}
 
-        <div>
+        <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
 
-          <h1 className="text-4xl font-bold text-white">
-            Certificates
-          </h1>
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold text-white sm:text-4xl">
+              Certificates
+            </h1>
 
-          <p className="text-slate-400 mt-2">
-            Manage your certificates.
-          </p>
+            <p className="mt-2 text-sm text-slate-400 sm:text-base">
+              Manage your certificates.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCreate}
+            className="w-full shrink-0 rounded-xl bg-cyan-600 px-5 py-3 font-semibold text-white transition hover:bg-cyan-700 sm:w-auto sm:px-6"
+          >
+            + Add Certificate
+          </button>
 
         </div>
 
-        <button
-          onClick={handleCreate}
-          className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-semibold"
-        >
-          + Add Certificate
-        </button>
+        {/* ================= Certificate List ================= */}
 
-      </div>
-
-      {loading ? (
-        <div className="text-white text-xl">
-          Loading...
-        </div>
-      ) : (
         <CertificateTable
           certificates={certificates}
+          loading={loading}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDeleteClick}
         />
-      )}
 
-      <CertificateFormModal
-        open={showModal}
-        initialData={editingCertificate}
-        loading={saving}
-        onClose={() => {
-          setShowModal(false);
-          setEditingCertificate(null);
-        }}
-        onSubmit={handleSubmit}
-      />
+        {/* ================= Create / Edit Modal ================= */}
 
+        <CertificateFormModal
+          open={showModal}
+          initialData={editingCertificate}
+          loading={saving}
+          onClose={handleCloseFormModal}
+          onSubmit={handleSubmit}
+        />
+
+        {/* ================= Delete Modal ================= */}
+
+        <DeleteCertificateModal
+          open={showDeleteModal}
+          loading={deleting}
+          certificateTitle={deletingCertificate?.title}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleDelete}
+        />
+
+      </div>
     </AdminLayout>
   );
 }
-

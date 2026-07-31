@@ -1,4 +1,11 @@
-import { FaEye, FaTrash, FaCheck } from "react-icons/fa";
+import {
+  FaEye,
+  FaTrash,
+  FaCheck,
+  FaEnvelope,
+  FaClock,
+  FaUser,
+} from "react-icons/fa";
 
 export default function ContactMessageTable({
   messages,
@@ -6,136 +13,297 @@ export default function ContactMessageTable({
   onRead,
   onDelete,
 }) {
-  if (!messages.length) {
+  // ===============================
+  // Empty State
+  // ===============================
+
+  if (!messages || messages.length === 0) {
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center">
-        <h2 className="text-2xl font-semibold text-white">
+      <div className="rounded-2xl border border-slate-700 bg-slate-800 p-6 text-center sm:p-8 md:p-12">
+
+        <FaEnvelope
+          size={30}
+          className="mx-auto text-slate-500"
+        />
+
+        <h2 className="mt-4 text-xl font-semibold text-white sm:text-2xl">
           No Messages Found
         </h2>
 
-        <p className="text-slate-400 mt-3">
+        <p className="mt-2 text-sm text-slate-400 sm:text-base">
           Contact messages will appear here.
         </p>
+
       </div>
     );
   }
 
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleString();
+  };
+
   return (
-    <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+    <>
+      {/* ==================================================
+          MOBILE + SMALL TABLET CARDS
+          Below lg breakpoint
+      ================================================== */}
 
-      <table className="w-full">
+      <div className="grid grid-cols-1 gap-4 lg:hidden">
 
-        <thead className="bg-slate-900">
+        {messages.map((message) => (
+          <article
+            key={message.id}
+            className="min-w-0 overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 p-4 sm:p-5"
+          >
 
-          <tr>
+            {/* Header */}
 
-            <th className="px-6 py-4 text-left text-white">
-              Name
-            </th>
+            <div className="flex min-w-0 items-start justify-between gap-3">
 
-            <th className="px-6 py-4 text-left text-white">
-              Email
-            </th>
+              <div className="flex min-w-0 items-start gap-3">
 
-            <th className="px-6 py-4 text-left text-white">
-              Status
-            </th>
-
-            <th className="px-6 py-4 text-left text-white">
-              Received
-            </th>
-
-            <th className="px-6 py-4 text-center text-white">
-              Actions
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {messages.map((message) => (
-
-            <tr
-              key={message.id}
-              className="border-t border-slate-700 hover:bg-slate-700/40 transition"
-            >
-
-              <td className="px-6 py-5">
-
-                <div className="font-semibold text-white">
-                  {message.name}
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-700 text-cyan-400">
+                  <FaUser />
                 </div>
 
-              </td>
+                <div className="min-w-0">
 
-              <td className="px-6 py-5 text-slate-300">
-                {message.email}
-              </td>
+                  <h3 className="break-words font-semibold text-white">
+                    {message.name}
+                  </h3>
 
-              <td className="px-6 py-5">
+                  <p className="mt-1 break-all text-sm text-slate-400">
+                    {message.email}
+                  </p>
 
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    message.status === "NEW"
-                      ? "bg-red-500 text-white"
-                      : "bg-green-500 text-white"
-                  }`}
+                </div>
+
+              </div>
+
+              <span
+                className={`flex-shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  message.status === "NEW"
+                    ? "bg-red-500 text-white"
+                    : "bg-green-500 text-white"
+                }`}
+              >
+                {message.status}
+              </span>
+
+            </div>
+
+            {/* Received */}
+
+            <div className="mt-4 flex items-start gap-2 border-t border-slate-700 pt-4 text-sm text-slate-400">
+
+              <FaClock className="mt-0.5 flex-shrink-0" />
+
+              <span className="break-words">
+                {formatDate(message.createdAt)}
+              </span>
+
+            </div>
+
+            {/* Message Preview */}
+
+            <div className="mt-4 rounded-xl bg-slate-900/60 p-3">
+
+              <p className="line-clamp-3 break-words text-sm leading-6 text-slate-300">
+                {message.message || "No message content."}
+              </p>
+
+            </div>
+
+            {/* Actions */}
+
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+
+              <button
+                type="button"
+                onClick={() => onView(message)}
+                className="flex min-h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+              >
+                <FaEye />
+                View
+              </button>
+
+              {message.status === "NEW" && (
+                <button
+                  type="button"
+                  onClick={() => onRead(message.id)}
+                  className="flex min-h-10 items-center justify-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-cyan-700"
                 >
-                  {message.status}
-                </span>
+                  <FaCheck />
+                  Read
+                </button>
+              )}
 
-              </td>
+              <button
+                type="button"
+                onClick={() => onDelete(message)}
+                className={`flex min-h-10 items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700 ${
+                  message.status !== "NEW"
+                    ? "col-span-1"
+                    : "col-span-2 sm:col-span-1"
+                }`}
+              >
+                <FaTrash />
+                Delete
+              </button>
 
-              <td className="px-6 py-5 text-slate-300">
-                {new Date(message.createdAt).toLocaleString()}
-              </td>
+            </div>
 
-              <td className="px-6 py-5">
+          </article>
+        ))}
 
-                <div className="flex justify-center gap-3">
+      </div>
 
-                  <button
-                    onClick={() => onView(message)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg"
-                    title="View Message"
-                  >
-                    <FaEye />
-                  </button>
+      {/* ==================================================
+          DESKTOP TABLE
+          lg and above
+      ================================================== */}
 
-                  {message.status === "NEW" && (
+      <div className="hidden w-full min-w-0 overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 lg:block">
 
-                    <button
-                      onClick={() => onRead(message.id)}
-                      className="bg-cyan-600 hover:bg-cyan-700 text-white p-2 rounded-lg"
-                      title="Mark as Read"
+        <div className="overflow-x-auto">
+
+          <table className="w-full min-w-[900px]">
+
+            <thead className="bg-slate-900">
+
+              <tr>
+
+                <th className="px-6 py-4 text-left text-white">
+                  Name
+                </th>
+
+                <th className="px-6 py-4 text-left text-white">
+                  Email
+                </th>
+
+                <th className="px-6 py-4 text-left text-white">
+                  Status
+                </th>
+
+                <th className="px-6 py-4 text-left text-white">
+                  Received
+                </th>
+
+                <th className="px-6 py-4 text-center text-white">
+                  Actions
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {messages.map((message) => (
+                <tr
+                  key={message.id}
+                  className="border-t border-slate-700 transition hover:bg-slate-700/40"
+                >
+
+                  {/* Name */}
+
+                  <td className="px-6 py-5">
+
+                    <div className="max-w-[200px] break-words font-semibold text-white">
+                      {message.name}
+                    </div>
+
+                  </td>
+
+                  {/* Email */}
+
+                  <td className="px-6 py-5">
+
+                    <div className="max-w-[280px] break-all text-slate-300">
+                      {message.email}
+                    </div>
+
+                  </td>
+
+                  {/* Status */}
+
+                  <td className="px-6 py-5">
+
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                        message.status === "NEW"
+                          ? "bg-red-500 text-white"
+                          : "bg-green-500 text-white"
+                      }`}
                     >
-                      <FaCheck />
-                    </button>
+                      {message.status}
+                    </span>
 
-                  )}
+                  </td>
 
-                  <button
-                    onClick={() => onDelete(message)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
-                    title="Delete Message"
-                  >
-                    <FaTrash />
-                  </button>
+                  {/* Received */}
 
-                </div>
+                  <td className="whitespace-nowrap px-6 py-5 text-sm text-slate-300">
+                    {formatDate(message.createdAt)}
+                  </td>
 
-              </td>
+                  {/* Actions */}
 
-            </tr>
+                  <td className="px-6 py-5">
 
-          ))}
+                    <div className="flex justify-center gap-3">
 
-        </tbody>
+                      <button
+                        type="button"
+                        onClick={() => onView(message)}
+                        className="rounded-lg bg-indigo-600 p-2 text-white transition hover:bg-indigo-700"
+                        title="View Message"
+                        aria-label={`View message from ${message.name}`}
+                      >
+                        <FaEye />
+                      </button>
 
-      </table>
+                      {message.status === "NEW" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onRead(message.id)
+                          }
+                          className="rounded-lg bg-cyan-600 p-2 text-white transition hover:bg-cyan-700"
+                          title="Mark as Read"
+                          aria-label={`Mark message from ${message.name} as read`}
+                        >
+                          <FaCheck />
+                        </button>
+                      )}
 
-    </div>
+                      <button
+                        type="button"
+                        onClick={() => onDelete(message)}
+                        className="rounded-lg bg-red-600 p-2 text-white transition hover:bg-red-700"
+                        title="Delete Message"
+                        aria-label={`Delete message from ${message.name}`}
+                      >
+                        <FaTrash />
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+    </>
   );
 }

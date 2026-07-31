@@ -14,176 +14,293 @@ export default function SeoForm({
   loading,
   onSubmit,
 }) {
-
   const [form, setForm] = useState(initialState);
 
+  // ===============================
+  // Load Initial Data
+  // ===============================
+
   useEffect(() => {
-
     if (initialData) {
-
       setForm({
         siteTitle: initialData.siteTitle || "",
-        metaDescription: initialData.metaDescription || "",
+        metaDescription:
+          initialData.metaDescription || "",
         keywords: initialData.keywords || "",
         ogTitle: initialData.ogTitle || "",
-        ogDescription: initialData.ogDescription || "",
+        ogDescription:
+          initialData.ogDescription || "",
         ogImageUrl: initialData.ogImageUrl || "",
       });
-
+    } else {
+      setForm(initialState);
     }
-
   }, [initialData]);
 
-  const handleSubmit = (e) => {
+  // ===============================
+  // Change
+  // ===============================
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // ===============================
+  // Submit
+  // ===============================
+
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    onSubmit(form);
+    if (loading) return;
 
+    onSubmit(form);
   };
 
   return (
-
     <form
       onSubmit={handleSubmit}
-      className="bg-slate-800 rounded-2xl border border-slate-700 p-10"
+      className="w-full min-w-0 rounded-2xl border border-slate-700 bg-slate-800 p-4 sm:p-6 md:p-8 lg:p-10"
     >
 
       <div className="space-y-6">
 
+        {/* =========================
+            Basic SEO
+        ========================= */}
+
         <div>
 
-          <label className="block text-slate-300 mb-2">
+          <h2 className="text-xl font-semibold text-white sm:text-2xl">
+            Basic SEO
+          </h2>
+
+          <p className="mt-1 text-sm leading-6 text-slate-400">
+            Configure the information search engines use to understand your portfolio.
+          </p>
+
+        </div>
+
+        {/* Site Title */}
+
+        <div>
+
+          <label
+            htmlFor="seo-site-title"
+            className="mb-2 block text-sm text-slate-300 sm:text-base"
+          >
             Site Title
           </label>
 
           <input
+            id="seo-site-title"
+            type="text"
+            name="siteTitle"
             value={form.siteTitle}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                siteTitle: e.target.value,
-              })
-            }
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+            onChange={handleChange}
+            required
+            maxLength={120}
+            placeholder="Aakash Chaurasiya | Portfolio"
+            disabled={loading}
+            className="w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
 
         </div>
 
+        {/* Meta Description */}
+
         <div>
 
-          <label className="block text-slate-300 mb-2">
-            Meta Description
-          </label>
+          <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+
+            <label
+              htmlFor="seo-meta-description"
+              className="text-sm text-slate-300 sm:text-base"
+            >
+              Meta Description
+            </label>
+
+            <span className="text-xs text-slate-500">
+              {form.metaDescription.length} characters
+            </span>
+
+          </div>
 
           <textarea
+            id="seo-meta-description"
+            name="metaDescription"
             rows={4}
             value={form.metaDescription}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                metaDescription: e.target.value,
-              })
-            }
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+            onChange={handleChange}
+            required
+            maxLength={500}
+            placeholder="Describe your portfolio for search engines..."
+            disabled={loading}
+            className="w-full min-w-0 resize-y rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
 
         </div>
 
+        {/* Keywords */}
+
         <div>
 
-          <label className="block text-slate-300 mb-2">
+          <label
+            htmlFor="seo-keywords"
+            className="mb-2 block text-sm text-slate-300 sm:text-base"
+          >
             Keywords
           </label>
 
           <textarea
+            id="seo-keywords"
+            name="keywords"
             rows={3}
             value={form.keywords}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                keywords: e.target.value,
-              })
-            }
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+            onChange={handleChange}
+            required
+            placeholder="Java, Spring Boot, React, Full Stack Developer"
+            disabled={loading}
+            className="w-full min-w-0 resize-y rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
+
+          <p className="mt-2 text-xs leading-5 text-slate-500 sm:text-sm">
+            Separate multiple keywords with commas.
+          </p>
 
         </div>
 
+        {/* =========================
+            Social Sharing
+        ========================= */}
+
+        <div className="border-t border-slate-700 pt-6">
+
+          <h2 className="text-xl font-semibold text-white sm:text-2xl">
+            Social Sharing
+          </h2>
+
+          <p className="mt-1 text-sm leading-6 text-slate-400">
+            Configure Open Graph information used when your portfolio is shared on supported platforms.
+          </p>
+
+        </div>
+
+        {/* OG Title */}
+
         <div>
 
-          <label className="block text-slate-300 mb-2">
+          <label
+            htmlFor="seo-og-title"
+            className="mb-2 block text-sm text-slate-300 sm:text-base"
+          >
             OG Title
           </label>
 
           <input
+            id="seo-og-title"
+            type="text"
+            name="ogTitle"
             value={form.ogTitle}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                ogTitle: e.target.value,
-              })
-            }
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+            onChange={handleChange}
+            maxLength={120}
+            placeholder="Aakash Chaurasiya | Portfolio"
+            disabled={loading}
+            className="w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
 
         </div>
 
+        {/* OG Description */}
+
         <div>
 
-          <label className="block text-slate-300 mb-2">
-            OG Description
-          </label>
+          <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+
+            <label
+              htmlFor="seo-og-description"
+              className="text-sm text-slate-300 sm:text-base"
+            >
+              OG Description
+            </label>
+
+            <span className="text-xs text-slate-500">
+              {form.ogDescription.length} characters
+            </span>
+
+          </div>
 
           <textarea
+            id="seo-og-description"
+            name="ogDescription"
             rows={4}
             value={form.ogDescription}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                ogDescription: e.target.value,
-              })
-            }
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+            onChange={handleChange}
+            maxLength={500}
+            placeholder="Description shown when your portfolio is shared..."
+            disabled={loading}
+            className="w-full min-w-0 resize-y rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
 
         </div>
 
+        {/* OG Image URL */}
+
         <div>
 
-          <label className="block text-slate-300 mb-2">
+          <label
+            htmlFor="seo-og-image"
+            className="mb-2 block text-sm text-slate-300 sm:text-base"
+          >
             OG Image URL
           </label>
 
           <input
+            id="seo-og-image"
+            type="url"
+            name="ogImageUrl"
             value={form.ogImageUrl}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                ogImageUrl: e.target.value,
-              })
-            }
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
+            onChange={handleChange}
+            placeholder="https://example.com/portfolio-preview.jpg"
+            disabled={loading}
+            className="w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
+
+          <p className="mt-2 break-words text-xs leading-5 text-slate-500 sm:text-sm">
+            Use a complete public image URL beginning with https:// or http://
+          </p>
 
         </div>
 
       </div>
 
-      <div className="flex justify-end mt-8">
+      {/* ===============================
+          Save
+      =============================== */}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-600 px-8 py-3 rounded-lg text-white font-semibold"
-        >
-          {loading ? "Saving..." : "Save SEO Settings"}
-        </button>
+      <div className="mt-8 border-t border-slate-700 pt-6">
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-cyan-600 px-6 py-3 font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-slate-600 sm:w-auto sm:px-8"
+          >
+            {loading
+              ? "Saving..."
+              : "Save SEO Settings"}
+          </button>
+
+        </div>
 
       </div>
 
     </form>
-
   );
-
 }

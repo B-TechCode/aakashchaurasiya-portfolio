@@ -32,7 +32,6 @@ export default function Services() {
       setServices(response.data.data || []);
     } catch (error) {
       console.error("Failed to load services:", error);
-
       toast.error("Failed to load services.");
     } finally {
       setLoading(false);
@@ -82,11 +81,9 @@ export default function Services() {
 
       if (editingService) {
         await updateService(editingService.id, service);
-
         toast.success("Service updated successfully.");
       } else {
         await createService(service);
-
         toast.success("Service created successfully.");
       }
 
@@ -107,45 +104,61 @@ export default function Services() {
 
   return (
     <AdminLayout>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-white">
-            Services
-          </h1>
+      <div className="w-full min-w-0">
 
-          <p className="mt-2 text-slate-400">
-            Manage the services displayed on your portfolio.
-          </p>
+        {/* ================= Header ================= */}
+
+        <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold text-white sm:text-4xl">
+              Services
+            </h1>
+
+            <p className="mt-2 text-sm text-slate-400 sm:text-base">
+              Manage the services displayed on your portfolio.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCreate}
+            className="w-full shrink-0 rounded-xl bg-cyan-600 px-5 py-3 font-semibold text-white transition hover:bg-cyan-700 sm:w-auto sm:px-6"
+          >
+            + Add Service
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleCreate}
-          className="rounded-xl bg-cyan-600 px-6 py-3 font-semibold text-white transition hover:bg-cyan-700"
-        >
-          + Add Service
-        </button>
-      </div>
+        {/* ================= Content ================= */}
 
-      {loading ? (
-        <div className="text-xl text-white">
-          Loading...
-        </div>
-      ) : (
-        <ServiceTable
-          services={services}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+        {loading ? (
+          <div className="rounded-2xl border border-slate-700 bg-slate-800 p-8 text-center sm:p-12">
+            <h2 className="text-lg font-semibold text-white sm:text-xl">
+              Loading services...
+            </h2>
+
+            <p className="mt-2 text-sm text-slate-400">
+              Please wait...
+            </p>
+          </div>
+        ) : (
+          <ServiceTable
+            services={services}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+
+        {/* ================= Modal ================= */}
+
+        <ServiceFormModal
+          open={showModal}
+          initialData={editingService}
+          loading={saving}
+          onClose={handleClose}
+          onSubmit={handleSubmit}
         />
-      )}
 
-      <ServiceFormModal
-        open={showModal}
-        initialData={editingService}
-        loading={saving}
-        onClose={handleClose}
-        onSubmit={handleSubmit}
-      />
+      </div>
     </AdminLayout>
   );
 }

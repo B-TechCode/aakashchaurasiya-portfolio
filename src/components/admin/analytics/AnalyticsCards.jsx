@@ -13,23 +13,25 @@ function AnalyticsCard({
   icon,
 }) {
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 transition hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/10">
+    <div className="min-w-0 rounded-2xl border border-slate-700 bg-slate-800 p-4 transition hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/10 sm:p-5 lg:p-6">
 
-      <div className="flex items-center justify-between">
+      <div className="flex min-w-0 items-center justify-between gap-4">
 
-        <div>
+        {/* Content */}
 
-          <p className="text-slate-400 text-sm">
+        <div className="min-w-0">
+          <p className="break-words text-xs font-medium text-slate-400 sm:text-sm">
             {title}
           </p>
 
-          <h2 className="text-4xl font-bold text-cyan-400 mt-4">
-            {value}
+          <h2 className="mt-2 break-words text-2xl font-bold text-cyan-400 sm:mt-3 sm:text-3xl lg:mt-4 lg:text-4xl">
+            {value ?? 0}
           </h2>
-
         </div>
 
-        <div className="text-4xl text-cyan-400">
+        {/* Icon */}
+
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-xl text-cyan-400 sm:h-12 sm:w-12 sm:text-2xl lg:h-14 lg:w-14 lg:text-3xl">
           {icon}
         </div>
 
@@ -41,7 +43,7 @@ function AnalyticsCard({
 
 export default function AnalyticsCards({ counts }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="grid w-full min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 xl:gap-6">
 
       <AnalyticsCard
         title="Portfolio Visits"

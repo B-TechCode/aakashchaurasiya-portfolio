@@ -1,566 +1,644 @@
- 
- 
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useEffect, useState, useRef } from "react";
-import AdminLayout from "../../layouts/AdminLayout";
 import { FiCamera } from "react-icons/fi";
 
+import AdminLayout from "../../layouts/AdminLayout";
+
 import {
-    getProfile,
-    updateProfile,
-    uploadProfileImage,
-    updateAccount,
-    getAccount,
+  getProfile,
+  updateProfile,
+  uploadProfileImage,
+  updateAccount,
+  getAccount,
 } from "../../api/profileApi";
 
-                export default function Profile() {
+const initialProfile = {
+  fullName: "",
+  headline: "",
+  email: "",
+  phone: "",
+  location: "",
+  aboutMe: "",
+  profileImageUrl: "",
+};
 
-                const [profile, setProfile] = useState({
-                    fullName: "",
-                    headline: "",
-                    email: "",
-                    phone: "",
-                    location: "",
-                    aboutMe: "",
-                    profileImageUrl: "",
-                });
+const initialAccount = {
+  username: "",
+  email: "",
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+};
 
-                const [loading, setLoading] = useState(true);
-                const [uploadingImage, setUploadingImage] = useState(false);
+export default function Profile() {
+  const [profile, setProfile] = useState(initialProfile);
+  const [account, setAccount] = useState(initialAccount);
 
-                const [account, setAccount] = useState({
-    username: "",
-    email: "",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-const [savingAccount, setSavingAccount] = useState(false);
-                const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-                const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
-                useEffect(() => {
+  // =====================================================
+  // LOAD PROFILE + ACCOUNT
+  // =====================================================
 
-                    loadProfile();
-
-                }, []);
-
-               const loadProfile = async () => {
-
+  const loadProfile = async () => {
     try {
+      setLoading(true);
 
-        const [profileResponse, accountResponse] = await Promise.all([
-            getProfile(),
-            getAccount(),
-        ]);
+      const [profileResponse, accountResponse] = await Promise.all([
+        getProfile(),
+        getAccount(),
+      ]);
 
-        const profileData = profileResponse.data.data;
-        const accountData = accountResponse.data.data;
+      const profileData = profileResponse?.data?.data || {};
+      const accountData = accountResponse?.data?.data || {};
 
-        setProfile(profileData);
+      setProfile({
+        fullName: profileData.fullName || "",
+        headline: profileData.headline || "",
+        email: profileData.email || "",
+        phone: profileData.phone || "",
+        location: profileData.location || "",
+        aboutMe: profileData.aboutMe || "",
+        profileImageUrl: profileData.profileImageUrl || "",
+      });
 
-        setAccount({
-            username: accountData.username || "",
-            email: accountData.email || "",
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-        });
-
+      setAccount({
+        username: accountData.username || "",
+        email: accountData.email || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     } catch (error) {
+      console.error("Failed to load profile:", error);
 
-        console.error(error);
-
-        toast.error("Failed to load profile.");
-
+      toast.error(
+        error?.response?.data?.message || "Failed to load profile."
+      );
     } finally {
+      setLoading(false);
+    }
+  };
 
-        setLoading(false);
+  // =====================================================
+  // PROFILE CHANGE
+  // =====================================================
 
+  const handleProfileChange = (field, value) => {
+    setProfile((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // =====================================================
+  // SAVE PROFILE
+  // =====================================================
+
+  const handleSave = async () => {
+    if (!profile.fullName.trim()) {
+      toast.error("Full name is required.");
+      return;
     }
 
-};
-                const handleSave = async () => {
+    try {
+      setSaving(true);
 
-            try {
+      const payload = {
+        ...profile,
+        fullName: profile.fullName.trim(),
+        headline: profile.headline.trim(),
+        email: profile.email.trim(),
+        phone: profile.phone.trim(),
+        location: profile.location.trim(),
+        aboutMe: profile.aboutMe.trim(),
+      };
 
-                setSaving(true);
+      const response = await updateProfile(payload);
 
-              await updateProfile(profile);
+      // Use backend data when the API returns the updated profile.
+      if (response?.data?.data) {
+        setProfile((prev) => ({
+          ...prev,
+          ...response.data.data,
+        }));
+      } else {
+        setProfile(payload);
+      }
 
-                toast.success("Profile updated successfully.");
+      toast.success("Profile updated successfully.");
+    } catch (error) {
+      console.error("Failed to update profile:", error);
 
-            } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to update profile."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
-                console.error(error);
+  // =====================================================
+  // PROFILE IMAGE UPLOAD
+  // =====================================================
 
-               toast.error("Failed to update profile.");
-
-            } finally {
-
-                setSaving(false);
-
-            }
-
-            };
-
-
-
-            const handleImageUpload = async (event) => {
-
-    const file = event.target.files[0];
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
 
     if (!file) return;
 
-    try {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file.");
 
-        setUploadingImage(true);
-
-        const response = await uploadProfileImage(file);
-
-        setProfile(response.data.data);
-
-        toast.success("Profile image updated.");
-
-    } catch (error) {
-
-        console.error(error);
-
-       alert("Image Upload failed.");
-
-    } finally {
-
-        setUploadingImage(false);
-
+      event.target.value = "";
+      return;
     }
 
-    };
-
-
-
-    const handleAccountSave = async () => {
-
     try {
+      setUploadingImage(true);
 
-        setSavingAccount(true);
+      const response = await uploadProfileImage(file);
 
-        await updateAccount(account);
+      if (response?.data?.data) {
+        setProfile((prev) => ({
+          ...prev,
+          ...response.data.data,
+        }));
+      }
 
-        toast.success("Account updated successfully.");
-
-        setAccount({
-            ...account,
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-        });
-
+      toast.success("Profile image updated.");
     } catch (error) {
+      console.error("Image upload failed:", error);
 
-        console.error(error);
-
-        toast.error(
-            error?.response?.data?.message ||
-            "Failed to update account."
-        );
-
+      toast.error(
+        error?.response?.data?.message || "Image upload failed."
+      );
     } finally {
+      setUploadingImage(false);
 
-        setSavingAccount(false);
+      // Allows selecting the same file again if necessary.
+      event.target.value = "";
+    }
+  };
 
+  // =====================================================
+  // ACCOUNT CHANGE
+  // =====================================================
+
+  const handleAccountChange = (field, value) => {
+    setAccount((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // =====================================================
+  // SAVE ACCOUNT
+  // =====================================================
+
+  const handleAccountSave = async () => {
+    const username = account.username.trim();
+    const email = account.email.trim();
+
+    if (!username) {
+      toast.error("Username is required.");
+      return;
     }
 
-};
-                if (loading) {
+    if (!email) {
+      toast.error("Login email is required.");
+      return;
+    }
 
-                    return (
+    const wantsPasswordChange =
+      account.currentPassword ||
+      account.newPassword ||
+      account.confirmPassword;
 
-                    <AdminLayout>
+    if (wantsPasswordChange) {
+      if (!account.currentPassword) {
+        toast.error("Current password is required.");
+        return;
+      }
 
-                        <div className="text-white text-xl">
-                        Loading Profile...
-                        </div>
+      if (!account.newPassword) {
+        toast.error("New password is required.");
+        return;
+      }
 
-                    </AdminLayout>
+      if (!account.confirmPassword) {
+        toast.error("Please confirm your new password.");
+        return;
+      }
 
-                    );
+      if (account.newPassword !== account.confirmPassword) {
+        toast.error("New password and confirm password do not match.");
+        return;
+      }
+    }
 
+    try {
+      setSavingAccount(true);
+
+      const payload = {
+        ...account,
+        username,
+        email,
+      };
+
+      await updateAccount(payload);
+
+      setAccount((prev) => ({
+        ...prev,
+        username,
+        email,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
+
+      toast.success("Account updated successfully.");
+    } catch (error) {
+      console.error("Failed to update account:", error);
+
+      toast.error(
+        error?.response?.data?.message || "Failed to update account."
+      );
+    } finally {
+      setSavingAccount(false);
+    }
+  };
+
+  // =====================================================
+  // LOADING
+  // =====================================================
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex min-h-[300px] items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-9 w-9 animate-spin rounded-full border-4 border-slate-700 border-t-cyan-500" />
+
+            <p className="text-base text-slate-300 sm:text-lg">
+              Loading Profile...
+            </p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="mx-auto w-full max-w-5xl">
+
+        {/* =====================================================
+            PAGE HEADING
+        ===================================================== */}
+
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-3xl font-bold text-white sm:text-4xl">
+            Profile
+          </h1>
+
+          <p className="mt-2 text-sm leading-6 text-slate-400 sm:text-base">
+            Manage your portfolio profile information.
+          </p>
+        </div>
+
+        {/* =====================================================
+            PROFILE SETTINGS
+        ===================================================== */}
+
+        <div className="rounded-2xl border border-slate-700 bg-slate-800 p-4 sm:p-6 lg:p-10">
+
+          {/* Profile Image */}
+
+          <div className="mb-8 flex flex-col items-center sm:mb-10">
+            <div className="relative">
+              <img
+                src={
+                  profile.profileImageUrl ||
+                  "https://avatars.githubusercontent.com/u/9919?v=4"
                 }
+                alt="Profile"
+                className="h-28 w-28 rounded-full border-4 border-slate-700 object-cover sm:h-36 sm:w-36 lg:h-40 lg:w-40"
+              />
 
-                return (
+              <button
+                type="button"
+                disabled={uploadingImage}
+                onClick={() => fileInputRef.current?.click()}
+                aria-label="Upload profile image"
+                title="Upload profile image"
+                className={`absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full text-white shadow-lg transition sm:bottom-1 sm:right-1 sm:h-11 sm:w-11 ${
+                  uploadingImage
+                    ? "cursor-not-allowed bg-slate-600 opacity-70"
+                    : "bg-cyan-500 hover:bg-cyan-600"
+                }`}
+              >
+                {uploadingImage ? (
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                ) : (
+                  <FiCamera className="text-lg" />
+                )}
+              </button>
 
-                    <AdminLayout>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploadingImage}
+                className="hidden"
+              />
+            </div>
 
-                    <div className="max-w-5xl mx-auto">
+            {uploadingImage && (
+              <p className="mt-3 text-sm text-slate-400">
+                Uploading image...
+              </p>
+            )}
+          </div>
 
-                        {/* Heading */}
+          {/* Profile Form */}
 
-                        <div className="mb-8">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
 
-                        <h1 className="text-4xl font-bold text-white">
-                            Profile
-                        </h1>
+            {/* Full Name */}
 
-                        <p className="text-slate-400 mt-2">
-                            Manage your portfolio profile information.
-                        </p>
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
+                Full Name
+              </label>
 
-                        </div>
-
-                        {/* Card */}
-
-                        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-10">
-
-                        {/* Profile Image */}
-
-                        <div className="flex flex-col items-center mb-10">
-
-                            <div className="relative">
-
-                        <img
-    src={
-        profile.profileImageUrl
-        ? profile.profileImageUrl
-        : "https://avatars.githubusercontent.com/u/9919?v=4"
-    }
-    alt="Profile"
-    className="w-40 h-40 rounded-full object-cover border-4 border-slate-700"
-    />
-
-                    <button
-    type="button"
-    disabled={uploadingImage}
-    onClick={() => fileInputRef.current.click()}
-    className={`absolute bottom-2 right-2 p-3 rounded-full transition ${
-        uploadingImage
-        ? "bg-slate-600 cursor-not-allowed"
-        : "bg-cyan-500 hover:bg-cyan-600"
-    }`}
-    >
-    <FiCamera className="text-white text-lg" />
-    </button>
-
-
-
-    <input
-    type="file"
-    ref={fileInputRef}
-    accept="image/*"
-    onChange={handleImageUpload}
-    className="hidden"
-    />
-
-
-
-                            </div>
-
-                        </div>
-
-                        {/* Form */}
-
-                        <div className="grid md:grid-cols-2 gap-6">
-
-                            <div>
-
-                            <label className="text-slate-300 mb-2 block">
-                                Full Name
-                            </label>
-
-                            <input
+              <input
                 type="text"
-                value={profile.fullName || ""}
+                value={profile.fullName}
                 onChange={(e) =>
-                    setProfile({
-                    ...profile,
-                    fullName: e.target.value,
-                    })
+                  handleProfileChange("fullName", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Full Name"
-                />
+                autoComplete="name"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
+              />
+            </div>
 
-                            </div>
+            {/* Headline */}
 
-                            <div>
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
+                Headline
+              </label>
 
-                            <label className="text-slate-300 mb-2 block">
-                                Headline
-                            </label>
-
-                            <input
+              <input
                 type="text"
-                value={profile.headline || ""}
+                value={profile.headline}
                 onChange={(e) =>
-                    setProfile({
-                    ...profile,
-                    headline: e.target.value,
-                    })
+                  handleProfileChange("headline", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Headline"
-                />
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
+              />
+            </div>
 
-                            </div>
+            {/* Email */}
 
-                            <div>
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
+                Email
+              </label>
 
-                            <label className="text-slate-300 mb-2 block">
-                                Email
-                            </label>
-
-                        <input
+              <input
                 type="email"
-                value={profile.email || ""}
+                value={profile.email}
                 onChange={(e) =>
-                    setProfile({
-                        ...profile,
-                        email: e.target.value,
-                    })
+                  handleProfileChange("email", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Email"
-            />
+                autoComplete="email"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
+              />
+            </div>
 
-                            </div>
+            {/* Phone */}
 
-                            <div>
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
+                Phone
+              </label>
 
-                            <label className="text-slate-300 mb-2 block">
-                                Phone
-                            </label>
-
-                            <input
-                type="text"
-                value={profile.phone || ""}
+              <input
+                type="tel"
+                value={profile.phone}
                 onChange={(e) =>
-                    setProfile({
-                        ...profile,
-                        phone: e.target.value,
-                    })
+                  handleProfileChange("phone", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Phone"
-            />
+                autoComplete="tel"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
+              />
+            </div>
 
-                            </div>
+            {/* Location */}
 
-                            <div className="md:col-span-2">
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
+                Location
+              </label>
 
-                            <label className="text-slate-300 mb-2 block">
-                                Location
-                            </label>
-
-                            <input
+              <input
                 type="text"
-                value={profile.location || ""}
+                value={profile.location}
                 onChange={(e) =>
-                    setProfile({
-                        ...profile,
-                        location: e.target.value,
-                    })
+                  handleProfileChange("location", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Location"
-            />
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
+              />
+            </div>
 
-                            </div>
+            {/* About Me */}
 
-                            <div className="md:col-span-2">
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
+                About Me
+              </label>
 
-                            <label className="text-slate-300 mb-2 block">
-                                About Me
-                            </label>
-            <textarea
-                rows="6"
-                value={profile.aboutMe || ""}
+              <textarea
+                rows={6}
+                value={profile.aboutMe}
                 onChange={(e) =>
-                    setProfile({
-                        ...profile,
-                        aboutMe: e.target.value,
-                    })
+                  handleProfileChange("aboutMe", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Write something about yourself..."
-            />
+                className="w-full resize-y rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
+              />
+            </div>
+          </div>
 
-                            </div>
+          {/* Save Profile */}
 
-                        </div>
-
-                        <div className="mt-8 flex justify-end">
-
-                        <button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 px-8 py-3 rounded-lg text-white font-semibold transition"
+          <div className="mt-6 flex sm:mt-8 sm:justify-end">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full rounded-lg bg-cyan-500 px-6 py-3 font-semibold text-white transition hover:bg-cyan-600 disabled:cursor-not-allowed disabled:bg-slate-600 sm:w-auto sm:px-8"
             >
-            {saving ? "Saving..." : "Save Changes"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
+          </div>
+        </div>
 
-                        </div>
+        {/* =====================================================
+            ACCOUNT SETTINGS
+        ===================================================== */}
 
-                        </div>
+        <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-800 p-4 sm:mt-8 sm:p-6 lg:mt-10 lg:p-10">
 
-                    </div>
+          {/* Account Header */}
 
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-2xl font-bold text-white sm:text-3xl">
+              Account Settings
+            </h2>
 
-                    {/* =======================================================
-                    ACCOUNT SETTINGS
-======================================================= */}
+            <p className="mt-2 text-sm leading-6 text-slate-400 sm:text-base">
+              Update your login credentials.
+            </p>
+          </div>
 
-<div className="bg-slate-800 rounded-2xl border border-slate-700 p-10 mt-10">
+          {/* Account Form */}
 
-    <div className="mb-8">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
 
-        <h2 className="text-3xl font-bold text-white">
-            Account Settings
-        </h2>
+            {/* Username */}
 
-        <p className="text-slate-400 mt-2">
-            Update your login credentials.
-        </p>
-
-    </div>
-
-    <div className="grid md:grid-cols-2 gap-6">
-
-        {/* Username */}
-
-        <div>
-
-            <label className="text-slate-300 mb-2 block">
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
                 Username
-            </label>
+              </label>
 
-            <input
+              <input
                 type="text"
                 value={account.username}
                 onChange={(e) =>
-                    setAccount({
-                        ...account,
-                        username: e.target.value,
-                    })
+                  handleAccountChange("username", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Username"
-            />
+                autoComplete="username"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-500"
+              />
+            </div>
 
-        </div>
+            {/* Login Email */}
 
-        {/* Login Email */}
-
-        <div>
-
-            <label className="text-slate-300 mb-2 block">
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
                 Login Email
-            </label>
+              </label>
 
-            <input
+              <input
                 type="email"
                 value={account.email}
                 onChange={(e) =>
-                    setAccount({
-                        ...account,
-                        email: e.target.value,
-                    })
+                  handleAccountChange("email", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Email"
-            />
+                autoComplete="email"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-500"
+              />
+            </div>
 
-        </div>
+            {/* Current Password */}
 
-        {/* Current Password */}
-
-        <div>
-
-            <label className="text-slate-300 mb-2 block">
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
                 Current Password
-            </label>
+              </label>
 
-            <input
+              <input
                 type="password"
                 value={account.currentPassword}
                 onChange={(e) =>
-                    setAccount({
-                        ...account,
-                        currentPassword: e.target.value,
-                    })
+                  handleAccountChange(
+                    "currentPassword",
+                    e.target.value
+                  )
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Current Password"
-            />
+                autoComplete="current-password"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-500"
+              />
+            </div>
 
-        </div>
+            {/* New Password */}
 
-        {/* New Password */}
-
-        <div>
-
-            <label className="text-slate-300 mb-2 block">
+            <div>
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
                 New Password
-            </label>
+              </label>
 
-            <input
+              <input
                 type="password"
                 value={account.newPassword}
                 onChange={(e) =>
-                    setAccount({
-                        ...account,
-                        newPassword: e.target.value,
-                    })
+                  handleAccountChange("newPassword", e.target.value)
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="New Password"
-            />
+                autoComplete="new-password"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-500"
+              />
+            </div>
 
-        </div>
+            {/* Confirm Password */}
 
-                {/* Confirm Password */}
-
-        <div>
-
-            <label className="text-slate-300 mb-2 block">
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm text-slate-300 sm:text-base">
                 Confirm Password
-            </label>
+              </label>
 
-            <input
+              <input
                 type="password"
                 value={account.confirmPassword}
                 onChange={(e) =>
-                    setAccount({
-                        ...account,
-                        confirmPassword: e.target.value,
-                    })
+                  handleAccountChange(
+                    "confirmPassword",
+                    e.target.value
+                  )
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white"
                 placeholder="Confirm Password"
-            />
+                autoComplete="new-password"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-500 md:max-w-[calc(50%-0.75rem)]"
+              />
+            </div>
+          </div>
 
+          {/* Save Account */}
+
+          <div className="mt-6 flex sm:mt-8 sm:justify-end">
+            <button
+              type="button"
+              onClick={handleAccountSave}
+              disabled={savingAccount}
+              className="w-full rounded-lg bg-emerald-500 px-6 py-3 font-semibold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-600 sm:w-auto sm:px-8"
+            >
+              {savingAccount ? "Updating..." : "Update Account"}
+            </button>
+          </div>
         </div>
-
-    </div>
-
-    <div className="mt-8 flex justify-end">
-
-        <button
-            onClick={handleAccountSave}
-            disabled={savingAccount}
-            className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-600 px-8 py-3 rounded-lg text-white font-semibold transition"
-        >
-            {savingAccount
-                ? "Updating..."
-                : "Update Account"}
-        </button>
-
-    </div>
-
-</div>
-
-                    </AdminLayout>
-
-                );
-
-                }
+      </div>
+    </AdminLayout>
+  );
+}

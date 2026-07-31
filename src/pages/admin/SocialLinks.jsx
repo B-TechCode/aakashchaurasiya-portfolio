@@ -14,16 +14,18 @@ import {
 } from "../../api/socialLinkApi";
 
 export default function SocialLinks() {
-
   const [links, setLinks] = useState([]);
 
   const [loading, setLoading] = useState(true);
-
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
- const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingLink, setEditingLink] = useState(null);
 
-const [editingLink, setEditingLink] = useState(null);
+  // ===============================
+  // Load Social Links
+  // ===============================
 
   useEffect(() => {
     loadLinks();
@@ -31,176 +33,200 @@ const [editingLink, setEditingLink] = useState(null);
 
   const loadLinks = async () => {
     try {
+      setLoading(true);
 
       const response = await getAllSocialLinks();
 
-      setLinks(response.data.data);
-
+      setLinks(response.data.data || []);
     } catch (error) {
+      console.error("Failed to load social links:", error);
 
-      console.error(error);
-
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to load social links."
+      );
     } finally {
-
       setLoading(false);
-
     }
   };
 
+  // ===============================
+  // Create
+  // ===============================
+
   const handleCreate = () => {
-  setEditingLink(null);
-  setShowModal(true);
-};
+    setEditingLink(null);
+    setShowModal(true);
+  };
 
-const handleEdit = (link) => {
-  setEditingLink(link);
-  setShowModal(true);
-};
+  // ===============================
+  // Edit
+  // ===============================
 
-  
+  const handleEdit = (link) => {
+    setEditingLink(link);
+    setShowModal(true);
+  };
 
-const handleSubmit = async (form) => {
+  // ===============================
+  // Close Modal
+  // ===============================
 
-  if (!form.platform.trim()) {
-    return toast.error("Platform is required.");
-  }
-
-  if (!form.url.trim()) {
-    return toast.error("URL is required.");
-  }
-
-  if (
-    !form.url.startsWith("http://") &&
-    !form.url.startsWith("https://")
-  ) {
-    return toast.error(
-      "URL must start with http:// or https://"
-    );
-  }
-
-  try {
-
-    setSaving(true);
-
-    if (editingLink) {
-
-      await updateSocialLink(
-        editingLink.id,
-        form
-      );
-
-    } else {
-
-      await createSocialLink(form);
-
-    }
-
-    await loadLinks();
-
-    toast.success(
-      editingLink
-        ? "Social link updated successfully."
-        : "Social link created successfully."
-    );
+  const handleCloseModal = () => {
+    if (saving) return;
 
     setShowModal(false);
     setEditingLink(null);
+  };
 
-  } catch (error) {
+  // ===============================
+  // Create / Update
+  // ===============================
 
-    console.error(error);
+  const handleSubmit = async (form) => {
+    const platform = form.platform.trim();
+    const url = form.url.trim();
 
-    toast.error(
-      error.response?.data?.message ||
-      "Operation failed."
-    );
-
-  } finally {
-
-    setSaving(false);
-
-  }
-
-};
-
- 
-
-  const handleDelete = async (id) => {
-
-    if (!window.confirm("Delete this social link?")) return;
-
-    try {
-
-  await deleteSocialLink(id);
-
-await loadLinks();
-
-toast.success(
-  "Social link deleted successfully."
-);
-
-    } catch (error) {
-
-     console.error(error);
-
-toast.error(
-    error.response?.data?.message ||
-    "Failed to delete social link."
-);
-
+    if (!platform) {
+      return toast.error("Platform is required.");
     }
 
+    if (!url) {
+      return toast.error("URL is required.");
+    }
+
+    if (
+      !url.startsWith("http://") &&
+      !url.startsWith("https://")
+    ) {
+      return toast.error(
+        "URL must start with http:// or https://"
+      );
+    }
+
+    const payload = {
+      ...form,
+      platform,
+      url,
+    };
+
+    try {
+      setSaving(true);
+
+      if (editingLink) {
+        await updateSocialLink(
+          editingLink.id,
+          payload
+        );
+      } else {
+        await createSocialLink(payload);
+      }
+
+      await loadLinks();
+
+      toast.success(
+        editingLink
+          ? "Social link updated successfully."
+          : "Social link created successfully."
+      );
+
+      setShowModal(false);
+      setEditingLink(null);
+    } catch (error) {
+      console.error("Failed to save social link:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to save social link."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ===============================
+  // Delete
+  // ===============================
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this social link?")) {
+      return;
+    }
+
+    try {
+      setDeletingId(id);
+
+      await deleteSocialLink(id);
+
+      await loadLinks();
+
+      toast.success(
+        "Social link deleted successfully."
+      );
+    } catch (error) {
+      console.error("Failed to delete social link:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to delete social link."
+      );
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
-
     <AdminLayout>
+      <div className="w-full min-w-0">
 
-      <div className="flex justify-between items-center mb-8">
+        {/* ================= Header ================= */}
 
-  <div>
+        <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
 
-    <h1 className="text-4xl font-bold text-white">
-      Social Links
-    </h1>
+          <div className="min-w-0">
 
-    <p className="text-slate-400 mt-2">
-      Manage your social media links.
-    </p>
+            <h1 className="text-3xl font-bold text-white sm:text-4xl">
+              Social Links
+            </h1>
 
-  </div>
+            <p className="mt-2 text-sm text-slate-400 sm:text-base">
+              Manage your social media links.
+            </p>
 
-  <button
-    onClick={handleCreate}
-    className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-semibold"
-  >
-    + Add Social Link
-  </button>
+          </div>
 
-</div>
+          <button
+            type="button"
+            onClick={handleCreate}
+            className="w-full shrink-0 rounded-xl bg-cyan-600 px-5 py-3 font-semibold text-white transition hover:bg-cyan-700 sm:w-auto sm:px-6"
+          >
+            + Add Social Link
+          </button>
 
-<SocialLinkTable
-  links={links}
-  loading={loading}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-/>
+        </div>
 
-<SocialLinkFormModal
-  open={showModal}
-  initialData={editingLink}
-  loading={saving}
-  onClose={() => {
-    setShowModal(false);
-    setEditingLink(null);
-  }}
-  onSubmit={handleSubmit}
-/>
+        {/* ================= Links ================= */}
 
+        <SocialLinkTable
+          links={links}
+          loading={loading}
+          deletingId={deletingId}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+
+        {/* ================= Form Modal ================= */}
+
+        <SocialLinkFormModal
+          open={showModal}
+          initialData={editingLink}
+          loading={saving}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmit}
+        />
+
+      </div>
     </AdminLayout>
-
   );
-
-
 }
-
+s

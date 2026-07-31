@@ -5,14 +5,14 @@ export default function SkillTable({
   onEdit,
   onDelete,
 }) {
-  if (!skills.length) {
+  if (!skills || skills.length === 0) {
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center">
-        <h2 className="text-2xl text-white font-semibold">
+      <div className="rounded-2xl border border-slate-700 bg-slate-800 p-8 text-center sm:p-12">
+        <h2 className="text-xl font-semibold text-white sm:text-2xl">
           No Skills Found
         </h2>
 
-        <p className="text-slate-400 mt-3">
+        <p className="mt-3 text-sm text-slate-400 sm:text-base">
           Click "Add Skill" to create your first skill.
         </p>
       </div>
@@ -20,131 +20,224 @@ export default function SkillTable({
   }
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden">
+    <>
+      {/* ==================================================
+          MOBILE + SMALL TABLET VIEW
+          ================================================== */}
 
-      <table className="w-full">
+      <div className="space-y-4 lg:hidden">
+        {skills.map((skill) => {
+          const proficiency = skill.proficiency || 0;
 
-        <thead className="bg-slate-900">
-
-          <tr>
-
-            <th className="px-6 py-4 text-left text-slate-300">
-              Skill
-            </th>
-
-            <th className="px-6 py-4 text-left text-slate-300">
-              Category
-            </th>
-
-            <th className="px-6 py-4 text-left text-slate-300">
-              Proficiency
-            </th>
-
-            <th className="px-6 py-4 text-left text-slate-300">
-              Published
-            </th>
-
-            <th className="px-6 py-4 text-center text-slate-300">
-              Actions
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {skills.map((skill) => (
-
-            <tr
+          return (
+            <div
               key={skill.id}
-              className="border-t border-slate-700 hover:bg-slate-700/40 transition"
+              className="rounded-2xl border border-slate-700 bg-slate-800 p-4 sm:p-5"
             >
+              {/* Skill heading */}
 
-              <td className="px-6 py-5">
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="break-words text-lg font-semibold text-white">
+                    {skill.name}
+                  </h3>
 
-                <div className="font-semibold text-white">
-                  {skill.name}
+                  <p className="mt-1 break-words text-sm text-slate-400">
+                    {skill.iconName || "No icon"}
+                  </p>
                 </div>
-
-                <div className="text-sm text-slate-400">
-                  {skill.iconName || "-"}
-                </div>
-
-              </td>
-
-              <td className="px-6 py-5 text-white">
-                {skill.category || "-"}
-              </td>
-
-              <td className="px-6 py-5">
-
-                <div className="w-44 bg-slate-700 rounded-full h-3">
-
-                  <div
-                    className="bg-cyan-500 h-3 rounded-full"
-                    style={{
-                      width: `${skill.proficiency || 0}%`,
-                    }}
-                  />
-
-                </div>
-
-                <span className="text-slate-300 text-sm">
-                  {skill.proficiency || 0}%
-                </span>
-
-              </td>
-
-              <td className="px-6 py-5">
 
                 {skill.published ? (
-
-                  <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs">
+                  <span className="shrink-0 rounded-full bg-green-600 px-3 py-1 text-xs text-white">
                     Published
                   </span>
-
                 ) : (
-
-                  <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs">
+                  <span className="shrink-0 rounded-full bg-red-600 px-3 py-1 text-xs text-white">
                     Draft
                   </span>
-
                 )}
+              </div>
 
-              </td>
+              {/* Category */}
 
-              <td className="px-6 py-5">
+              <div className="mt-5">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Category
+                </p>
 
-                <div className="flex justify-center gap-3">
+                <p className="mt-1 break-words text-sm text-slate-200">
+                  {skill.category || "-"}
+                </p>
+              </div>
 
-                  <button
-                    onClick={() => onEdit(skill)}
-                    className="bg-cyan-600 hover:bg-cyan-700 text-white p-2 rounded-lg"
-                  >
-                    <FaEdit />
-                  </button>
+              {/* Proficiency */}
 
-                  <button
-                    onClick={() => onDelete(skill.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
-                  >
-                    <FaTrash />
-                  </button>
+              <div className="mt-5">
+                <div className="mb-2 flex items-center justify-between gap-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Proficiency
+                  </p>
 
+                  <span className="text-sm font-medium text-slate-300">
+                    {proficiency}%
+                  </span>
                 </div>
 
-              </td>
+                <div className="h-3 w-full overflow-hidden rounded-full bg-slate-700">
+                  <div
+                    className="h-full rounded-full bg-cyan-500"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        Math.max(0, proficiency)
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
 
-            </tr>
+              {/* Actions */}
 
-          ))}
+              <div className="mt-5 grid grid-cols-2 gap-3 border-t border-slate-700 pt-4">
+                <button
+                  type="button"
+                  onClick={() => onEdit(skill)}
+                  className="flex min-w-0 items-center justify-center gap-2 rounded-lg bg-cyan-600 px-3 py-2.5 text-sm font-medium text-white transition hover:bg-cyan-700"
+                >
+                  <FaEdit />
 
-        </tbody>
+                  <span>Edit</span>
+                </button>
 
-      </table>
+                <button
+                  type="button"
+                  onClick={() => onDelete(skill.id)}
+                  className="flex min-w-0 items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2.5 text-sm font-medium text-white transition hover:bg-red-700"
+                >
+                  <FaTrash />
 
-    </div>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ==================================================
+          DESKTOP VIEW
+          ================================================== */}
+
+      <div className="hidden overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 lg:block">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[850px]">
+            <thead className="bg-slate-900">
+              <tr>
+                <th className="px-6 py-4 text-left text-slate-300">
+                  Skill
+                </th>
+
+                <th className="px-6 py-4 text-left text-slate-300">
+                  Category
+                </th>
+
+                <th className="px-6 py-4 text-left text-slate-300">
+                  Proficiency
+                </th>
+
+                <th className="px-6 py-4 text-left text-slate-300">
+                  Published
+                </th>
+
+                <th className="px-6 py-4 text-center text-slate-300">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {skills.map((skill) => {
+                const proficiency = skill.proficiency || 0;
+
+                return (
+                  <tr
+                    key={skill.id}
+                    className="border-t border-slate-700 transition hover:bg-slate-700/40"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="font-semibold text-white">
+                        {skill.name}
+                      </div>
+
+                      <div className="mt-1 text-sm text-slate-400">
+                        {skill.iconName || "-"}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5 text-white">
+                      {skill.category || "-"}
+                    </td>
+
+                    <td className="px-6 py-5">
+                      <div className="w-44">
+                        <div className="h-3 w-full overflow-hidden rounded-full bg-slate-700">
+                          <div
+                            className="h-full rounded-full bg-cyan-500"
+                            style={{
+                              width: `${Math.min(
+                                100,
+                                Math.max(0, proficiency)
+                              )}%`,
+                            }}
+                          />
+                        </div>
+
+                        <span className="mt-1 block text-sm text-slate-300">
+                          {proficiency}%
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5">
+                      {skill.published ? (
+                        <span className="rounded-full bg-green-600 px-3 py-1 text-xs text-white">
+                          Published
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-red-600 px-3 py-1 text-xs text-white">
+                          Draft
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="px-6 py-5">
+                      <div className="flex justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => onEdit(skill)}
+                          className="rounded-lg bg-cyan-600 p-2 text-white transition hover:bg-cyan-700"
+                          aria-label={`Edit ${skill.name}`}
+                        >
+                          <FaEdit />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => onDelete(skill.id)}
+                          className="rounded-lg bg-red-600 p-2 text-white transition hover:bg-red-700"
+                          aria-label={`Delete ${skill.name}`}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
   );
 }
-

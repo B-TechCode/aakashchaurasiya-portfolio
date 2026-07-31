@@ -16,19 +16,14 @@ import {
 
 export default function Experience() {
   const [experiences, setExperiences] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [saving, setSaving] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
-
   const [editingExperience, setEditingExperience] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const [deletingExperience, setDeletingExperience] = useState(null);
-
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -37,9 +32,11 @@ export default function Experience() {
 
   const loadExperiences = async () => {
     try {
+      setLoading(true);
+
       const response = await getAllExperiences();
 
-      setExperiences(response.data.data);
+      setExperiences(response.data.data || []);
     } catch (error) {
       console.error(error);
 
@@ -51,20 +48,31 @@ export default function Experience() {
 
   const handleCreate = () => {
     setEditingExperience(null);
-
     setShowModal(true);
   };
 
   const handleEdit = (experience) => {
     setEditingExperience(experience);
-
     setShowModal(true);
+  };
+
+  const handleCloseFormModal = () => {
+    if (saving) return;
+
+    setShowModal(false);
+    setEditingExperience(null);
   };
 
   const handleDeleteClick = (experience) => {
     setDeletingExperience(experience);
-
     setShowDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (deleting) return;
+
+    setShowDeleteModal(false);
+    setDeletingExperience(null);
   };
 
   const handleDelete = async () => {
@@ -80,7 +88,6 @@ export default function Experience() {
       toast.success("Experience deleted successfully.");
 
       setShowDeleteModal(false);
-
       setDeletingExperience(null);
     } catch (error) {
       console.error(error);
@@ -124,7 +131,6 @@ export default function Experience() {
       );
 
       setShowModal(false);
-
       setEditingExperience(null);
     } catch (error) {
       console.error(error);
@@ -140,56 +146,60 @@ export default function Experience() {
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-white">
-            Experience
-          </h1>
+      <div className="w-full min-w-0">
 
-          <p className="text-slate-400 mt-2">
-            Manage your work experience.
-          </p>
+        {/* ================= Header ================= */}
+
+        <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold text-white sm:text-4xl">
+              Experience
+            </h1>
+
+            <p className="mt-2 text-sm text-slate-400 sm:text-base">
+              Manage your work experience.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCreate}
+            className="w-full shrink-0 rounded-xl bg-cyan-600 px-5 py-3 font-semibold text-white transition hover:bg-cyan-700 sm:w-auto sm:px-6"
+          >
+            + Add Experience
+          </button>
         </div>
 
-        <button
-          onClick={handleCreate}
-          className="bg-cyan-600 hover:bg-cyan-700 px-6 py-3 rounded-xl text-white font-semibold"
-        >
-          + Add Experience
-        </button>
+        {/* ================= Experience List ================= */}
+
+        <ExperienceTable
+          experiences={experiences}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+        />
+
+        {/* ================= Create / Edit Modal ================= */}
+
+        <ExperienceFormModal
+          open={showModal}
+          initialData={editingExperience}
+          loading={saving}
+          onClose={handleCloseFormModal}
+          onSubmit={handleSubmit}
+        />
+
+        {/* ================= Delete Modal ================= */}
+
+        <DeleteExperienceModal
+          open={showDeleteModal}
+          loading={deleting}
+          experienceTitle={deletingExperience?.title}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleDelete}
+        />
+
       </div>
-
-      <ExperienceTable
-        experiences={experiences}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDeleteClick}
-      />
-
-      <ExperienceFormModal
-        open={showModal}
-        initialData={editingExperience}
-        loading={saving}
-        onClose={() => {
-          setShowModal(false);
-
-          setEditingExperience(null);
-        }}
-        onSubmit={handleSubmit}
-      />
-
-      <DeleteExperienceModal
-        open={showDeleteModal}
-        loading={deleting}
-        experienceTitle={deletingExperience?.title}
-        onClose={() => {
-          setShowDeleteModal(false);
-
-          setDeletingExperience(null);
-        }}
-        onConfirm={handleDelete}
-      />
     </AdminLayout>
   );
 }
-

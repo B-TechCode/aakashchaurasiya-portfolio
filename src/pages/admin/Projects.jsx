@@ -287,28 +287,29 @@ if (!project.summary.trim()) {
 
         <AdminLayout>
 
-          <div className="flex items-center justify-between mb-8">
+         <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
 
-            <div>
+  <div className="min-w-0">
 
-              <h1 className="text-4xl font-bold text-white">
-                Projects
-              </h1>
+    <h1 className="text-3xl font-bold text-white sm:text-4xl">
+      Projects
+    </h1>
 
-              <p className="text-slate-400 mt-2">
-                Manage your portfolio projects.
-              </p>
+    <p className="mt-2 text-sm text-slate-400 sm:text-base">
+      Manage your portfolio projects.
+    </p>
 
-            </div>
+  </div>
 
-            <button
-              onClick={handleCreate}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-semibold"
-            >
-              + Add Project
-            </button>
+  <button
+    type="button"
+    onClick={handleCreate}
+    className="w-full rounded-xl bg-cyan-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-cyan-700 sm:w-auto sm:flex-shrink-0 sm:px-6"
+  >
+    + Add Project
+  </button>
 
-          </div>
+</div>
 
           {loading ? (
 
@@ -396,3 +397,4 @@ onPrimary={handlePrimaryImage}
   );
 
     }
+

@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { FaExclamationTriangle } from "react-icons/fa";
+
 export default function DeleteAnalyticsModal({
   open,
   loading,
@@ -5,72 +8,116 @@ export default function DeleteAnalyticsModal({
   onClose,
   onConfirm,
 }) {
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && !loading) {
+        onClose();
+      }
+    };
+
+    document.addEventListener(
+      "keydown",
+      handleEscape
+    );
+
+    return () => {
+      document.removeEventListener(
+        "keydown",
+        handleEscape
+      );
+    };
+  }, [open, loading, onClose]);
+
   if (!open || !event) return null;
 
+  const formattedDate = event.createdAt
+    ? new Date(event.createdAt).toLocaleString()
+    : "-";
+
   return (
-    <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4">
 
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-8">
+      <div className="max-h-[calc(100dvh-24px)] w-full min-w-0 max-w-md overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-4 sm:p-6 md:p-8">
 
-        <h2 className="text-2xl font-bold text-white mb-4">
+        {/* Warning Icon */}
+
+        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+          <FaExclamationTriangle size={20} />
+        </div>
+
+        {/* Heading */}
+
+        <h2 className="break-words text-xl font-bold text-white sm:text-2xl">
           Delete Analytics Event
         </h2>
 
-        <p className="text-slate-400">
+        <p className="mt-3 text-sm leading-6 text-slate-400 sm:text-base">
           Are you sure you want to permanently delete this analytics event?
         </p>
 
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mt-6 space-y-2">
+        {/* Event Information */}
 
-          <div>
+        <div className="mt-5 min-w-0 space-y-4 rounded-xl border border-slate-700 bg-slate-800 p-4">
 
-            <p className="text-slate-400 text-sm">
+          {/* Event Type */}
+
+          <div className="min-w-0">
+
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
               Event Type
             </p>
 
-            <p className="text-white font-semibold">
-              {event.eventType}
+            <p className="mt-1 break-words font-semibold text-white">
+              {event.eventType || "-"}
             </p>
 
           </div>
 
-          <div>
+          {/* Entity */}
 
-            <p className="text-slate-400 text-sm">
+          <div className="min-w-0">
+
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
               Entity
             </p>
 
-            <p className="text-white">
+            <p className="mt-1 break-words text-white">
               {event.entityType || "-"}
             </p>
 
           </div>
 
-          <div>
+          {/* Date */}
 
-            <p className="text-slate-400 text-sm">
+          <div className="min-w-0">
+
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
               Date
             </p>
 
-            <p className="text-white">
-              {new Date(event.createdAt).toLocaleString()}
+            <p className="mt-1 break-words text-sm text-white sm:text-base">
+              {formattedDate}
             </p>
 
           </div>
 
         </div>
 
-        <p className="text-red-400 text-sm mt-5">
+        <p className="mt-5 text-sm leading-6 text-red-400">
           This action cannot be undone.
         </p>
 
-        <div className="flex justify-end gap-3 mt-8">
+        {/* Buttons */}
+
+        <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-6 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-50"
+            className="w-full rounded-lg bg-slate-700 px-6 py-3 font-medium text-white transition hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Cancel
           </button>
@@ -79,9 +126,11 @@ export default function DeleteAnalyticsModal({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className="px-6 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold disabled:opacity-50"
+            className="w-full rounded-lg bg-red-600 px-6 py-3 font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
-            {loading ? "Deleting..." : "Delete"}
+            {loading
+              ? "Deleting..."
+              : "Delete Event"}
           </button>
 
         </div>
@@ -91,4 +140,3 @@ export default function DeleteAnalyticsModal({
     </div>
   );
 }
-
