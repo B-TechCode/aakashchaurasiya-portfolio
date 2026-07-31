@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaBell, FaUserCircle } from "react-icons/fa";
+import {
+  FaBell,
+  FaUserCircle,
+  FaBars,
+} from "react-icons/fa";
 
 import {
   fetchUnreadMessageCount,
@@ -8,7 +12,7 @@ import {
   readContactMessage,
 } from "../../services/contactService";
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick }) {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -149,18 +153,33 @@ export default function Topbar() {
   };
 
   return (
-    <header className="h-20 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-8">
-      <div>
-        <h2 className="text-2xl font-bold text-white">
-          Dashboard
-        </h2>
+    <header className="min-h-20 bg-slate-800 border-b border-slate-700 flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3">
+     <div className="flex items-center gap-3 min-w-0">
 
-        <p className="text-slate-400 text-sm">
-          Welcome back, Aakash
-        </p>
-      </div>
+  {/* Mobile Hamburger */}
 
-      <div className="flex items-center gap-6">
+  <button
+    type="button"
+    onClick={onMenuClick}
+    aria-label="Open admin menu"
+    className="lg:hidden flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-700 text-slate-200 transition hover:bg-cyan-600 hover:text-white"
+  >
+    <FaBars size={18} />
+  </button>
+
+  <div className="min-w-0">
+    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
+      Dashboard
+    </h2>
+
+    <p className="hidden sm:block text-slate-400 text-sm">
+      Welcome back, Aakash
+    </p>
+  </div>
+
+</div>
+
+     <div className="flex items-center gap-3 sm:gap-6 flex-shrink-0">
 
         {/* ================= Notification ================= */}
 
@@ -186,7 +205,7 @@ export default function Topbar() {
           {/* ================= Dropdown ================= */}
 
           {isOpen && (
-            <div className="absolute right-0 top-11 z-50 w-96 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl">
+            <div className="fixed left-4 right-4 top-20 z-50 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl sm:absolute sm:left-auto sm:right-0 sm:top-11 sm:w-96">
 
               {/* Header */}
 
@@ -299,21 +318,29 @@ export default function Topbar() {
         {/* ================= Admin ================= */}
 
         <div className="flex items-center gap-3">
-          <FaUserCircle
-            size={42}
-            className="text-cyan-400"
-          />
 
-          <div>
-            <h4 className="font-semibold text-white">
-              Aakash
-            </h4>
+  <FaUserCircle
+    size={36}
+    className="text-cyan-400 flex-shrink-0 sm:hidden"
+  />
 
-            <p className="text-sm text-slate-400">
-              Administrator
-            </p>
-          </div>
-        </div>
+  <FaUserCircle
+    size={42}
+    className="text-cyan-400 flex-shrink-0 hidden sm:block"
+  />
+
+  <div className="hidden sm:block">
+    <h4 className="font-semibold text-white">
+      Aakash
+    </h4>
+
+    <p className="text-sm text-slate-400">
+      Administrator
+    </p>
+  </div>
+
+</div>
+
 
       </div>
     </header>
