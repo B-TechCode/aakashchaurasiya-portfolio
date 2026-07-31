@@ -227,30 +227,65 @@ export default function Contact() {
               className="space-y-5"
             >
 
-              <input
-                name="name"
-                value={fields.name}
-                onChange={handleChange}
-                placeholder="Your Name"
-                className={inputClass("name")}
-              />
+             {/* Name */}
+<div>
+  <input
+    type="text"
+    name="name"
+    value={fields.name}
+    onChange={handleChange}
+    placeholder="Your Name"
+    className={inputClass("name")}
+    aria-invalid={!!errors.name}
+  />
 
-              <input
-                name="email"
-                value={fields.email}
-                onChange={handleChange}
-                placeholder="Email"
-                className={inputClass("email")}
-              />
+  {errors.name && (
+    <p className="mt-2 text-xs text-red-400 flex items-center gap-1">
+      <FiAlertCircle />
+      {errors.name}
+    </p>
+  )}
+</div>
 
-              <textarea
-                rows={5}
-                name="message"
-                value={fields.message}
-                onChange={handleChange}
-                placeholder="Your Message"
-                className={`${inputClass("message")} resize-none`}
-              />
+{/* Email */}
+<div>
+  <input
+    type="email"
+    name="email"
+    value={fields.email}
+    onChange={handleChange}
+    placeholder="Email"
+    className={inputClass("email")}
+    aria-invalid={!!errors.email}
+  />
+
+  {errors.email && (
+    <p className="mt-2 text-xs text-red-400 flex items-center gap-1">
+      <FiAlertCircle />
+      {errors.email}
+    </p>
+  )}
+</div>
+
+{/* Message */}
+<div>
+  <textarea
+    rows={5}
+    name="message"
+    value={fields.message}
+    onChange={handleChange}
+    placeholder="Your Message"
+    className={`${inputClass("message")} resize-none`}
+    aria-invalid={!!errors.message}
+  />
+
+  {errors.message && (
+    <p className="mt-2 text-xs text-red-400 flex items-center gap-1">
+      <FiAlertCircle />
+      {errors.message}
+    </p>
+  )}
+</div>
 
               <motion.button
                 type="submit"
